@@ -120,6 +120,7 @@ def track(matrix_coefficients, distortion_coefficients):
     markerTvecList = []
     markerRvecList = []
     composedRvec, composedTvec = None, None
+    counter = 0
     while True:
         ret, frame = cap.read(0)
         # operations on the frame come here
@@ -154,6 +155,11 @@ def track(matrix_coefficients, distortion_coefficients):
                     secondTvec = tvec
                     isSecondMarkerCalibrated = True
                     secondMarkerCorners = corners[i]
+                elif ids[i] == thirdMarkerID:
+                    thirdRvec = rvec
+                    thirdTvec = tvec
+                    isThirdMarkerCalibrated = True
+                    thirdMarkerCorners = corners[i]
 
                 # print(markerPoints)
                 (rvec - tvec).any()  # get rid of that nasty numpy value array error
@@ -166,6 +172,8 @@ def track(matrix_coefficients, distortion_coefficients):
                 info = cv2.composeRT(composedRvec, composedTvec, secondRvec.T, secondTvec.T)
                 TcomposedRvec, TcomposedTvec = info[0], info[1]
 
+                # print(TcomposedTvec)
+
                 objectPositions = np.array([(0, 0, 0)], dtype=np.float)  # 3D point for projection
                 imgpts, jac = cv2.projectPoints(axis, TcomposedRvec, TcomposedTvec, matrix_coefficients,
                                                 distortion_coefficients)
@@ -174,6 +182,28 @@ def track(matrix_coefficients, distortion_coefficients):
                 aruco.drawAxis(frame, matrix_coefficients, distortion_coefficients, TcomposedRvec, TcomposedTvec,
                                0.01)  # Draw Axis
                 relativePoint = (int(imgpts[0][0][0]), int(imgpts[0][0][1]))
+                if counter > 100:
+                    print("second vec = ",relativePoint)
+                cv2.circle(frame, relativePoint, 2, (255, 255, 0))
+
+                #third vector calculation---------------------------------------------------------------------------
+                info = cv2.composeRT(composedRvec2, composedTvec2, thirdRvec.T, thirdTvec.T)
+                TcomposedRvec, TcomposedTvec = info[0], info[1]
+
+                # print(TcomposedTvec)
+
+                objectPositions = np.array([(0, 0, 0)], dtype=np.float)  # 3D point for projection
+                imgpts, jac = cv2.projectPoints(axis, TcomposedRvec, TcomposedTvec, matrix_coefficients,
+                                                distortion_coefficients)
+
+                # frame = draw(frame, corners[0], imgpts)
+                aruco.drawAxis(frame, matrix_coefficients, distortion_coefficients, TcomposedRvec, TcomposedTvec,
+                               0.01)  # Draw Axis
+                relativePoint = (int(imgpts[0][0][0]), int(imgpts[0][0][1]))
+                if counter > 100:
+                    print("third vec = ", relativePoint)
+                    counter = 0
+                counter += 1
                 cv2.circle(frame, relativePoint, 2, (255, 255, 0))
 
 
@@ -188,8 +218,10 @@ def track(matrix_coefficients, distortion_coefficients):
             if len(ids) > 1:  # If there are two markers, reverse the second and get the difference
                 firstRvec, firstTvec = firstRvec.reshape((3, 1)), firstTvec.reshape((3, 1))
                 secondRvec, secondTvec = secondRvec.reshape((3, 1)), secondTvec.reshape((3, 1))
+                thirdRvec, thirdTvec = thirdRvec.reshape((3, 1)), thirdTvec.reshape((3, 1))
 
                 composedRvec, composedTvec = relativePosition(firstRvec, firstTvec, secondRvec, secondTvec)
+                composedRvec2, composedTvec2 = relativePosition(firstRvec, firstTvec, thirdRvec, thirdTvec)
 
     # When everything done, release the capture
     cap.release()
@@ -204,12 +236,15 @@ if __name__ == '__main__':
                         help='Marker ID for the first marker')
     parser.add_argument('--secondMarker', metavar='int', required=True,
                         help='Marker ID for the second marker')
+    parser.add_argument('--thirdMarker', metavar='int', required=True,
+                        help='Marker ID for the second marker')
 
 
     # Parse the arguments and take action for that.
     args = parser.parse_args()
     firstMarkerID = int(args.firstMarker)
     secondMarkerID = int(args.secondMarker)
+    thirdMarkerID = int(args.thirdMarker)
 
     if args.coefficients == '1':
         mtx, dist = loadCoefficients()
