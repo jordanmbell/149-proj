@@ -1,3 +1,4 @@
 eecs149VirtualLab/catkin_ws/devel
 eecs149VirtualLab/catkin_ws/build
 .vscode
+**/__pycache__/
