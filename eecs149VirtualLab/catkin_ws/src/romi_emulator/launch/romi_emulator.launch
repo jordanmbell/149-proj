@@ -1,0 +1,3 @@
+<launch>
+  <node name="romi_emulator" pkg="romi_emulator" type="romi_emulator"  output="screen" />
+</launch>

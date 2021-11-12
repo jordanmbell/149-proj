@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<sdf version="1.5">
+  <world name="basic_world">
+
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <include>
+      <uri>model://sun</uri>
+      <pose>6 3 3.7 0 0.4 2.5</pose>
+      <name>sun_0</name>
+    </include>
+
+  </world>
+</sdf>

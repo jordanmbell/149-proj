@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<sdf version="1.5">
+  <world name="basic_world">
+
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <include>
+      <uri>model://sun</uri>
+      <pose>0 0 3.7 0 0.4 2.5</pose>
+      <name>sun_0</name>
+    </include>
+
+    <include>
+      <uri>model://construction_cone</uri>
+      <pose>1.5 -7.655117950885444e-12 0 0 0 -1.5707963268</pose>
+      <name>construction_cone_1</name>
+    </include>
+
+    <include>
+      <uri>model://construction_cone</uri>
+      <pose>1.5000000000076552 1.4999999999923448 0 0 0 -1.5707963268</pose>
+      <name>construction_cone_2</name>
+    </include>
+
+    <include>
+      <uri>model://construction_cone</uri>
+      <pose>1.4999999999923448 -1.5000000000076552 0 0 0 -1.5707963268</pose>
+      <name>construction_cone_3</name>
+    </include>
+
+
+
+  </world>
+</sdf>

@@ -1,0 +1,87 @@
+Hill Climbing Simulation
+========================
+Contributors:	Victoria Tuck, Eddie Kim, Hazem Torfah, Bernard Chen
+========================
+
+Instructions:
+
+#1. First, setup the environment by executing the following command in the terminal from ~/eecs149VirtualLab :
+==> sudo bash setup/setup.sh 
+Note: password for sudo is "Scenicgazebo!"
+
+
+** Updating catkin_ws/src/romi_emulator/controller.c is the task for this lab.
+
+
+#2. Development Mode:
+If you are developing a controller and wishes to simply run your controller in gazebo simulator, execute the following command
+==> ./run_test.sh TEST_TYPE TEST_NUMBER
+(This command will compile & run your controller in gazebo)
+
+e.g. if you want to run obstacle avoidance test #1, (all the obstacle avoidance tests are in `tests_and_configs/ObsTests`, each test represents a new test environment)
+==> ./run_test.sh obs 1
+
+e.g. if you want to run ramp test #5, (all the ramp tests are in `tests_and_configs/RampTests`, each test represents a new test environment)
+==> ./run_test.sh ramp 5
+
+e.g. if you want to run empty world,
+==> ./run_test.sh empty     
+(Note: no need to provide test number for empty world)
+
+
+
+#3. Simulate Button Press
+After you execute Step #2, Open a new terminal, then execute
+==> rosrun romi_emulator button_press -s
+
+This simulates the button press, and starts the kobuki's controller
+You should see kobuki start moving immediately after executing this command
+
+
+
+#4. Test Mode:
+After you fully developed your controller code and wishes to test it, execute the following command:
+==> ./run_test_with_monitor.sh TEST_TYPE TEST_NUMBER
+(This command will compile & run your controller in gazebo)
+
+e.g. if you want to run ramp test #5, (all the ramp tests are in `tests_and_configs/RampTests`)
+==> ./run_test_with_monitor.sh ramp 5
+
+This command will run simulation the same way as in Step#2 and automatically execute button simulation, so no need to separately run Step#3 for testing. After the simulation is over, the script will automatically evaluate how your kobuki performed in the simulation by 
+monitoring over the log of kobuki trajectory, which is collected during simulation. 
+Then, it will output evaluation results and list out any violation of specifications as mentioned in your lab manual.
+
+
+
+
+Brief Description of Monitor Outputs:
+
+# ========================================= Geo-Fencing ==============================================
+ Monitor checks whether robot fell off the ramp. Monitor issues warning when the robot is too close the the edges of the ramp. Closeness is determined using a margin parameter. Monitor issues a violation when robot falls off the ramp. 
+
+# ==================================== Circle in place ===============================================
+ Monitor checks whether robot is circling in place. Monitor issues violation if robot is circling more than one time at beginning of run. Throughout simulation, monitor issues violation if robot does circle in place during climbing or after a cliff event.  
+
+# ======================================= Reach top ==================================================
+ Monitor checks whether robot reached top of the ramp within "timeout" seconds. Coordinates of robot have to be behind the line defining the beginning of the top of the ramp. 
+
+# ===================================== Return to bottom =============================================
+ Monitor checks if robot returns to bottom after reaching top of the ramp. Monitor issues violation if robot does not return to base of the ramp after reaching top within "timeout" seconds
+
+# ===================================== Rotate on cliff ==============================================
+ Monitor checks whether robot turns "turn_angle" degrees after cliff event
+
+# ===================================== Back off on cliff ============================================
+ Monitor checks whether robot backs off "cliff_margin" distance after cliff event
+
+# ===================================== Back off on bump  ============================================
+ Monitor checks whether robot backs off "bump_margin" distance after bump event 
+
+# ===================================== Rotate on bump ===============================================
+ Monitor checks whether robot turns "turn_angle" degrees after bump event
+
+# ===================================== Avoid obstacles ==============================================
+ Monitor checks, after bump, whether robot goes around an obstacle by passing it either on the right or left side whichever possible
+
+
+

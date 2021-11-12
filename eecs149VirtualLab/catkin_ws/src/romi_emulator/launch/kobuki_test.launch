@@ -1,0 +1,44 @@
+<!-- Launches Kobuki Gazebo simulation in an empty world -->
+
+
+<launch>
+  <arg name="world_file"  default="$(env TURTLEBOT_GAZEBO_WORLD_FILE)"/>
+
+  <!-- start Gazebo with an empty world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="use_sim_time" value="true"/>
+    <arg name="debug" value="false"/>
+    <arg name="world_name" value="$(arg world_file)"/>
+  </include>
+  
+  <!-- spawn the robot -->
+  <group ns="r1">
+    <include file="$(find romi_emulator)/launch/robot.launch.xml">
+      <arg name="robot_name"  value="Robot1" />
+      <arg name="x" value="0.0"/>
+      <arg name="y" value="0.0"/>
+      <arg name="z" value="0.5"/>
+    </include>
+    <include file="$(find romi_emulator)/launch/romi_emulator.launch" />
+  </group>
+
+  <group ns="r2">
+    <include file="$(find romi_emulator)/launch/robot.launch.xml">
+      <arg name="robot_name"  value="Robot2" />
+      <arg name="x" value="1.0"/>
+      <arg name="y" value="0.0"/>
+      <arg name="z" value="0.5"/>
+    </include>
+    <include file="$(find romi_emulator)/launch/romi_emulator.launch" />
+  </group>
+
+  <group ns="r3">
+    <include file="$(find romi_emulator)/launch/robot.launch.xml">
+      <arg name="robot_name"  value="Robot3" />
+      <arg name="x" value="0.0"/>
+      <arg name="y" value="1.0"/>
+      <arg name="z" value="0.5"/>
+    </include>
+    <include file="$(find romi_emulator)/launch/romi_emulator.launch" />
+  </group>
+</launch>
