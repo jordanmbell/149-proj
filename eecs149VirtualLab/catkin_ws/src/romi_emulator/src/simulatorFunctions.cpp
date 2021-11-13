@@ -3,6 +3,13 @@
 #include "ros/ros.h"
 #include <geometry_msgs/Twist.h>
 
+void kobukiPositionPoll(robot_position_t* positions) {
+  for (int i = 0; i < NUM_ROBOTS; i ++) {
+    (positions + i)->x_pos = pose_data[i].position.x;
+    (positions + i)->y_pos = pose_data[i].position.y;
+    (positions + i)->z_pos = pose_data[i].position.z;
+  }
+}
 
 void display_write(const char *format, display_line line) {
   printf("%s", format);

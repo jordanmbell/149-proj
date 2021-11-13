@@ -17,6 +17,12 @@ typedef struct{
 	bool	bumpRight;
 } KobukiBumps_WheelDrops_t;
 
+typedef struct {
+  double x_pos;
+  double y_pos;
+  double z_pos;
+} robot_position_t;
+
 /*
 typedef struct{
 	bool	B0;

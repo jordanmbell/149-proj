@@ -25,8 +25,8 @@
   <group ns="r2">
     <include file="$(find romi_emulator)/launch/robot.launch.xml">
       <arg name="robot_name"  value="Robot2" />
-      <arg name="x" value="1.0"/>
-      <arg name="y" value="0.0"/>
+      <arg name="x" value="0.0"/>
+      <arg name="y" value="1.0"/>
       <arg name="z" value="0.5"/>
     </include>
     <include file="$(find romi_emulator)/launch/romi_emulator.launch" />
@@ -36,7 +36,7 @@
     <include file="$(find romi_emulator)/launch/robot.launch.xml">
       <arg name="robot_name"  value="Robot3" />
       <arg name="x" value="0.0"/>
-      <arg name="y" value="1.0"/>
+      <arg name="y" value="2.0"/>
       <arg name="z" value="0.5"/>
     </include>
     <include file="$(find romi_emulator)/launch/romi_emulator.launch" />
