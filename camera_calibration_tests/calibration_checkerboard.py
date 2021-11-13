@@ -36,6 +36,7 @@ print(objp)
 objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
 
+#images = glob.glob('images_webcam_black_checkerboard/*.jpg')
 images = glob.glob('images/*.jpg')
 
 for fname in images:
