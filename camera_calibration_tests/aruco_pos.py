@@ -4,7 +4,9 @@ import cv2
 import cv2.aruco as aruco
 import glob
 import argparse
+import math
 
+aruco_marker_size = 0.1
 cap = cv2.VideoCapture(0)
 
 # termination criteria
@@ -21,13 +23,14 @@ def calibrate():
     objp[:, :2] = np.mgrid[0:9, 0:6].T.reshape(-1, 2)
 
     #adjusting object points
-    square_size = .0508
+    square_size = .0254
     objp = objp*square_size;
 
     # Arrays to store object points and image points from all the images.
     objpoints = []  # 3d point in real world space
     imgpoints = []  # 2d points in image plane.
 
+    # images = glob.glob('images_canon/*.jpg')
     images = glob.glob('images/*.png')
 
     for fname in images:
@@ -53,7 +56,8 @@ def calibrate():
 
 
 def saveCoefficients(mtx, dist):
-    cv_file = cv2.FileStorage("images/calibrationCoefficients.yaml", cv2.FILE_STORAGE_WRITE)
+    # cv_file = cv2.FileStorage("images_canon/calibrationCoefficients.yaml", cv2.FILE_STORAGE_WRITE)
+    cv_file = cv2.FileStorage("images/test.yaml", cv2.FILE_STORAGE_WRITE)
     cv_file.write("camera_matrix", mtx)
     cv_file.write("dist_coeff", dist)
     # note you *release* you don't close() a FileStorage object
@@ -62,6 +66,7 @@ def saveCoefficients(mtx, dist):
 
 def loadCoefficients():
     # FILE_STORAGE_READ
+    # cv_file = cv2.FileStorage("images_canon/calibrationCoefficients.yaml", cv2.FILE_STORAGE_READ)
     cv_file = cv2.FileStorage("images/test.yaml", cv2.FILE_STORAGE_READ)
 
     # note we also have to specify the type to retrieve other wise we only get a
@@ -142,7 +147,7 @@ def track(matrix_coefficients, distortion_coefficients):
             axis = np.float32([[-0.01, -0.01, 0], [-0.01, 0.01, 0], [0.01, -0.01, 0], [0.01, 0.01, 0]]).reshape(-1, 3)
             for i in range(0, len(ids)):  # Iterate in markers
                 # Estimate pose of each marker and return the values rvec and tvec---different from camera coefficients
-                rvec, tvec, markerPoints = aruco.estimatePoseSingleMarkers(corners[i], 0.02, matrix_coefficients,
+                rvec, tvec, markerPoints = aruco.estimatePoseSingleMarkers(corners[i], aruco_marker_size, matrix_coefficients,
                                                                            distortion_coefficients)
 
                 if ids[i] == firstMarkerID:
@@ -150,6 +155,12 @@ def track(matrix_coefficients, distortion_coefficients):
                     firstTvec = tvec
                     isFirstMarkerCalibrated = True
                     firstMarkerCorners = corners[i]
+                    # if counter > 100:
+                    #     # print("third vec = ", relativePoint)
+                    #     print(firstMarkerCorners)
+                    #     print()
+                    #     counter = 0
+                    # counter += 1
                 elif ids[i] == secondMarkerID:
                     secondRvec = rvec
                     secondTvec = tvec
@@ -172,9 +183,36 @@ def track(matrix_coefficients, distortion_coefficients):
                 info = cv2.composeRT(composedRvec, composedTvec, secondRvec.T, secondTvec.T)
                 TcomposedRvec, TcomposedTvec = info[0], info[1]
 
-                # print(TcomposedTvec)
+                # #distance calculation/print
+                # if counter > 100:
+                #     # print("third vec = ", relativePoint)
+                #     print()
+                #     print(coord_Tvec)
+                #     # print(firstTvec)
+                #     # print(secondTvec)
+                #     counter = 0
+                #
+                #     # x1 = firstTvec[0][0][0]
+                #     # y1 = firstTvec[0][0][1]
+                #     # z1 = firstTvec[0][0][2]
+                #     # x2 = secondTvec[0][0][0]
+                #     # y2 = secondTvec[0][0][1]
+                #     # z2 = secondTvec[0][0][2]
+                #     # dist = math.sqrt((x2 - x1)**2 + (y2 - y1)**2+ (z2 - z1)**2)
+                #     # print(dist)
+                #     # print("diff in x ", x2-x1)
+                #     # print("diff in y ", y2-y1)
+                # counter += 1
 
-                objectPositions = np.array([(0, 0, 0)], dtype=np.float)  # 3D point for projection
+
+                # objectPositions = np.array([(0, 0, 0)], dtype=np.float)  # 3D point for projection
+
+                # if counter > 100:
+                #     # print("third vec = ", relativePoint)
+                #     print(TcomposedTvec)
+                #     print()
+                #     counter = 0
+                # counter += 1
                 imgpts, jac = cv2.projectPoints(axis, TcomposedRvec, TcomposedTvec, matrix_coefficients,
                                                 distortion_coefficients)
 
@@ -182,8 +220,8 @@ def track(matrix_coefficients, distortion_coefficients):
                 aruco.drawAxis(frame, matrix_coefficients, distortion_coefficients, TcomposedRvec, TcomposedTvec,
                                0.01)  # Draw Axis
                 relativePoint = (int(imgpts[0][0][0]), int(imgpts[0][0][1]))
-                if counter > 100:
-                    print("second vec = ",relativePoint)
+                # if counter > 100:
+                #     print("second vec = ",relativePoint)
                 cv2.circle(frame, relativePoint, 2, (255, 255, 0))
 
                 #third vector calculation---------------------------------------------------------------------------
@@ -192,7 +230,7 @@ def track(matrix_coefficients, distortion_coefficients):
 
                 # print(TcomposedTvec)
 
-                objectPositions = np.array([(0, 0, 0)], dtype=np.float)  # 3D point for projection
+                # objectPositions = np.array([(0, 0, 0)], dtype=np.float)  # 3D point for projection
                 imgpts, jac = cv2.projectPoints(axis, TcomposedRvec, TcomposedTvec, matrix_coefficients,
                                                 distortion_coefficients)
 
@@ -200,10 +238,10 @@ def track(matrix_coefficients, distortion_coefficients):
                 aruco.drawAxis(frame, matrix_coefficients, distortion_coefficients, TcomposedRvec, TcomposedTvec,
                                0.01)  # Draw Axis
                 relativePoint = (int(imgpts[0][0][0]), int(imgpts[0][0][1]))
-                if counter > 100:
-                    print("third vec = ", relativePoint)
-                    counter = 0
-                counter += 1
+                # if counter > 100:
+                #     print("third vec = ", relativePoint)
+                #     counter = 0
+                # counter += 1
                 cv2.circle(frame, relativePoint, 2, (255, 255, 0))
 
 
@@ -222,6 +260,9 @@ def track(matrix_coefficients, distortion_coefficients):
 
                 composedRvec, composedTvec = relativePosition(firstRvec, firstTvec, secondRvec, secondTvec)
                 composedRvec2, composedTvec2 = relativePosition(firstRvec, firstTvec, thirdRvec, thirdTvec)
+
+                print("ComposedTvec of vec1", composedTvec)
+                print("ComposedTvec of vec2", composedTvec2)
 
     # When everything done, release the capture
     cap.release()
