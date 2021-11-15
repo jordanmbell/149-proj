@@ -28,7 +28,7 @@ extern float prev_time;
 extern bool integrateGyro;
 extern bool monitors;
 
-#define NUM_ROBOTS 3
+#define NUM_ROBOTS 4
 #define POSE_UPDATE_HZ 10
 extern geometry_msgs::Pose recent_poses[NUM_ROBOTS];
 extern geometry_msgs::Pose pose_data[NUM_ROBOTS];

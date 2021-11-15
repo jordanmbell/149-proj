@@ -142,6 +142,10 @@ void processR3(const nav_msgs::Odometry& data) {
   recent_poses[2] = data.pose.pose;
 }
 
+void processR4(const nav_msgs::Odometry& data) {
+  recent_poses[3] = data.pose.pose;
+}
+
 void updatePoseData(const ros::TimerEvent&) {
   for (int i = 0; i < NUM_ROBOTS; ++i) {
     pose_data[i] = recent_poses[i];
@@ -166,6 +170,7 @@ int main(int argc, char **argv)
   ros::Subscriber pos1 = n.subscribe("/r1/odom", 1, &processR1);
   ros::Subscriber pos2 = n.subscribe("/r2/odom", 1, &processR2);
   ros::Subscriber pos3 = n.subscribe("/r3/odom", 1, &processR3);
+  ros::Subscriber pos4 = n.subscribe("/r4/odom", 1, &processR4);
   ros::Timer timer1 = n.createTimer(ros::Duration(1.0f / POSE_UPDATE_HZ), updatePoseData);
   std::string ns = ros::this_node::getNamespace();
 

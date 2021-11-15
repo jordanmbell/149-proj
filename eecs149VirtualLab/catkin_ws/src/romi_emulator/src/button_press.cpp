@@ -16,10 +16,12 @@ int main(int argc, char **argv)
   ros::NodeHandle n("r1");
   ros::NodeHandle n2("r2");
   ros::NodeHandle n3("r3");
+  ros::NodeHandle n4("r4");
   // ros::NodeHandle n;
   ros::Publisher button_pub = n.advertise<std_msgs::Bool>("button_press", 1000);
   ros::Publisher button_pub_2 = n2.advertise<std_msgs::Bool>("button_press", 1000);
   ros::Publisher button_pub_3 = n3.advertise<std_msgs::Bool>("button_press", 1000);
+  ros::Publisher button_pub_4 = n4.advertise<std_msgs::Bool>("button_press", 1000);
 
   std_msgs::Bool press;
 
@@ -45,7 +47,7 @@ int main(int argc, char **argv)
   // Otherwise take user input
   while (ros::ok())
   {
-    std::cout << "Press 1-3 to send a Kobuki button press to the corresponding robot\n";
+    std::cout << "Press 1-4 to send a Kobuki button press to the corresponding robot\n";
 
     // Wait for 'Enter' key press
     char robot_num;
@@ -59,6 +61,9 @@ int main(int argc, char **argv)
     } else if (robot_num == '3') {
       press.data = true;
       button_pub_3.publish(press);
+    } else if (robot_num == '4') {
+      press.data = true;
+      button_pub_4.publish(press);
     } else {
       std::cout << "Invalid key";
     }

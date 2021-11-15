@@ -2,6 +2,8 @@
 #include "globals.h"
 #include "ros/ros.h"
 #include <geometry_msgs/Twist.h>
+#define wheel_distance 0.15
+
 
 void kobukiPositionPoll(robot_position_t* positions) {
   for (int i = 0; i < NUM_ROBOTS; i ++) {
@@ -67,20 +69,18 @@ lsm9ds1_measurement_t lsm9ds1_read_gyro_integration() {
 // Currently does not support driving with wheel speeds set to different values
 // If you implement driving with different wheel speeds, you will also need to
 // account for different left/right encoder values
-int32_t kobukiDriveDirect(int16_t leftWheelSpeed, int16_t rightWheelSpeed) {
+int32_t kobukiDriveDirect(float leftWheelSpeed, float rightWheelSpeed, float set_radius) {
   float CmdSpeed;
   float CmdAngular;
-
   CmdSpeed = ((leftWheelSpeed + rightWheelSpeed) / 2.0) / 1000.0;
-
-  if (rightWheelSpeed == leftWheelSpeed) {
-    CmdAngular = 0;
+  if (set_radius == 0) {
+    CmdAngular = 2*rightWheelSpeed/wheel_distance;
   } else if (rightWheelSpeed > leftWheelSpeed) {
-  	CmdSpeed = 0;
-    CmdAngular = 1;
+    CmdAngular = CmdSpeed/set_radius;
+  } else if (rightWheelSpeed == leftWheelSpeed) {
+    CmdAngular = 0;
   } else {
-  	CmdSpeed = 0;
-    CmdAngular = -1;
+    CmdAngular = -CmdSpeed/set_radius;
   }
 
   geometry_msgs::Twist twist;
