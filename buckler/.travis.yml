@@ -1,0 +1,19 @@
+sudo: required
+language: c
+
+os: linux
+dist: bionic
+
+env:
+  - APPS_DIR=software/apps
+
+install:
+  - sudo add-apt-repository ppa:team-gcc-arm-embedded/ppa -y
+  - sudo apt update
+  - sudo apt install gcc-arm-embedded -y
+
+jobs:
+  include:
+    - stage: "build"
+      script:
+      - .travis/build_dir.sh
