@@ -4,7 +4,8 @@
 extern "C"
 {
 #endif
-void kobukiPositionPoll(robot_position_t* positions);
+void globalPositionPoll(robot_position_t* positions);
+void globalAnglesPoll(double* angles);
 void display_write(const char *format, display_line line);
 lsm9ds1_measurement_t lsm9ds1_read_accelerometer();
 void kobukiSensorPoll(KobukiSensors_t * const sensors);

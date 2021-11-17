@@ -1,18 +1,67 @@
 #include "controller.h"
+
 #include <math.h>
 #include <stdio.h>
 
 #define SIMULATION true
-#define POSE_UPDATE_HZ 10
 #define wheel_distance 0.15
 #define NUM_ROBOTS 4
 
 #if SIMULATION
 #include "simulatorFunctions.h"
 #else
-#include "kobukiSensorTypes.h"
 #include "display.h"
+#include "kobukiSensorTypes.h"
 #endif
+
+// Return distance traveled between two encoder values
+static float get_distance(uint16_t current_encoder, uint16_t prev_encoder) {
+  const float CONVERSION = 0.0006108;
+  int32_t diff;
+  float distance;
+
+  if (current_encoder < prev_encoder) {
+    diff = (1 << 16) + current_encoder - prev_encoder;
+  } else {
+    diff = current_encoder - prev_encoder;
+  }
+
+  // diff = (int32_t) current_encoder - (int32_t) prev_encoder;
+
+  distance = diff * CONVERSION;
+  return distance;
+}
+
+// Return true if a cliff has been seen
+// Save information about which cliff
+static bool check_and_save_bump(KobukiSensors_t* sensors,
+                                bool* obstacle_is_right) {
+  // Your code here
+}
+
+// Return true if a cliff has been seen
+// Save information about which cliff
+static bool check_cliff(KobukiSensors_t* sensors, bool* cliff_is_right) {
+  if (sensors->cliffLeft || sensors->cliffRight || sensors->cliffCenter) {
+    if (sensors->cliffRight && cliff_is_right != NULL) {
+      *(cliff_is_right) = true;
+    } else {
+      *(cliff_is_right) = false;
+    }
+    return true;
+  }
+  return false;
+}
+
+// Read accelerometer value and calculate and return tilt (along axis
+// corresponding to climbing the hill)
+static float read_tilt() {
+  // Your code here
+  lsm9ds1_measurement_t angles = lsm9ds1_read_accelerometer();
+  return atan(angles.y_axis / sqrt((angles.x_axis * angles.x_axis) +
+                                   (angles.z_axis * angles.z_axis))) *
+         180 / M_PI;
+}
 
 // Configure initial state
 KobukiSensors_t sensors = {0};
@@ -49,77 +98,23 @@ uint16_t LOC[20];
 float radius[20];
 float speed_mat[20];
 
-
 // You may need to add additional variables to keep track of state here
-
-// Return distance traveled between two encoder values
-static float get_distance(uint16_t current_encoder, uint16_t prev_encoder) {
-    const float CONVERSION = 0.0006108;
-    int32_t diff;
-    float distance;    
-
-    if (current_encoder < prev_encoder) {
-        diff = (1 << 16) + current_encoder - prev_encoder;
-    }
-    else {
-        diff = current_encoder - prev_encoder;
-    }
-
-    // diff = (int32_t) current_encoder - (int32_t) prev_encoder;
-
-    distance = diff * CONVERSION;
-    return distance;
-}
-
-// Return true if a cliff has been seen
-// Save information about which cliff
-static bool check_and_save_bump(KobukiSensors_t* sensors, bool* obstacle_is_right) {
-  // Your code here
-}
-
-// Return true if a cliff has been seen
-// Save information about which cliff
-static bool check_cliff(KobukiSensors_t* sensors, bool* cliff_is_right) {
-    if (sensors->cliffLeft || sensors->cliffRight || sensors->cliffCenter) {
-        if (sensors->cliffRight && cliff_is_right != NULL) {
-            *(cliff_is_right) = true;
-        } else {
-            *(cliff_is_right) = false;
-        }
-    return true;
-}
-return false;
-}
-
-// Read accelerometer value and calculate and return tilt (along axis corresponding to climbing the hill)
-static float read_tilt() {
-    // Your code here
-    lsm9ds1_measurement_t angles = lsm9ds1_read_accelerometer();
-    return atan(angles.y_axis / sqrt((angles.x_axis * angles.x_axis) + (angles.z_axis * angles.z_axis))) * 180 / M_PI;
-}
-
 uint16_t prev_encoder = 0;
 int robot_num = -1;
 int timer = 0;
+double robot_angles[NUM_ROBOTS];
 
 // Robot controller
 // State machine running on robot_state_t state
 // This is called in a while loop
-
-
-
-
-
-
 robot_state_t controller(robot_state_t state) {
+  kobukiSensorPoll(&sensors);
+  globalPositionPoll(robot_positions);
+  globalAnglesPoll(robot_angles);
+  float tilt = read_tilt();
 
-    kobukiSensorPoll(&sensors);
-    kobukiPositionPoll(robot_positions);
-    float tilt = read_tilt();
-
-    // handle states
-    switch(state) {
-
+  // handle states
+  switch (state) {
     case OFF: {
         // transition logic
         if (is_button_pressed(&sensors)) {
@@ -393,8 +388,6 @@ printf("0 is at com:%f, RAD:%f, spd:%f \n", command[0], radius[0],  speed_mat[0]
         }
         break; // each case needs to end with break!
     }
-
-    }
+  }
     return state;
 }
-
