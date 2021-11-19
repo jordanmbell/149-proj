@@ -4,6 +4,9 @@
 extern "C"
 {
 #endif
+double waitForServerTime();
+double waitForServerResponse(double* t_3e);
+double currentTime();
 void globalPositionPoll(robot_position_t* positions);
 void globalAnglesPoll(double* angles);
 void display_write(const char *format, display_line line);

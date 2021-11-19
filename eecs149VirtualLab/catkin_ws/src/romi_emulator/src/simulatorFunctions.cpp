@@ -7,6 +7,32 @@
 #include "globals.h"
 #include "ros/ros.h"
 
+// Offsets to help force syncronization
+double timer_offsets[] = {143223, 3000, -500, 0};
+double sync_offsets[] = {123, 55, 3000, 1249};
+
+int robot_num() { return (ros::this_node::getName().at(5) - '0') - 1; }
+
+// Waits for the server to send its time
+double waitForServerTime() {
+  while (ros::Time::now().toSec() == 0) continue;
+  double return_time = ros::Time::now().toSec() - sync_offsets[robot_num()];
+  return return_time;
+}
+
+// Retrieves the current time from the server once connection has been made,
+// setting the send time as well.
+double waitForServerResponse(double* t_3e) {
+  *t_3e = currentTime();
+  double return_time = ros::Time::now().toSec() + sync_offsets[robot_num()];
+}
+
+// Returns the current time in seconds, adding in an offset to require
+// syncronization
+double currentTime() {
+  return ros::Time::now().toSec() + timer_offsets[robot_num()];
+}
+
 void globalPositionPoll(robot_position_t* positions) {
   for (int i = 0; i < NUM_ROBOTS; i++) {
     (positions + i)->x_pos = pose_data[i].position.x;
