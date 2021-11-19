@@ -117,6 +117,8 @@ int robot_num = -1;
 int timer = 0;
 double robot_angles[NUM_ROBOTS];
 
+double last_clock_time = 0;
+
 // Robot controller
 // State machine running on robot_state_t state
 // This is called in a while loop
@@ -155,7 +157,7 @@ robot_state_t controller(robot_state_t state) {
       if (is_button_pressed(&sensors)) {
         robot_num += 1;
       } else if (timer <= 0) {
-        state = START;
+        state = PENDING;
         counter = 0;
         initial_encoder = sensors.rightWheelEncoder;
         measure_distance_or_angle = 0;
@@ -262,8 +264,14 @@ robot_state_t controller(robot_state_t state) {
         initial_encoder = sensors.rightWheelEncoder;
         measure_distance_or_angle = 0;
       } else {
-        display_write("PENDING", DISPLAY_LINE_0);
-        printf("\n");
+        // display_write("PENDING", DISPLAY_LINE_0);
+        // printf("\n");
+
+        if (server_time > last_clock_time) {
+          printf("Robot %d thinks it is %f\n", robot_num, server_time);
+          last_clock_time += 5;
+        }
+
         state = PENDING;
         // perform state-specific actions here
         kobukiDriveDirect(0, 0, -1);
