@@ -74,6 +74,77 @@ static double estimate_clock_error() {
   return (t_2e) - (t_1 + RTT / 2);
 }
 
+static uint16_t new_command_length(uint16_t LOC_ORI[], uint16_t max_count) {
+    // Your code here
+    uint16_t changed_counter = 0;
+    uint16_t i;
+    for (i = 0; i < max_count; i++){
+        if (LOC_ORI[i] == 1 || LOC_ORI[i] == 2)changed_counter ++;
+    }
+    return changed_counter*2 + max_count;
+}
+
+static uint16_t translate_command(uint16_t LOC_ORI[],float center_command[],float command[],uint16_t LOC[],float radius[],float speed_mat[],float set_speed,uint16_t max_count, float relative_location_x, float relative_location_y, float set_radius, float time_constant,float set_turn_speed, uint16_t m) {
+    //translate original command into a command list with preturn/afterturn
+    uint16_t i;
+    uint16_t j=0;
+    for (i = 0; i < max_count; i++){
+    if (LOC_ORI[i] == 0){
+        command[j] = center_command[i];
+        LOC[j] = LOC_ORI[i];
+        radius[j] = -1;
+        speed_mat[j] = set_speed;
+        j++;
+    } else if (LOC_ORI[i] == 2){
+        command[j] = atan(relative_location_y/(set_radius-relative_location_x))/3.14159265358979328626*180;
+        LOC[j] = LOC_ORI[i];
+        radius[j] = 0;
+        speed_mat[j] = atan(relative_location_y/(set_radius-relative_location_x))/time_constant/2*wheel_distance;
+        j++;
+
+        command[j] = center_command[i];
+        LOC[j] = LOC_ORI[i];
+        radius[j] = set_radius;
+        speed_mat[j] = set_turn_speed;
+        j++;
+
+        command[j] = atan(relative_location_y/(set_radius-relative_location_x))/3.14159265358979328626*180;
+        LOC[j] = 3-LOC_ORI[i];
+        radius[j] = 0;
+        speed_mat[j] = atan(relative_location_y/(set_radius-relative_location_x))/time_constant/2*wheel_distance;
+        j++;
+    } else if (LOC_ORI[i] == 1){
+        command[j] = atan(relative_location_y/(set_radius+relative_location_x))/3.14159265358979328626*180;
+        LOC[j] = LOC_ORI[i];
+        radius[j] = 0;
+        speed_mat[j] = atan(relative_location_y/(set_radius+relative_location_x))/time_constant/2*wheel_distance;
+        j++;
+
+        command[j] = center_command[i];
+        LOC[j] = LOC_ORI[i];
+        radius[j] = set_radius;
+        speed_mat[j] = set_turn_speed;
+        j++;
+
+        command[j] = atan(relative_location_y/(set_radius+relative_location_x))/3.14159265358979328626*180;
+        LOC[j] = 3-LOC_ORI[i];
+        radius[j] = 0;
+        speed_mat[j] = atan(relative_location_y/(set_radius+relative_location_x))/time_constant/2*wheel_distance;
+        j++;
+    }
+	}
+    LOC[j] = 9;
+
+    for (j = 0; j < m; j++){
+		if(command[j]<0){
+            command[j]= -command[j];
+            LOC[j] = 3 - LOC[j];
+            speed_mat[j] = -speed_mat[j];
+		}
+        }
+    return 0;
+}
+
 // Configure initial state
 KobukiSensors_t sensors = {0};
 robot_position_t robot_positions[NUM_ROBOTS];
@@ -138,13 +209,7 @@ robot_state_t controller(robot_state_t state) {
         clock_error = estimate_clock_error();
         state = GETTING_NUM;
         timer = 50;
-        changed_counter = 0;
-        for (i = 0; i < max_count; i++) {
-          if (LOC_ORI[i] == 1 || LOC_ORI[i] == 2) {
-            changed_counter++;
-          }
-        }
-        m = changed_counter * 2 + max_count;
+        m = new_command_length(LOC_ORI,max_count);
       } else {
         state = OFF;
         // perform state-specific actions here
@@ -165,86 +230,9 @@ robot_state_t controller(robot_state_t state) {
 
         relative_location_x = xinit[robot_num];
         relative_location_y = yinit[robot_num];
-        printf("Robot %d is at x: %f, y: %f \n", robot_num, relative_location_x,
-               relative_location_y);
-        j = 0;
-        for (i = 0; i < max_count; i++) {
-          if (LOC_ORI[i] == 0) {
-            command[j] = center_command[i];
-            LOC[j] = LOC_ORI[i];
-            radius[j] = -1;
-            speed_mat[j] = set_speed;
-            j++;
-          } else if (LOC_ORI[i] == 2) {
-            command[j] =
-                atan(relative_location_y / (set_radius - relative_location_x)) /
-                3.14159265358979328626 * 180;
-            LOC[j] = LOC_ORI[i];
-            radius[j] = 0;
-            speed_mat[j] =
-                atan(relative_location_y / (set_radius - relative_location_x)) /
-                time_constant / 2 * wheel_distance;
-            j++;
-
-            command[j] = center_command[i];
-            LOC[j] = LOC_ORI[i];
-            radius[j] = set_radius;
-            speed_mat[j] = set_turn_speed;
-            j++;
-
-            command[j] =
-                atan(relative_location_y / (set_radius - relative_location_x)) /
-                3.14159265358979328626 * 180;
-            LOC[j] = 3 - LOC_ORI[i];
-            radius[j] = 0;
-            speed_mat[j] =
-                atan(relative_location_y / (set_radius - relative_location_x)) /
-                time_constant / 2 * wheel_distance;
-            j++;
-          } else if (LOC_ORI[i] == 1) {
-            command[j] =
-                atan(relative_location_y / (set_radius + relative_location_x)) /
-                3.14159265358979328626 * 180;
-            LOC[j] = LOC_ORI[i];
-            radius[j] = 0;
-            speed_mat[j] =
-                atan(relative_location_y / (set_radius + relative_location_x)) /
-                time_constant / 2 * wheel_distance;
-            j++;
-
-            command[j] = center_command[i];
-            LOC[j] = LOC_ORI[i];
-            radius[j] = set_radius;
-            speed_mat[j] = set_turn_speed;
-            j++;
-
-            command[j] =
-                atan(relative_location_y / (set_radius + relative_location_x)) /
-                3.14159265358979328626 * 180;
-            LOC[j] = 3 - LOC_ORI[i];
-            radius[j] = 0;
-            speed_mat[j] =
-                atan(relative_location_y / (set_radius + relative_location_x)) /
-                time_constant / 2 * wheel_distance;
-            j++;
-          }
-        }
-        LOC[j] = 9;
-
-        for (j = 0; j < m; j++) {
-          if (command[j] < 0) {
-            command[j] = -command[j];
-            LOC[j] = 3 - LOC[j];
-            speed_mat[j] = -speed_mat[j];
-          }
-        }
-
-        //	for (j = 0; j < m; j++)
-        //	    {
-        //		printf("Robot %d is at com:%f, LOC:%i, RAD:%f, spd:%f ",
-        // robot_num, command[j],  LOC[j], radius[j], speed_mat[j]);
-        //	    }
-
+        printf("Robot %d is at x: %f, y: %f \n", robot_num, relative_location_x,relative_location_y);
+        translate_command(LOC_ORI,center_command,command,LOC,radius,speed_mat,set_speed,max_count,relative_location_x,relative_location_y,set_radius,time_constant,set_turn_speed,m);//translate original command into a command list with preturn/afterturn
+        for (j = 0; j < m; j++)printf("Robot %d is at com:%f, LOC:%i, RAD:%f, spd:%f \n", robot_num, command[j],  LOC[j], radius[j], speed_mat[j]);
       } else {
         timer -= 1;
         if (timer % 10 == 0) {
@@ -276,77 +264,61 @@ robot_state_t controller(robot_state_t state) {
         // perform state-specific actions here
         kobukiDriveDirect(0, 0, -1);
       }
+      if(server_time >= 30)state = START;
       break;  // each case needs to end with break!
     }
 
     case START: {
-      // transition logic
-      if (counter >= m) {
+        // transition logic
+    if (counter >= m){
         state = PENDING;
         counter = 0;
-      } else if (LOC[counter] == 1) {
-        state = LEADER_TURNLEFT;
+    } else {
+        if (LOC[counter] == 1){
+            state = LEADER_TURNLEFT;
+            lsm9ds1_start_gyro_integration();
+            printf("1 is at com:%f, RAD:%f, spd:%f \n", set_distance_or_angle, rad,  spd);
+        } else if (LOC[counter] == 0){
+            state = LEADER_FORWARD;
+            printf("0 is at com:%f, RAD:%f, spd:%f \n", set_distance_or_angle, rad,  spd);
+        } else if (LOC[counter] == 2){
+            state = LEADER_TURNRIGHT;
+            lsm9ds1_start_gyro_integration();
+            printf("2 is at com:%f, RAD:%f, spd:%f \n", set_distance_or_angle, rad,  spd);
+        }
         next_state = START;
         measure_distance_or_angle = 0;
         set_distance_or_angle = command[counter];
         rad = radius[counter];
         spd = speed_mat[counter];
         initial_encoder = sensors.rightWheelEncoder;
-        lsm9ds1_start_gyro_integration();
-        counter = counter + 1;
-        printf("1 is at com:%f, RAD:%f, spd:%f \n", set_distance_or_angle, rad,
-               spd);
-      } else if (LOC[counter] == 0) {
-        state = LEADER_FORWARD;
-        next_state = START;
-        measure_distance_or_angle = 0;
-        set_distance_or_angle = command[counter];
-        rad = radius[counter];
-        spd = speed_mat[counter];
-        printf("0 is at com:%f, RAD:%f, spd:%f \n", command[0], radius[0],
-               speed_mat[0]);
-        initial_encoder = sensors.rightWheelEncoder;
-        counter = counter + 1;
-        printf("0 is at com:%f, RAD:%f, spd:%f \n", set_distance_or_angle, rad,
-               spd);
-      } else if (LOC[counter] == 2) {
-        state = LEADER_TURNRIGHT;
-        next_state = START;
-        measure_distance_or_angle = 0;
-        set_distance_or_angle = command[counter];
-        rad = radius[counter];
-        spd = speed_mat[counter];
-        initial_encoder = sensors.rightWheelEncoder;
-        lsm9ds1_start_gyro_integration();
-        counter = counter + 1;
-        printf("2 is at com:%f, RAD:%f, spd:%f \n", set_distance_or_angle, rad,
-               spd);
-      }
-      break;  // each case needs to end with break!
+        counter += 1;
+    }
+    break; // each case needs to end with break!
     }
 
     case LEADER_FORWARD: {
       // variable: set_speed, set_distance_or_angle, next_state, rad, spd
       //  transition logic
-      if (is_button_pressed(&sensors)) {
-        state = PENDING;
-      } else if (measure_distance_or_angle >= set_distance_or_angle) {
-        state = next_state;
-        kobukiDriveDirect(0, 0, -1);
-        measure_distance_or_angle = 0;
-        initial_encoder = sensors.rightWheelEncoder;
-        lsm9ds1_stop_gyro_integration();
-      } else {
-        display_write("LEADER_FORWARD", DISPLAY_LINE_0);
-        kobukiDriveDirect(spd, spd, -1);
-        measure_distance_or_angle =
-            get_distance(sensors.rightWheelEncoder, initial_encoder);
-        char line[16];
-        snprintf(line, 16, "%f", measure_distance_or_angle);
-        display_write(line, DISPLAY_LINE_1);
-        printf("\n");
-      }
-      break;  // each case needs to end with break!
+        if (is_button_pressed(&sensors)) {
+            state = PENDING;
+        } else if (measure_distance_or_angle >= set_distance_or_angle) {
+            state = next_state;
+            kobukiDriveDirect(0, 0, -1);
+            measure_distance_or_angle = 0;
+            initial_encoder = sensors.rightWheelEncoder;
+            lsm9ds1_stop_gyro_integration();
+        } else {
+            display_write("LEADER_FORWARD", DISPLAY_LINE_0);
+            kobukiDriveDirect(spd, spd, -1);
+            measure_distance_or_angle =
+                get_distance(sensors.rightWheelEncoder, initial_encoder);
+            char line[16];
+            snprintf(line, 16, "%f", measure_distance_or_angle);
+            display_write(line, DISPLAY_LINE_1);
+            printf("\n");
+        }
+        break;  // each case needs to end with break!
     }
 
     case LEADER_TURNLEFT: {
@@ -354,47 +326,47 @@ robot_state_t controller(robot_state_t state) {
       // rad, spd
       //  transition logic
 
-      if (is_button_pressed(&sensors)) {
-        state = PENDING;
-        lsm9ds1_stop_gyro_integration();
-      } else if (measure_distance_or_angle >= set_distance_or_angle) {
-        state = next_state;
-        kobukiDriveDirect(0, 0, -1);
-        measure_distance_or_angle = 0;
-        initial_encoder = sensors.rightWheelEncoder;
-        lsm9ds1_stop_gyro_integration();
-      } else {
-        display_write("LEADER_TURNLEFT", DISPLAY_LINE_0);
-        if (rad != 0) {
-          v1 = spd / rad *
-               (sqrt(pow(relative_location_y, 2) +
-                     pow(rad + relative_location_x, 2)) -
-                0.5 * wheel_distance);
-          v2 = spd / rad *
-               (sqrt(pow(relative_location_y, 2) +
-                     pow(rad + relative_location_x, 2)) +
-                0.5 * wheel_distance);
-          kobukiDriveDirect(v1, v2,
-                            sqrt(pow(rad + relative_location_x, 2) +
-                                 pow(relative_location_y, 2)));
-          lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
-          measure_distance_or_angle = meas.z_axis;
-          char line[16];
-          snprintf(line, 16, "%f", measure_distance_or_angle);
-          display_write(line, DISPLAY_LINE_1);
-          printf("\n");
+        if (is_button_pressed(&sensors)) {
+            state = PENDING;
+            lsm9ds1_stop_gyro_integration();
+        } else if (measure_distance_or_angle >= set_distance_or_angle) {
+            state = next_state;
+            kobukiDriveDirect(0, 0, -1);
+            measure_distance_or_angle = 0;
+            initial_encoder = sensors.rightWheelEncoder;
+            lsm9ds1_stop_gyro_integration();
         } else {
-          v1 = -spd;
-          v2 = spd;
-          kobukiDriveDirect(v1, v2, rad);
-          lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
-          measure_distance_or_angle = meas.z_axis;
-          char line[16];
-          snprintf(line, 16, "%f", measure_distance_or_angle);
-          display_write(line, DISPLAY_LINE_1);
-          printf("\n");
+            display_write("LEADER_TURNLEFT", DISPLAY_LINE_0);
+            if (rad != 0) {
+            v1 = spd / rad *
+                (sqrt(pow(relative_location_y, 2) +
+                        pow(rad + relative_location_x, 2)) -
+                    0.5 * wheel_distance);
+            v2 = spd / rad *
+                (sqrt(pow(relative_location_y, 2) +
+                        pow(rad + relative_location_x, 2)) +
+                    0.5 * wheel_distance);
+            kobukiDriveDirect(v1, v2,
+                                sqrt(pow(rad + relative_location_x, 2) +
+                                    pow(relative_location_y, 2)));
+            lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
+            measure_distance_or_angle = meas.z_axis;
+            char line[16];
+            snprintf(line, 16, "%f", measure_distance_or_angle);
+            display_write(line, DISPLAY_LINE_1);
+            printf("\n");
+            } else {
+            v1 = -spd;
+            v2 = spd;
+            kobukiDriveDirect(v1, v2, rad);
+            lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
+            measure_distance_or_angle = meas.z_axis;
+            char line[16];
+            snprintf(line, 16, "%f", measure_distance_or_angle);
+            display_write(line, DISPLAY_LINE_1);
+            printf("\n");
+            }
         }
-      }
 
       break;  // each case needs to end with break!
     }
@@ -403,49 +375,49 @@ robot_state_t controller(robot_state_t state) {
       // variable: set_speed, set_distance_or_angle, set_radius, next_state,
       // rad, spd
       //  transition logic
-      if (is_button_pressed(&sensors)) {
-        state = PENDING;
-        lsm9ds1_stop_gyro_integration();
-      } else if (measure_distance_or_angle <= -set_distance_or_angle) {
-        state = next_state;
-        kobukiDriveDirect(0, 0, -1);
-        measure_distance_or_angle = 0;
-        initial_encoder = sensors.rightWheelEncoder;
-        lsm9ds1_stop_gyro_integration();
-      } else {
-        display_write("LEADER_TURNRIGHT", DISPLAY_LINE_0);
-        if (rad != 0) {
-          v1 = spd / rad *
-               (sqrt(pow(relative_location_y, 2) +
-                     pow(rad - relative_location_x, 2)) +
-                0.5 * wheel_distance);
-          v2 = spd / rad *
-               (sqrt(pow(relative_location_y, 2) +
-                     pow(rad - relative_location_x, 2)) -
-                0.5 * wheel_distance);
-          kobukiDriveDirect(v1, v2,
-                            sqrt(pow(rad - relative_location_x, 2) +
-                                 pow(relative_location_y, 2)));
-          lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
-          measure_distance_or_angle = meas.z_axis;
-          char line[16];
-          snprintf(line, 16, "%f", measure_distance_or_angle);
-          display_write(line, DISPLAY_LINE_1);
-          printf("\n");
+        if (is_button_pressed(&sensors)) {
+            state = PENDING;
+            lsm9ds1_stop_gyro_integration();
+        } else if (measure_distance_or_angle <= -set_distance_or_angle) {
+            state = next_state;
+            kobukiDriveDirect(0, 0, -1);
+            measure_distance_or_angle = 0;
+            initial_encoder = sensors.rightWheelEncoder;
+            lsm9ds1_stop_gyro_integration();
         } else {
-          v1 = spd;
-          v2 = -spd;
-          kobukiDriveDirect(v1, v2, rad);
-          lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
-          measure_distance_or_angle = meas.z_axis;
-          char line[16];
-          snprintf(line, 16, "%f", measure_distance_or_angle);
-          display_write(line, DISPLAY_LINE_1);
-          printf("\n");
+            display_write("LEADER_TURNRIGHT", DISPLAY_LINE_0);
+            if (rad != 0) {
+            v1 = spd / rad *
+                (sqrt(pow(relative_location_y, 2) +
+                        pow(rad - relative_location_x, 2)) +
+                    0.5 * wheel_distance);
+            v2 = spd / rad *
+                (sqrt(pow(relative_location_y, 2) +
+                        pow(rad - relative_location_x, 2)) -
+                    0.5 * wheel_distance);
+            kobukiDriveDirect(v1, v2,
+                                sqrt(pow(rad - relative_location_x, 2) +
+                                    pow(relative_location_y, 2)));
+            lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
+            measure_distance_or_angle = meas.z_axis;
+            char line[16];
+            snprintf(line, 16, "%f", measure_distance_or_angle);
+            display_write(line, DISPLAY_LINE_1);
+            printf("\n");
+            } else {
+            v1 = spd;
+            v2 = -spd;
+            kobukiDriveDirect(v1, v2, rad);
+            lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
+            measure_distance_or_angle = meas.z_axis;
+            char line[16];
+            snprintf(line, 16, "%f", measure_distance_or_angle);
+            display_write(line, DISPLAY_LINE_1);
+            printf("\n");
+            }
         }
-      }
-      break;  // each case needs to end with break!
+        break;  // each case needs to end with break!
+        }
     }
-  }
-  return state;
+    return state;
 }
