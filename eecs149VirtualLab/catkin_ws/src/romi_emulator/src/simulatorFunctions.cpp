@@ -1,67 +1,25 @@
 #include "simulatorFunctions.h"
-
-#include <geometry_msgs/Quaternion.h>
-
-#include <cmath>
-
 #include "globals.h"
 #include "ros/ros.h"
+#include <geometry_msgs/Twist.h>
+#define wheel_distance 0.15
 
-// Offsets to help force syncronization
-double timer_offsets[] = {143223, 3000, -500, 0};
-double sync_offsets[] = {123, 55, 3000, 1249};
 
-int robot_num() { return (ros::this_node::getName().at(5) - '0') - 1; }
-
-// Waits for the server to send its time
-double waitForServerTime() {
-  while (ros::Time::now().toSec() == 0) continue;
-  double return_time = ros::Time::now().toSec() - sync_offsets[robot_num()];
-  return return_time;
-}
-
-// Retrieves the current time from the server once connection has been made,
-// setting the send time as well.
-double waitForServerResponse(double* t_3e) {
-  *t_3e = currentTime();
-  double return_time = ros::Time::now().toSec() + sync_offsets[robot_num()];
-}
-
-// Returns the current time in seconds, adding in an offset to require
-// syncronization
-double currentTime() {
-  return ros::Time::now().toSec() + timer_offsets[robot_num()];
-}
-
-void globalPositionPoll(robot_position_t* positions) {
-  for (int i = 0; i < NUM_ROBOTS; i++) {
+void kobukiPositionPoll(robot_position_t* positions) {
+  for (int i = 0; i < NUM_ROBOTS; i ++) {
     (positions + i)->x_pos = pose_data[i].position.x;
     (positions + i)->y_pos = pose_data[i].position.y;
     (positions + i)->z_pos = pose_data[i].position.z;
   }
 }
 
-void globalAnglesPoll(double* angles) {
-  for (int i = 0; i < NUM_ROBOTS; i++) {
-    // Compute yaw from quarternion
-
-    geometry_msgs::Quaternion orientation = pose_data[i].orientation;
-
-    double siny_cosp =
-        2 * (orientation.w * orientation.z + orientation.x * orientation.y);
-
-    double cosy_cosp =
-        1 - 2 * (orientation.y * orientation.y + orientation.z * orientation.z);
-
-    angles[i] = std::atan2(siny_cosp, cosy_cosp);
-  }
-}
-
-void display_write(const char* format, display_line line) {
+void display_write(const char *format, display_line line) {
   printf("%s", format);
 }
 
-lsm9ds1_measurement_t lsm9ds1_read_accelerometer() { return globalAccel; }
+lsm9ds1_measurement_t lsm9ds1_read_accelerometer() {
+  return globalAccel;
+}
 
 void kobukiSensorPoll(KobukiSensors_t* sensors) {
   sensors->cliffLeft = newSensors.cliffLeft;
@@ -75,7 +33,9 @@ void kobukiSensorPoll(KobukiSensors_t* sensors) {
   sensors->rightWheelEncoder = newSensors.rightWheelEncoder;
 }
 
-void nrf_delay_ms(uint32_t delay) { ros::Duration(delay / 1000.0).sleep(); }
+void nrf_delay_ms(uint32_t delay) {
+  ros::Duration(delay/1000.0).sleep();
+}
 
 uint32_t lsm9ds1_start_gyro_integration() {
   if (integrateGyro) {
@@ -102,24 +62,25 @@ bool is_button_pressed(KobukiSensors_t* sensors) {
   }
 }
 
-lsm9ds1_measurement_t lsm9ds1_read_gyro_integration() { return globalAng; }
+lsm9ds1_measurement_t lsm9ds1_read_gyro_integration() {
+  return globalAng;
+}
 
 // Currently does not support driving with wheel speeds set to different values
 // If you implement driving with different wheel speeds, you will also need to
 // account for different left/right encoder values
-int32_t kobukiDriveDirect(float leftWheelSpeed, float rightWheelSpeed,
-                          float set_radius) {
+int32_t kobukiDriveDirect(float leftWheelSpeed, float rightWheelSpeed, float set_radius) {
   float CmdSpeed;
   float CmdAngular;
   CmdSpeed = ((leftWheelSpeed + rightWheelSpeed) / 2.0) / 1000.0;
   if (set_radius == 0) {
-    CmdAngular = 2 * rightWheelSpeed / wheel_distance;
+    CmdAngular = 2*rightWheelSpeed/wheel_distance;
   } else if (rightWheelSpeed > leftWheelSpeed) {
-    CmdAngular = CmdSpeed / set_radius;
+    CmdAngular = CmdSpeed/set_radius;
   } else if (rightWheelSpeed == leftWheelSpeed) {
     CmdAngular = 0;
   } else {
-    CmdAngular = -CmdSpeed / set_radius;
+    CmdAngular = -CmdSpeed/set_radius;
   }
 
   geometry_msgs::Twist twist;
@@ -132,6 +93,7 @@ int32_t kobukiDriveDirect(float leftWheelSpeed, float rightWheelSpeed,
   pub.publish(twist);
 
   return 1;
+
 }
 
 void lsm9ds1_stop_gyro_integration() {

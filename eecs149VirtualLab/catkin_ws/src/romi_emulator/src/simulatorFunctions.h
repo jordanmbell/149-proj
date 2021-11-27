@@ -4,11 +4,7 @@
 extern "C"
 {
 #endif
-double waitForServerTime();
-double waitForServerResponse(double* t_3e);
-double currentTime();
-void globalPositionPoll(robot_position_t* positions);
-void globalAnglesPoll(double* angles);
+void kobukiPositionPoll(robot_position_t* positions);
 void display_write(const char *format, display_line line);
 lsm9ds1_measurement_t lsm9ds1_read_accelerometer();
 void kobukiSensorPoll(KobukiSensors_t * const sensors);

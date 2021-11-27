@@ -9,7 +9,6 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 #include "std_msgs/Bool.h"
-#include "gazebo_msgs/ModelStates.h"
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/Twist.h>
 #include <sensor_msgs/Imu.h>
@@ -22,7 +21,6 @@
 #include "globals.h"
 #include <math.h>
 #include <sstream>
-#include <string>
 
 void processOdometry(const nav_msgs::Odometry& data) {
   if (monitors) {
@@ -132,20 +130,25 @@ void processButton(const std_msgs::Bool::ConstPtr& msg) {
   newSensors.button_pressed = true;
 }
 
+void processR1(const nav_msgs::Odometry& data) {
+  recent_poses[0] = data.pose.pose;
+}
+
+void processR2(const nav_msgs::Odometry& data) {
+  recent_poses[1] = data.pose.pose;
+}
+
+void processR3(const nav_msgs::Odometry& data) {
+  recent_poses[2] = data.pose.pose;
+}
+
+void processR4(const nav_msgs::Odometry& data) {
+  recent_poses[3] = data.pose.pose;
+}
+
 void updatePoseData(const ros::TimerEvent&) {
   for (int i = 0; i < NUM_ROBOTS; ++i) {
     pose_data[i] = recent_poses[i];
-  }
-}
-
-void processModel(const gazebo_msgs::ModelStates& msg) {
-  std::string pre = "Robot";
-  // Not sure how to bound this
-  for (int i = 0; i < NUM_ROBOTS + 1; ++i) {
-    if (msg.name[i].compare(0, pre.size(), pre) == 0) {
-      int num = (msg.name[i].at(5) - '0') - 1;
-      recent_poses[num] = msg.pose[i];
-    }
   }
 }
 
@@ -163,13 +166,13 @@ int main(int argc, char **argv)
   ros::Subscriber sub4 = n.subscribe("mobile_base/events/cliff", 1, &processCliff);
   ros::Subscriber sub5 = n.subscribe("button_press", 1000, &processButton);
 
-
-  ros::Subscriber global_pos = n.subscribe("/gazebo/model_states", 1, &processModel);
-
+  // Need to do this for every robot
+  ros::Subscriber pos1 = n.subscribe("/r1/odom", 1, &processR1);
+  ros::Subscriber pos2 = n.subscribe("/r2/odom", 1, &processR2);
+  ros::Subscriber pos3 = n.subscribe("/r3/odom", 1, &processR3);
+  ros::Subscriber pos4 = n.subscribe("/r4/odom", 1, &processR4);
   ros::Timer timer1 = n.createTimer(ros::Duration(1.0f / POSE_UPDATE_HZ), updatePoseData);
   std::string ns = ros::this_node::getNamespace();
-
-  
 
   for (int i = 0; i < NUM_ROBOTS; ++i) {
     std::stringstream check;

@@ -30,7 +30,6 @@ extern bool monitors;
 
 #define NUM_ROBOTS 4
 #define POSE_UPDATE_HZ 10
-#define wheel_distance 0.15
 extern geometry_msgs::Pose recent_poses[NUM_ROBOTS];
 extern geometry_msgs::Pose pose_data[NUM_ROBOTS];
 extern int robot_idx;
