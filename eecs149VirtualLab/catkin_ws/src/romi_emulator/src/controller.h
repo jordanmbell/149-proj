@@ -10,7 +10,7 @@ typedef enum {
   LEADER_TURNLEFT,
   LEADER_TURNRIGHT,
   GETTING_NUM,
-  STOP,
+  PENDING,
 } robot_state_t;
 
 static float get_distance(uint16_t current_encoder, uint16_t previous_encoder);
