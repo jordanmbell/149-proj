@@ -34,6 +34,8 @@ double currentTime() {
   return ros::Time::now().toSec() + timer_offsets[robot_num()];
 }
 
+double illegal_actual_time() { return ros::Time::now().toSec(); }
+
 void globalPositionPoll(robot_position_t* positions) {
   for (int i = 0; i < NUM_ROBOTS; i++) {
     (positions + i)->x_pos = pose_data[i].position.x;

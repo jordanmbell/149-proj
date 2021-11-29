@@ -7,6 +7,7 @@ extern "C"
 double waitForServerTime();
 double waitForServerResponse(double* t_3e);
 double currentTime();
+double illegal_actual_time();
 void globalPositionPoll(robot_position_t* positions);
 void globalAnglesPoll(double* angles);
 void display_write(const char *format, display_line line);

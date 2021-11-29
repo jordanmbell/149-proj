@@ -303,7 +303,8 @@ robot_state_t controller(robot_state_t state) {
         // printf("\n");
 
         if (server_time > last_clock_time) {
-          printf("Robot %d thinks it is %f\n", robot_num, server_time);
+          printf("Robot %d thinks it is %f, actual time is %f\n", robot_num,
+                 server_time, illegal_actual_time());
           last_clock_time += 5;
         }
 
