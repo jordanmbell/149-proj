@@ -73,7 +73,7 @@ static double estimate_clock_error() {
 
   double RTT = (t_4 - t_1) - ((t_3e) - (t_2e));
   double error = (t_2e) - (t_1 + RTT / 2);
-  printf("t1: %f, t2 + e: %f, t3 + e: %f, t4 + e: %f\n", t_1, t_2e, t_3e, t_4);
+  printf("t1: %f, t2 + e: %f, t3 + e: %f, t4: %f\n", t_1, t_2e, t_3e, t_4);
   return error;
 }
 
