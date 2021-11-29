@@ -246,7 +246,7 @@ robot_state_t controller(robot_state_t state) {
   globalAnglesPoll(robot_angles);
   float tilt = read_tilt();
   double server_time = get_server_time();
-
+  double actual_time = illegal_actual_time();
   // handle states
   switch (state) {
     case OFF: {
@@ -304,7 +304,7 @@ robot_state_t controller(robot_state_t state) {
 
         if (server_time > last_clock_time) {
           printf("Robot %d thinks it is %f, actual time is %f\n", robot_num,
-                 server_time, illegal_actual_time());
+                 server_time, actual_time);
           last_clock_time += 5;
         }
 
