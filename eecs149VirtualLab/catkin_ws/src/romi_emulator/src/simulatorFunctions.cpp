@@ -9,8 +9,8 @@
 #include "ros/ros.h"
 
 // Offsets to help force syncronization
-double timer_offsets[] = {143223, 3000, -500, 0};
-double sync_offsets[] = {123, 55, 3000, 1249};
+double timer_offsets[] = {143223.0, 3000.0, -500.0, 0.0};
+double sync_offsets[] = {123.0, 55.0, 3000.0, 1249.0};
 
 int robot_num() { return (ros::this_node::getName().at(5) - '0') - 1; }
 
@@ -19,6 +19,9 @@ double waitForServerTime() {
   while (ros::Time::now().toSec() == 0) continue;
   double return_time =
       ros::Time::now().toSec() + 10000 - sync_offsets[robot_num()];
+
+  printf("actual: %f, offset: %f, ret: %f", ros::Time::now().toSec(),
+         sync_offsets[robot_num()], return_time);
   return return_time;
 }
 
