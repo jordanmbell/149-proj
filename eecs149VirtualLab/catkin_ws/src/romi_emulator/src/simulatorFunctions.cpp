@@ -12,7 +12,7 @@
 double timer_offsets[] = {143223, 3000, -500, 0};
 double sync_offsets[] = {123, 55, 3000, 1249};
 
-int robot_num() { return (ros::this_node::getName().at(5) - '0') - 1; }
+int robot_num() { return (ros::this_node::getName().at(2) - '0') - 1; }
 
 // Waits for the server to send its time
 double waitForServerTime() {
@@ -26,6 +26,7 @@ double waitForServerTime() {
 double waitForServerResponse(double* t_3e) {
   *t_3e = currentTime();
   double return_time = ros::Time::now().toSec() + sync_offsets[robot_num()];
+  return return_time;
 }
 
 // Returns the current time in seconds, adding in an offset to require
