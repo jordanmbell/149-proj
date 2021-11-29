@@ -269,6 +269,7 @@ robot_state_t controller(robot_state_t state) {
       if (is_button_pressed(&sensors)) {
         robot_num += 1;
       } else if (timer <= 0) {
+        timer = server_time;
         state = PENDING;
         counter = 0;
         initial_encoder = sensors.rightWheelEncoder;
@@ -298,6 +299,11 @@ robot_state_t controller(robot_state_t state) {
         counter = 0;
         initial_encoder = sensors.rightWheelEncoder;
         measure_distance_or_angle = 0;
+      } else if (server_time > timer + 30) {
+        timer = server_time;
+        printf("Robot %d syncing clock\n", robot_num);
+        clock_error = estimate_clock_error();
+        printf("Robot %d has error %f\n", robot_num, clock_error);
       } else {
         // display_write("PENDING", DISPLAY_LINE_0);
         // printf("\n");
