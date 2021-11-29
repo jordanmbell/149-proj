@@ -311,7 +311,7 @@ robot_state_t controller(robot_state_t state) {
         // perform state-specific actions here
         kobukiDriveDirect(0, 0);
       }
-      if(server_time >= 20)state = START;
+      // if(server_time >= 20)state = START;
       break;  // each case needs to end with break!
     }
 
