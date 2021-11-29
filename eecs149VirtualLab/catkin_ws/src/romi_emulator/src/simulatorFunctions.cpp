@@ -20,9 +20,6 @@ double waitForServerTime() {
   while (ros::Time::now().toSec() == 0) continue;
   double return_time =
       ros::Time::now().toSec() + 10000 - sync_offsets[robot_num()];
-
-  printf("rob_num: %d, actual: %f, offset: %f, ret: %f\n", robot_num(),
-         ros::Time::now().toSec(), sync_offsets[robot_num()], return_time);
   return return_time;
 }
 
@@ -32,6 +29,7 @@ double waitForServerResponse(double* t_3e) {
   *t_3e = currentTime();
   double return_time =
       ros::Time::now().toSec() + 10000 + sync_offsets[robot_num()];
+  return return_time;
 }
 
 // Returns the current time in seconds, adding in an offset to require
