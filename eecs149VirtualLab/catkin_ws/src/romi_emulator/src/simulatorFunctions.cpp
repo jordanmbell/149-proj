@@ -14,8 +14,8 @@ double timer_offsets[] = {143223.0, 3000.0, -500.0, 0.0};
 double sync_offsets[] = {123.0, 55.0, 3000.0, 1249.0};
 
 int robot_num() {
-  std::cout << ros::this_node::getName() << endl;
-  printf("at: %c, num %d\n", ros::this_node::getName().at(5),
+  std::cout << ros::this_node::getName();
+  printf(" at: %c, num %d\n", ros::this_node::getName().at(5),
          ros::this_node::getName().at(5) - '0');
   return (ros::this_node::getName().at(5) - '0') - 1;
 }
