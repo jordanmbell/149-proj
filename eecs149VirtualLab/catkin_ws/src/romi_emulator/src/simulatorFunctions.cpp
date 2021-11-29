@@ -20,7 +20,7 @@ double waitForServerTime() {
   double return_time =
       ros::Time::now().toSec() + 10000 - sync_offsets[robot_num()];
 
-  printf("rob_num: %f, actual: %f, offset: %f, ret: %f\n", robot_num(),
+  printf("rob_num: %d, actual: %f, offset: %f, ret: %f\n", robot_num(),
          ros::Time::now().toSec(), sync_offsets[robot_num()], return_time);
   return return_time;
 }
