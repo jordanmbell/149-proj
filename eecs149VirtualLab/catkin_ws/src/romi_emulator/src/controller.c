@@ -72,7 +72,9 @@ static double estimate_clock_error() {
   double t_4 = waitForServerResponse(&t_3e);
 
   double RTT = (t_4 - t_1) - ((t_3e) - (t_2e));
-  return (t_2e) - (t_1 + RTT / 2);
+  double error = (t_2e) - (t_1 + RTT / 2);
+  printf("t1: %f, t2 + e: %f, t3 + e: %f, t4 + e: %f\n", t_1, t_2e, t_3e, t_4);
+  return error;
 }
 
 static uint16_t new_command_length(uint16_t LOC_ORI[], uint16_t max_count) {

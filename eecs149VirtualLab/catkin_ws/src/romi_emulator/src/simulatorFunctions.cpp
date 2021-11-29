@@ -17,7 +17,8 @@ int robot_num() { return (ros::this_node::getName().at(5) - '0') - 1; }
 // Waits for the server to send its time
 double waitForServerTime() {
   while (ros::Time::now().toSec() == 0) continue;
-  double return_time = ros::Time::now().toSec() - sync_offsets[robot_num()];
+  double return_time =
+      ros::Time::now().toSec() + 10000 - sync_offsets[robot_num()];
   return return_time;
 }
 
@@ -25,16 +26,17 @@ double waitForServerTime() {
 // setting the send time as well.
 double waitForServerResponse(double* t_3e) {
   *t_3e = currentTime();
-  double return_time = ros::Time::now().toSec() + sync_offsets[robot_num()];
+  double return_time =
+      ros::Time::now().toSec() + 10000 + sync_offsets[robot_num()];
 }
 
 // Returns the current time in seconds, adding in an offset to require
 // syncronization
 double currentTime() {
-  return ros::Time::now().toSec() + timer_offsets[robot_num()];
+  return ros::Time::now().toSec() + 10000 + timer_offsets[robot_num()];
 }
 
-double illegal_actual_time() { return ros::Time::now().toSec(); }
+double illegal_actual_time() { return ros::Time::now().toSec() + 10000; }
 
 void globalPositionPoll(robot_position_t* positions) {
   for (int i = 0; i < NUM_ROBOTS; i++) {
