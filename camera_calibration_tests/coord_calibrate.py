@@ -6,12 +6,14 @@ import cv2.aruco as aruco
 import glob
 import argparse
 import math
+import matplotlib.pyplot as plt
 
 aruco_marker_size = 0.1
 originMarker = 0
-markerList = [1, 3, 2]
+markerList = [1, 2]
+# counter = 0
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(2) #1 for separate webcam, 0 for integrated
 
 # termination criteria
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
@@ -34,9 +36,9 @@ def calibrate():
     objpoints = []  # 3d point in real world space
     imgpoints = []  # 2d points in image plane.
 
-    # images = glob.glob('images_canon/*.jpg')
+    images = glob.glob('images_canon/*.jpg')
     # images = glob.glob('images_webcam_black_checkerboard/*.jpg')
-    images = glob.glob('images/*.jpg')
+    # images = glob.glob('images/*.jpg')
 
     for fname in images:
         img = cv2.imread(fname)
@@ -61,9 +63,9 @@ def calibrate():
 
 
 def saveCoefficients(mtx, dist):
-    # cv_file = cv2.FileStorage("images_canon/calibrationCoefficients.yaml", cv2.FILE_STORAGE_WRITE)
+    cv_file = cv2.FileStorage("images_canon/calibrationCoefficients.yaml", cv2.FILE_STORAGE_WRITE)
     # cv_file = cv2.FileStorage("images_webcam_black_checkerboard/test.yaml", cv2.FILE_STORAGE_WRITE)
-    cv_file = cv2.FileStorage("images/test.yaml", cv2.FILE_STORAGE_WRITE)
+    # cv_file = cv2.FileStorage("images/test.yaml", cv2.FILE_STORAGE_WRITE)
     cv_file.write("camera_matrix", mtx)
     cv_file.write("dist_coeff", dist)
     # note you *release* you don't close() a FileStorage object
@@ -72,9 +74,9 @@ def saveCoefficients(mtx, dist):
 
 def loadCoefficients():
     # FILE_STORAGE_READ
-    # cv_file = cv2.FileStorage("images_canon/calibrationCoefficients.yaml", cv2.FILE_STORAGE_READ)
+    cv_file = cv2.FileStorage("images_canon/calibrationCoefficients.yaml", cv2.FILE_STORAGE_READ)
     # cv_file = cv2.FileStorage("images_webcam_black_checkerboard/test.yaml", cv2.FILE_STORAGE_READ)
-    cv_file = cv2.FileStorage("images/test.yaml", cv2.FILE_STORAGE_READ)
+    # cv_file = cv2.FileStorage("images/test.yaml", cv2.FILE_STORAGE_READ)
 
     # note we also have to specify the type to retrieve other wise we only get a
     # FileNode object back instead of a matrix
@@ -162,17 +164,28 @@ def calculate_coords(origin_ID, marker_list, matrix_coefficients, distortion_coe
                 (rvec - tvec).any()  # get rid of that nasty numpy value array error
                 aruco.drawDetectedMarkers(frame, corners)  # Draw A square around the markers
 
+
+        #coordinate printout
+        counter += 1
+        if (counter > 100):
+            if len(coordinate_dict) > 0:
+                for key in coordinate_dict.keys():
+                    print("tvec for ", key," = ", coordinate_dict[key])
+
+            counter = 0
+
+
         # Display the resulting frame
         cv2.imshow('frame', frame)
         # Wait 3 milisecoonds for an interaction. Check the key and do the corresponding job.
         key = cv2.waitKey(3) & 0xFF
         if key == ord('q'):  # Quit
             break
-        elif key == ord('c'):  # find coordinates
-            # print(coordinate_dict)
-            if len(coordinate_dict) > 0:
-                for key in coordinate_dict.keys():
-                    print("tvec for ", key," = ", coordinate_dict[key])
+        # elif key == ord('c'):  # find coordinates
+        #     # print(coordinate_dict)
+        #     if len(coordinate_dict) > 0:
+        #         for key in coordinate_dict.keys():
+        #             print("tvec for ", key," = ", coordinate_dict[key])
 
 
     # When everything done, release the capture

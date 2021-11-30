@@ -7,7 +7,8 @@ import argparse
 import math
 
 aruco_marker_size = 0.1
-cap = cv2.VideoCapture(1)
+cam1 = cv2.VideoCapture(1)
+cam2 = cv2.VideoCapture(2)
 
 # termination criteria
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
@@ -127,9 +128,10 @@ def track(matrix_coefficients, distortion_coefficients):
     composedRvec, composedTvec = None, None
     counter = 0
     while True:
-        ret, frame = cap.read(1)#changed from 0
+        ret1, frame1 = cam1.read()#originally 1, but the tutorial left it blank?
+        ret2, frame2 = cam2.read()
         # operations on the frame come here
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # Change grayscale
+        gray = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)  # Change grayscale
         aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)  # Use 5x5 dictionary to find markers
         parameters = aruco.DetectorParameters_create()  # Marker detection parameters
 
@@ -174,7 +176,7 @@ def track(matrix_coefficients, distortion_coefficients):
                 markerRvecList.append(rvec)
                 markerTvecList.append(tvec)
 
-                aruco.drawDetectedMarkers(frame, corners)  # Draw A square around the markers
+                aruco.drawDetectedMarkers(frame1, corners)  # Draw A square around the markers
 
             if len(ids) > 1 and composedRvec is not None and composedTvec is not None:
                 info = cv2.composeRT(composedRvec, composedTvec, secondRvec.T, secondTvec.T)
@@ -214,12 +216,12 @@ def track(matrix_coefficients, distortion_coefficients):
                                                 distortion_coefficients)
 
                 # frame = draw(frame, corners[0], imgpts)
-                aruco.drawAxis(frame, matrix_coefficients, distortion_coefficients, TcomposedRvec, TcomposedTvec,
+                aruco.drawAxis(frame1, matrix_coefficients, distortion_coefficients, TcomposedRvec, TcomposedTvec,
                                0.01)  # Draw Axis
                 relativePoint = (int(imgpts[0][0][0]), int(imgpts[0][0][1]))
                 # if counter > 100:
                 #     print("second vec = ",relativePoint)
-                cv2.circle(frame, relativePoint, 2, (255, 255, 0))
+                cv2.circle(frame1, relativePoint, 2, (255, 255, 0))
 
                 #third vector calculation---------------------------------------------------------------------------
                 info = cv2.composeRT(composedRvec2, composedTvec2, thirdRvec.T, thirdTvec.T)
@@ -232,19 +234,20 @@ def track(matrix_coefficients, distortion_coefficients):
                                                 distortion_coefficients)
 
                 # frame = draw(frame, corners[0], imgpts)
-                aruco.drawAxis(frame, matrix_coefficients, distortion_coefficients, TcomposedRvec, TcomposedTvec,
+                aruco.drawAxis(frame1, matrix_coefficients, distortion_coefficients, TcomposedRvec, TcomposedTvec,
                                0.01)  # Draw Axis
                 relativePoint = (int(imgpts[0][0][0]), int(imgpts[0][0][1]))
                 # if counter > 100:
                 #     print("third vec = ", relativePoint)
                 #     counter = 0
                 # counter += 1
-                cv2.circle(frame, relativePoint, 2, (255, 255, 0))
+                cv2.circle(frame1, relativePoint, 2, (255, 255, 0))
 
 
 
         # Display the resulting frame
-        cv2.imshow('frame', frame)
+        cv2.imshow('frame1', frame1)
+        cv2.imshow('frame2', frame2)
         # Wait 3 milisecoonds for an interaction. Check the key and do the corresponding job.
         key = cv2.waitKey(3) & 0xFF
         if key == ord('q'):  # Quit
@@ -261,8 +264,9 @@ def track(matrix_coefficients, distortion_coefficients):
                 print("ComposedTvec of vec1", composedTvec)
                 print("ComposedTvec of vec2", composedTvec2)
 
-    # When everything done, release the capture
-    cap.release()
+    # When everything done, release the captures
+    cam1.release()
+    cam2.release()
     cv2.destroyAllWindows()
 
 
