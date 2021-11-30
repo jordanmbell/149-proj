@@ -35,7 +35,8 @@ async def connect_to_device(address):
         print("not found")
 
 def main(addresses):
-    return asyncio.gather(*(connect_to_device(address) for address in addresses))
+    routines = [connect_to_device(address) for address in addresses]
+    return asyncio.gather(*routines)
 
 if __name__ == "__main__":
     while True:
