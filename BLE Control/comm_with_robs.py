@@ -43,7 +43,7 @@ class shared_data_t:
         self.rob_data[robot_num].angle = angle
     
     def push_update(self):
-        self.timestamp = time.time()
+        self.timestamp = time.time() - self.start
         data_arr = [self.timestamp]
         for data in self.rob_data:
             data_arr.extend([data.x_pos, data.y_pos, data.angle])
@@ -58,10 +58,8 @@ async def connect_to_device(address: str, shared_data: shared_data_t):
                 print(
                     f"Connected to device {client.address}: {client.is_connected}")
                 try:
-                    print("Type message and send with Enter key")
+                    
                     last = 0
-                    shared_data = shared_data_t(4)
-                    time.sleep(5)
                     shared_data.update_robot(0, 0.5, 0.5, 0.3)
                     shared_data.update_robot(1, -0.5, 5, 0.9)
                     shared_data.update_robot(2, 1.5, 50, 1.2)
@@ -70,9 +68,8 @@ async def connect_to_device(address: str, shared_data: shared_data_t):
                     while True:
                         if shared_data.timestamp > last:
                             last = shared_data.timestamp
-                            print("Sending packed bytes to {client.address}")
                             await client.write_gatt_char(DISPLAY_CHAR_UUID, shared_data.packed_bytes)
-                            time.sleep(5)
+                            await asyncio.sleep(1)
                             shared_data.push_update()
                 except Exception as e:
                     print(f"\t{e}")
@@ -85,5 +82,5 @@ async def begin_communication(addresses):
     await asyncio.gather(*pos_routines)
 
 if __name__ == "__main__":
-    # asyncio.run(begin_communication(addrs))
+    asyncio.run(begin_communication(addrs))
     
