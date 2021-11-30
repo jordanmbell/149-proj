@@ -34,7 +34,7 @@ rob_data_t robot_data[4];
 static simple_ble_config_t ble_config = {
     // c0:98:e5:49:xx:xx
     .platform_id = 0x49,      // used as 4th octect in device BLE address
-    .device_id = 0x9876,      // TODO: replace with your lab bench number
+    .device_id = 0x9870,      // TODO: replace with your lab bench number
     .adv_name = "EE149 LED",  // used in advertisements if there is room
     .adv_interval = MSEC_TO_UNITS(1000, UNIT_0_625_MS),
     .min_conn_interval = MSEC_TO_UNITS(500, UNIT_1_25_MS),
@@ -97,6 +97,9 @@ int main(void) {
   nrf_gpio_cfg_output(BUCKLER_LED0);
 
   // Setup BLE
+
+  ble_config.device_id += 1;
+
   simple_ble_app = simple_ble_init(&ble_config);
 
   simple_ble_add_service(&led_service);
@@ -113,7 +116,7 @@ int main(void) {
     if (timestamp > last):
       char buffer[16];
       snprintf(buffer, sizeof(buffer), "time: %f", timestamp);
-      display_write(buffer, DISPLAY_LINE_1 );
+      display_write(buffer, DISPLAY_LINE_1);
   }
 }
 

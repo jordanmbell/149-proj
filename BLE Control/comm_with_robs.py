@@ -66,13 +66,14 @@ async def connect_to_device(address: str, shared_data: shared_data_t):
                     shared_data.update_robot(1, -0.5, 5, 0.9)
                     shared_data.update_robot(2, 1.5, 50, 1.2)
                     shared_data.update_robot(3, -1.5, 500, 0)
-                    array = shared_data.push_update()
-                    print(array)
+                    shared_data.push_update()
                     while True:
                         if shared_data.timestamp > last:
                             last = shared_data.timestamp
                             print("Sending packed bytes to {client.address}")
                             await client.write_gatt_char(DISPLAY_CHAR_UUID, shared_data.packed_bytes)
+                            time.sleep(5)
+                            shared_data.push_update()
                 except Exception as e:
                     print(f"\t{e}")
         except BleakError as e:
