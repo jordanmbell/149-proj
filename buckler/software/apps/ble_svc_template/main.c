@@ -52,7 +52,7 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
       printf("Turning off LED!\n");
       nrf_gpio_pin_set(BUCKLER_LED0);
     }
-    }
+  }
 }
 
 int main(void) {
