@@ -42,15 +42,16 @@ static bool led_state = true;
 simple_ble_app_t* simple_ble_app;
 
 void ble_evt_write(ble_evt_t const* p_ble_evt) {
-    if (simple_ble_is_char_event(p_ble_evt, &led_state_char)) {
-      printf("Got write to LED characteristic!\n");
-      if (led_state) {
-        printf("Turning on LED!\n");
-        nrf_gpio_pin_clear(BUCKLER_LED0);
-      } else {
-        printf("Turning off LED!\n");
-        nrf_gpio_pin_set(BUCKLER_LED0);
-      }
+  printf('HERE\n');
+  if (simple_ble_is_char_event(p_ble_evt, &led_state_char)) {
+    printf("Got write to LED characteristic!\n");
+    if (led_state) {
+      printf("Turning on LED!\n");
+      nrf_gpio_pin_clear(BUCKLER_LED0);
+    } else {
+      printf("Turning off LED!\n");
+      nrf_gpio_pin_set(BUCKLER_LED0);
+    }
     }
 }
 
