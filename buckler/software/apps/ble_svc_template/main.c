@@ -15,6 +15,21 @@
 
 #include "max44009.h"
 
+typedef struct {
+  double x_pos;
+  double y_pos;
+  double angle;
+} rob_data_t;
+
+typedef struct {
+  double timestamp;
+  rob_data_t robot_data[4];
+} incoming_data_t;
+
+incoming_data_t incoming_data;
+double timestamp = 0;
+rob_data_t robot_data[4];
+
 // Intervals for advertising and connections
 static simple_ble_config_t ble_config = {
     // c0:98:e5:49:xx:xx
@@ -44,13 +59,12 @@ simple_ble_app_t* simple_ble_app;
 void ble_evt_write(ble_evt_t const* p_ble_evt) {
   printf("HERE\n");
   if (simple_ble_is_char_event(p_ble_evt, &led_state_char)) {
-    printf("Got write to LED characteristic!\n");
-    if (led_state) {
-      printf("Turning on LED!\n");
-      nrf_gpio_pin_clear(BUCKLER_LED0);
-    } else {
-      printf("Turning off LED!\n");
-      nrf_gpio_pin_set(BUCKLER_LED0);
+    printf("Got robot data!\n");
+    timestamp = incoming_data.timestamp
+    for (int i = 0; i < 4; i ++) {
+      robot_data[i].x_pos = incoming_data.robot_data[i].x_pos;
+      robot_data[i].y_pos = incoming_data.robot_data[i].y_pos;
+      robot_data[i].angle = incoming_data.robot_data[i].angle;
     }
   }
 }
@@ -88,14 +102,18 @@ int main(void) {
   simple_ble_add_service(&led_service);
 
   simple_ble_add_characteristic(1, 1, 0, 0,
-      sizeof(led_state), (uint8_t*)&led_state,
+      sizeof(incoming_data), (uint8_t*)&incoming_data,
       &led_service, &led_state_char);
 
   // Start Advertising
   simple_ble_adv_only_name();
-
+  double last = timestamp;
   while(1) {
     power_manage();
+    if (timestamp > last):
+      char buffer[16];
+      snprintf(buffer, sizeof(buffer), "time: %f", timestamp);
+      display_write(buffer, DISPLAY_LINE_1 );
   }
 }
 
