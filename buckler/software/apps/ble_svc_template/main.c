@@ -60,7 +60,7 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
   printf("HERE\n");
   if (simple_ble_is_char_event(p_ble_evt, &led_state_char)) {
     printf("Got robot data!\n");
-    timestamp = incoming_data.timestamp
+    timestamp = incoming_data.timestamp;
     for (int i = 0; i < 4; i ++) {
       robot_data[i].x_pos = incoming_data.robot_data[i].x_pos;
       robot_data[i].y_pos = incoming_data.robot_data[i].y_pos;
@@ -113,10 +113,11 @@ int main(void) {
   double last = timestamp;
   while(1) {
     power_manage();
-    if (timestamp > last):
+    if (timestamp > last) {
       char buffer[16];
       snprintf(buffer, sizeof(buffer), "time: %f", timestamp);
       display_write(buffer, DISPLAY_LINE_1);
+    }
   }
 }
 
