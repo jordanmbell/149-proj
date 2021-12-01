@@ -37,7 +37,7 @@ objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
 
 #images = glob.glob('images_webcam_black_checkerboard/*.jpg')
-images = glob.glob('images/*.jpg')
+images = glob.glob('images_sony/*.jpg')
 
 for fname in images:
     img = cv2.imread(fname)
@@ -62,7 +62,7 @@ cv2.destroyAllWindows()
 ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1],None,None)
 
 # ---------- Saving the calibration -----------------
-cv_file = cv2.FileStorage("images/test.yaml", cv2.FILE_STORAGE_WRITE)
+cv_file = cv2.FileStorage("images_sony/calibration1.yaml", cv2.FILE_STORAGE_WRITE)
 cv_file.write("camera_matrix", mtx)
 cv_file.write("dist_coeff", dist)
 

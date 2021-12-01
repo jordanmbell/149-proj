@@ -7,7 +7,7 @@ import argparse
 import math
 
 aruco_marker_size = 0.1
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(2)
 
 # termination criteria
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
@@ -30,7 +30,7 @@ def calibrate():
     objpoints = []  # 3d point in real world space
     imgpoints = []  # 2d points in image plane.
 
-    images = glob.glob('images_canon/*.jpg')
+    images = glob.glob('images_sony/*.jpg')
     # images = glob.glob('images/*.png')
 
     for fname in images:
@@ -56,7 +56,7 @@ def calibrate():
 
 
 def saveCoefficients(mtx, dist):
-    cv_file = cv2.FileStorage("images_canon/calibrationCoefficients.yaml", cv2.FILE_STORAGE_WRITE)
+    cv_file = cv2.FileStorage("images_sony/calibrationCoefficients2.yaml", cv2.FILE_STORAGE_WRITE)
     # cv_file = cv2.FileStorage("images/test.yaml", cv2.FILE_STORAGE_WRITE)
     cv_file.write("camera_matrix", mtx)
     cv_file.write("dist_coeff", dist)
@@ -66,7 +66,7 @@ def saveCoefficients(mtx, dist):
 
 def loadCoefficients():
     # FILE_STORAGE_READ
-    cv_file = cv2.FileStorage("images_canon/calibrationCoefficients.yaml", cv2.FILE_STORAGE_READ)
+    cv_file = cv2.FileStorage("images_sony/calibrationCoefficients.yaml", cv2.FILE_STORAGE_READ)
     # cv_file = cv2.FileStorage("images/test.yaml", cv2.FILE_STORAGE_READ)
 
     # note we also have to specify the type to retrieve other wise we only get a
@@ -180,36 +180,6 @@ def track(matrix_coefficients, distortion_coefficients):
                 info = cv2.composeRT(composedRvec, composedTvec, secondRvec.T, secondTvec.T)
                 TcomposedRvec, TcomposedTvec = info[0], info[1]
 
-                # #distance calculation/print
-                # if counter > 100:
-                #     # print("third vec = ", relativePoint)
-                #     print()
-                #     print(coord_Tvec)
-                #     # print(firstTvec)
-                #     # print(secondTvec)
-                #     counter = 0
-                #
-                #     # x1 = firstTvec[0][0][0]
-                #     # y1 = firstTvec[0][0][1]
-                #     # z1 = firstTvec[0][0][2]
-                #     # x2 = secondTvec[0][0][0]
-                #     # y2 = secondTvec[0][0][1]
-                #     # z2 = secondTvec[0][0][2]
-                #     # dist = math.sqrt((x2 - x1)**2 + (y2 - y1)**2+ (z2 - z1)**2)
-                #     # print(dist)
-                #     # print("diff in x ", x2-x1)
-                #     # print("diff in y ", y2-y1)
-                # counter += 1
-
-
-                # objectPositions = np.array([(0, 0, 0)], dtype=np.float)  # 3D point for projection
-
-                # if counter > 100:
-                #     # print("third vec = ", relativePoint)
-                #     print(TcomposedTvec)
-                #     print()
-                #     counter = 0
-                # counter += 1
                 imgpts, jac = cv2.projectPoints(axis, TcomposedRvec, TcomposedTvec, matrix_coefficients,
                                                 distortion_coefficients)
 
