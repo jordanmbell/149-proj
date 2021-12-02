@@ -12,8 +12,8 @@ async def main():
             for i in range(4):
                 shared_data.update_robot(
                     i, shared_data.rob_data[i].x_pos + 0.1, shared_data.rob_data[i].y_pos + 0.1, shared_data.rob_data[i].angle + 0.1)
-                shared_data.push_update()
-        await asyncio.sleep(0.5)
+            shared_data.push_update()
+        await asyncio.sleep(0.1)
 
 if __name__ == "__main__":
     asyncio.run(main())
