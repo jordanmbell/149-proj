@@ -15,6 +15,7 @@ addr = "c0:98:e5:49:98:7"
 ROBOT_SERVICE_UUID = "32e61089-2b22-4db5-a914-43ce41986c70"
 POS_CHAR_UUID = "32e6108a-2b22-4db5-a914-43ce41986c70"
 
+MESSAGES_PER_SECOND = 10
 
 class shared_data_t:
     class robot_data:
@@ -62,7 +63,9 @@ async def _connect_to_device(address: str, shared_data: shared_data_t):
                             last = shared_data.timestamp
                             await client.write_gatt_char(POS_CHAR_UUID, shared_data.packed_bytes)
                             print(last)
-                        await asyncio.sleep(0)  # Allow other events to run
+                            await asyncio.sleep(1 / MESSAGES_PER_SECOND) # Rate limit
+                        else:
+                            await asyncio.sleep(0)  # Allow other events to run
                 except Exception as e:
                     print(f"\t{e}")
         except BleakError as e:
