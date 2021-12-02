@@ -11,6 +11,7 @@ from ble_utils import handle_sigint
 timeout = 10
 handle_sigint()
 
+addr = "c0:98:e5:49:98:7"
 ROBOT_SERVICE_UUID = "32e61089-2b22-4db5-a914-43ce41986c70"
 POS_CHAR_UUID = "32e6108a-2b22-4db5-a914-43ce41986c70"
 class robot_data:
@@ -58,27 +59,18 @@ async def _connect_to_device(address: str, shared_data: shared_data_t):
                         if shared_data.timestamp > last:
                             last = shared_data.timestamp
                             await client.write_gatt_char(POS_CHAR_UUID, shared_data.packed_bytes)
-                            await asyncio.sleep(0.1)  # rate limit our messages
-                        else:
-                            await asyncio.sleep(0.01)  # Allow other events to run
+                        await asyncio.sleep(0)  # Allow other events to run
                 except Exception as e:
                     print(f"\t{e}")
         except BleakError as e:
             print("not found")
+        await asyncio.sleep(0)  # Allow other events to run
 
 
-async def begin_communication(addresses):
+async def begin_communication(num_robots):
+    addresses = [addr + str(num+1) for num in range(num_robots)]
     shared = shared_data_t(4)
     pos_routines = [_connect_to_device(address, shared)
                     for address in addresses]
     return shared, asyncio.gather(*pos_routines)
 
-async def _main(addrs):
-    await begin_communication(addrs)
-
-if __name__ == "__main__":
-    
-    addr = "c0:98:e5:49:98:7"
-    robot_nums = ['1', '2', '3', '4']
-    addrs = [addr + robot_num for robot_num in robot_nums]
-    asyncio.run(_main(addrs))
