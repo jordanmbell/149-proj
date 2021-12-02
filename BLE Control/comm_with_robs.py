@@ -61,6 +61,7 @@ async def _connect_to_device(address: str, shared_data: shared_data_t):
                         if shared_data.timestamp > last:
                             last = shared_data.timestamp
                             await client.write_gatt_char(POS_CHAR_UUID, shared_data.packed_bytes)
+                            print(last)
                         await asyncio.sleep(0)  # Allow other events to run
                 except Exception as e:
                     print(f"\t{e}")

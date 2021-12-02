@@ -114,6 +114,7 @@ int main(void) {
   while(1) {
     power_manage();
     if (timestamp > last) {
+      last = timestamp;
       char buffer[16];
       snprintf(buffer, sizeof(buffer), "time: %f", timestamp);
       display_write(buffer, DISPLAY_LINE_1);
