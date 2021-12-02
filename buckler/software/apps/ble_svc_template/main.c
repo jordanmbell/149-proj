@@ -115,7 +115,7 @@ int main(void) {
   while(1) {
     power_manage();
     if (timestamp > last) {
-      printf("Update data to: %f", timestamp);
+      printf("Update data to: %f\n", timestamp);
       last = timestamp;
       char buffer[16];
       snprintf(buffer, sizeof(buffer), "t: %f", timestamp);
