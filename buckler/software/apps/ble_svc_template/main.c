@@ -37,8 +37,8 @@ static simple_ble_config_t ble_config = {
     .device_id = 0x9870,      // TODO: replace with your lab bench number
     .adv_name = "EE149 LED",  // used in advertisements if there is room
     .adv_interval = MSEC_TO_UNITS(1000, UNIT_0_625_MS),
-    .min_conn_interval = MSEC_TO_UNITS(500 / 10, UNIT_1_25_MS),
-    .max_conn_interval = MSEC_TO_UNITS(1000 * 10, UNIT_1_25_MS),
+    .min_conn_interval = MSEC_TO_UNITS(50, UNIT_1_25_MS),
+    .max_conn_interval = MSEC_TO_UNITS(100000, UNIT_1_25_MS),
 };
 
 // 32e61089-2b22-4db5-a914-43ce41986c70
