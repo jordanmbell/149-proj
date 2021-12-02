@@ -57,7 +57,7 @@ static bool led_state = true;
 simple_ble_app_t* simple_ble_app;
 
 void ble_evt_write(ble_evt_t const* p_ble_evt) {
-  printf("HERE\n");
+  printf("Enter BLE Handle\n");
   if (simple_ble_is_char_event(p_ble_evt, &led_state_char)) {
     printf("Got robot data!\n");
     timestamp = incoming_data.timestamp;
@@ -67,6 +67,7 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
       robot_data[i].angle = incoming_data.robot_data[i].angle;
     }
   }
+  printf("Exit BLE Handle\n");
 }
 
 int main(void) {
@@ -112,10 +113,12 @@ int main(void) {
   simple_ble_adv_only_name();
   double last = timestamp;
   while(1) {
+    power_manage();
     if (timestamp > last) {
+      printf("Update data to: %f", timestamp);
       last = timestamp;
       char buffer[16];
-      snprintf(buffer, sizeof(buffer), "time: %f", timestamp);
+      snprintf(buffer, sizeof(buffer), "t: %f", timestamp);
       display_write(buffer, DISPLAY_LINE_1);
     }
   }
