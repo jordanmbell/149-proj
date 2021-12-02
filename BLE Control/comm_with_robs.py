@@ -14,13 +14,14 @@ handle_sigint()
 addr = "c0:98:e5:49:98:7"
 ROBOT_SERVICE_UUID = "32e61089-2b22-4db5-a914-43ce41986c70"
 POS_CHAR_UUID = "32e6108a-2b22-4db5-a914-43ce41986c70"
-class robot_data:
-    x_pos: float = 0.0
-    y_pos: float = 0.0
-    angle: float = 0.0
 
 
 class shared_data_t:
+    class robot_data:
+        x_pos: float = 0.0
+        y_pos: float = 0.0
+        angle: float = 0.0
+    connected = 0
     start = time.time()
     timestamp: float = 0.0
     rob_data: List[robot_data] = []
@@ -30,7 +31,7 @@ class shared_data_t:
     def __init__(self, num_robots):
         self.num_robots = num_robots
         for _ in range(num_robots):
-            self.rob_data.append(robot_data())
+            self.rob_data.append(self.robot_data())
 
     def update_robot(self, robot_num, x_pos, y_pos, angle):
         self.rob_data[robot_num].x_pos = x_pos
@@ -53,6 +54,7 @@ async def _connect_to_device(address: str, shared_data: shared_data_t):
             async with BleakClient(address) as client:
                 print(
                     f"Connected to device {client.address}: {client.is_connected}")
+                shared_data.connected += 1
                 try:
                     last = 0
                     while True:
@@ -73,4 +75,3 @@ async def begin_communication(num_robots):
     pos_routines = [_connect_to_device(address, shared)
                     for address in addresses]
     return shared, asyncio.gather(*pos_routines)
-

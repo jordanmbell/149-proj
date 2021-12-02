@@ -4,13 +4,15 @@ from comm_with_robs import begin_communication
 
 num_robots = 4
 
+
 async def main():
-    addr = "c0:98:e5:49:98:7"
-    robot_nums = ['1', '2', '3', '4']
-    addrs = [addr + robot_num for robot_num in robot_nums]
     shared_data, comm_tasks = await begin_communication(num_robots)
     while True:
-        await asyncio.sleep(0)
-        
+        for i in range(4):
+            shared_data.update_robot(
+                i, shared_data.rob_data[i].x_pos + 0.1, shared_data.rob_data[i].y_pos + 0.1, shared_data.rob_data[i].angle + 0.1)
+            shared_data.push_update()
+        await asyncio.sleep(1)
+
 if __name__ == "__main__":
     asyncio.run(main())
