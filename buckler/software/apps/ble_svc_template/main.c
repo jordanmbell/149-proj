@@ -112,7 +112,6 @@ int main(void) {
   simple_ble_adv_only_name();
   double last = timestamp;
   while(1) {
-    power_manage();
     if (timestamp > last) {
       last = timestamp;
       char buffer[16];
