@@ -75,24 +75,13 @@ robot_state_t controller(robot_state_t state) {
     case PENDING: {
       // transition logic
       if (is_button_pressed(&sensors)) {
-        state = START;
-        counter = 0;
-        initial_encoder = sensors.rightWheelEncoder;
-        measure_distance_or_angle = 0;
+        state = OFF;
       } else {
-        // display_write("PENDING", DISPLAY_LINE_0);
-        // printf("\n");
-
-        if (server_time > last_clock_time) {
-          printf("Robot %d thinks it is %f\n", robot_num, server_time);
-          last_clock_time += 5;
-        }
-
+        display_write("PENDING", DISPLAY_LINE_0);
         state = PENDING;
         // perform state-specific actions here
         kobukiDriveDirect(0, 0);
       }
-      if(server_time >= 20)state = START;
       break;  // each case needs to end with break!
     }
   }
