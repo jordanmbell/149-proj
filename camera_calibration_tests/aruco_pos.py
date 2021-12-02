@@ -30,7 +30,7 @@ def calibrate():
     objpoints = []  # 3d point in real world space
     imgpoints = []  # 2d points in image plane.
 
-    images = glob.glob('images_sony/*.jpg')
+    images = glob.glob('images_canon/*.jpg')
     # images = glob.glob('images/*.png')
 
     for fname in images:
@@ -56,7 +56,7 @@ def calibrate():
 
 
 def saveCoefficients(mtx, dist):
-    cv_file = cv2.FileStorage("images_sony/calibrationCoefficients2.yaml", cv2.FILE_STORAGE_WRITE)
+    cv_file = cv2.FileStorage("images_canon/calibrationCoefficients2.yaml", cv2.FILE_STORAGE_WRITE)
     # cv_file = cv2.FileStorage("images/test.yaml", cv2.FILE_STORAGE_WRITE)
     cv_file.write("camera_matrix", mtx)
     cv_file.write("dist_coeff", dist)
