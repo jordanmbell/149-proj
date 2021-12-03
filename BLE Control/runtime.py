@@ -1,12 +1,12 @@
 import asyncio
-import time
-from comm_with_robs import begin_communication
+from comm_with_robs import begin_communication, handle_sigint
 
 num_robots = 1
 
 
 async def main():
     shared_data, comm_tasks = await begin_communication(num_robots)
+    handle_sigint(comm_tasks, shared_data)
     # comm_tasks are now running asyncronously, from this thread perform 
     # the sensor and data update tasks.
     # Use shared_data.update_robot() to update data, and push with push_update

@@ -1,27 +1,28 @@
 # winpty /c/Users/jorda/AppData/Local/Programs/Python/Python37-32/python.exe comm_with_robs.py
 
 import asyncio
+import signal
 import struct
+import sys
 import time
 from typing import List
 
 from bleak import BleakClient, BleakError
 
-from ble_utils import handle_sigint
 timeout = 10
-handle_sigint()
-
 addr = "c0:98:e5:49:98:7"
 ROBOT_SERVICE_UUID = "32e61089-2b22-4db5-a914-43ce41986c70"
 POS_CHAR_UUID = "32e6108a-2b22-4db5-a914-43ce41986c70"
 
 MESSAGES_PER_SECOND = 10
 
+
 class shared_data_t:
     class robot_data:
         x_pos: float = 0.0
         y_pos: float = 0.0
         angle: float = 0.0
+    disconnect = False
     connected = 0
     start = time.time()
     timestamp: float = 0.0
@@ -49,7 +50,7 @@ class shared_data_t:
 
 
 async def _connect_to_device(address: str, shared_data: shared_data_t):
-    while True:
+    while not shared_data.disconnect:
         print(f"searching for device {address} ({timeout}s timeout)")
         try:
             async with BleakClient(address) as client:
@@ -58,19 +59,34 @@ async def _connect_to_device(address: str, shared_data: shared_data_t):
                 shared_data.connected += 1
                 try:
                     last = 0
-                    while True:
+                    while not shared_data.disconnect:
                         if shared_data.timestamp > last:
                             last = shared_data.timestamp
                             await client.write_gatt_char(POS_CHAR_UUID, shared_data.packed_bytes)
                             print(last)
-                            await asyncio.sleep(1 / MESSAGES_PER_SECOND) # Rate limit
+                            # Rate limit
+                            await asyncio.sleep(1 / MESSAGES_PER_SECOND)
                         else:
                             await asyncio.sleep(0)  # Allow other events to run
+                    await client.disconnect()
                 except Exception as e:
                     print(f"\t{e}")
         except BleakError as e:
             print("not found")
         await asyncio.sleep(0)  # Allow other events to run
+
+
+def handle_sigint(comm_tasks, shared: shared_data_t):
+    async def wait_for_disconnect(comm_tasks):
+        await comm_tasks
+    def signal_handler(sig, fram):
+        shared.disconnect = True
+        print("Disconnecting bluetooth")
+        asyncio.run_coroutine_threadsafe(wait_for_disconnect(comm_tasks))
+        print("Shutting down")
+        sys.exit(0)
+    signal.signal(signal.SIGINT, signal_handler)
+
 
 
 async def begin_communication(num_robots):
