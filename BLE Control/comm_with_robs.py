@@ -77,14 +77,9 @@ async def _connect_to_device(address: str, shared_data: shared_data_t):
 
 
 def handle_sigint(comm_tasks, shared: shared_data_t):
-    async def wait_for_disconnect(comm_tasks):
-        await comm_tasks
     def signal_handler(sig, fram):
         shared.disconnect = True
         print("Disconnecting bluetooth")
-        asyncio.run_coroutine_threadsafe(wait_for_disconnect(comm_tasks))
-        print("Shutting down")
-        sys.exit(0)
     signal.signal(signal.SIGINT, signal_handler)
 
 
