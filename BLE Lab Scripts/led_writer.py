@@ -18,7 +18,7 @@ async def main(address):
     try:
         async with BleakClient(address,timeout=timeout) as client:
             print(f"Connected to device {client.address}: {client.is_connected}")
-            sv = client.services[LED_SERVICE_UUID]
+            #sv = client.services[LED_SERVICE_UUID]
             try:
                 while True:
                     input("Press Enter key to toggle the LED")

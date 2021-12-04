@@ -1,19 +1,35 @@
-// BLE Service Template
+// Robot Template app
 //
-// Creates a service for changing LED state over BLE
+// Framework for creating applications that control the Kobuki robot
 
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
+
+#include "app_error.h"
+#include "app_timer.h"
 #include "nrf.h"
-#include "app_util.h"
-#include "nrf_twi_mngr.h"
+#include "nrf_delay.h"
 #include "nrf_gpio.h"
-#include "display.h"
+#include "nrf_log.h"
+#include "nrf_log_ctrl.h"
+#include "nrf_log_default_backends.h"
+#include "nrf_pwr_mgmt.h"
+#include "nrf_drv_spi.h"
 
 #include "simple_ble.h"
 #include "buckler.h"
+#include "display.h"
+#include "kobukiActuator.h"
+#include "kobukiSensorPoll.h"
+#include "kobukiSensorTypes.h"
+#include "kobukiUtilities.h"
+#include "lsm9ds1.h"
+#include "controller.h"
 
-#include "max44009.h"
+// I2C manager
+NRF_TWI_MNGR_DEF(twi_mngr_instance, 5, 0);
 
 typedef struct {
   double x_pos;
@@ -71,8 +87,18 @@ void ble_evt_write(ble_evt_t const* p_ble_evt) {
 }
 
 int main(void) {
+  ret_code_t error_code = NRF_SUCCESS;
 
-  // Initialize
+  // initialize RTT library
+  error_code = NRF_LOG_INIT(NULL);
+  APP_ERROR_CHECK(error_code);
+  NRF_LOG_DEFAULT_BACKENDS_INIT();
+  printf("Log initialized!\n");
+
+  // initialize LEDs
+  nrf_gpio_pin_dir_set(23, NRF_GPIO_PIN_DIR_OUTPUT);
+  nrf_gpio_pin_dir_set(24, NRF_GPIO_PIN_DIR_OUTPUT);
+  nrf_gpio_pin_dir_set(25, NRF_GPIO_PIN_DIR_OUTPUT);
 
   // initialize display
   nrf_drv_spi_t spi_instance = NRF_DRV_SPI_INSTANCE(1);
@@ -87,40 +113,32 @@ int main(void) {
     .mode = NRF_DRV_SPI_MODE_2,
     .bit_order = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST
   };
-
-  ret_code_t error_code = nrf_drv_spi_init(&spi_instance, &spi_config, NULL, NULL);
+  error_code = nrf_drv_spi_init(&spi_instance, &spi_config, NULL, NULL);
   APP_ERROR_CHECK(error_code);
   display_init(&spi_instance);
   display_write("Hello, Human!", DISPLAY_LINE_0);
   printf("Display initialized!\n");
 
-  // Setup LED GPIO
-  nrf_gpio_cfg_output(BUCKLER_LED0);
+  // initialize i2c master (two wire interface)
+  nrf_drv_twi_config_t i2c_config = NRF_DRV_TWI_DEFAULT_CONFIG;
+  i2c_config.scl = BUCKLER_SENSORS_SCL;
+  i2c_config.sda = BUCKLER_SENSORS_SDA;
+  i2c_config.frequency = NRF_TWIM_FREQ_100K;
+  error_code = nrf_twi_mngr_init(&twi_mngr_instance, &i2c_config);
+  APP_ERROR_CHECK(error_code);
+  lsm9ds1_init(&twi_mngr_instance);
+  printf("IMU initialized!\n");
 
-  // Setup BLE
+  // initialize Kobuki
+  kobukiInit();
+  printf("Kobuki initialized!\n");
 
-  ble_config.device_id += 1;
-
-  simple_ble_app = simple_ble_init(&ble_config);
-
-  simple_ble_add_service(&led_service);
-
-  simple_ble_add_characteristic(1, 1, 0, 0,
-      sizeof(incoming_data), (uint8_t*)&incoming_data,
-      &led_service, &led_state_char);
-
-  // Start Advertising
-  simple_ble_adv_only_name();
-  double last = timestamp;
-  while(1) {
+  robot_state_t state = OFF;
+  // loop forever, running state machine
+  while (1) {
     power_manage();
-    if (timestamp > last) {
-      printf("Update data to: %f\n", timestamp);
-      last = timestamp;
-      char buffer[16];
-      snprintf(buffer, sizeof(buffer), "t: %f", timestamp);
-      display_write(buffer, DISPLAY_LINE_1);
-    }
+    nrf_delay_ms(1);
+    state = controller(state, &ble_config);
   }
 }
 
