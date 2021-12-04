@@ -6,18 +6,18 @@ import argparse
 import math
 
 class camera:
-    def __init__(self, matrix_coefficients, distortion_coefficients, originID, markerIDs, camera):
-        self.matrix_coefficients = matrix_coefficients
-        self.distortion_coefficients = distortion_coefficients
+    def __init__(self, mc, dc, originID, markerIDs, camID):
+        self.matrix_coefficients = mc
+        self.distortion_coefficients = dc
         self.originID = originID
         self.markerIDs = markerIDs
 
         #aruco_marker_size = 0.1
-        self.cam = cv2.VideoCapture(camera)
+        self.cam = cv2.VideoCapture(camID)
         #self.cam2 = cv2.VideoCapture(2)
 
         #is this (below) needed?
-        #criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
     def inversePerspective(self, rvec, tvec):
         R, _ = cv2.Rodrigues(rvec)
@@ -53,13 +53,14 @@ class camera:
         return img
 
     def find_points(self):
+        tvec_list = []
         composedTvec = None
         firstRvec = None
         firstTvec = None
         secondRvec = None
         secondTvec = None
-        ret1, frame = self.cam.read() #originally 1, but the tutorial left it blank?
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # Change grayscale
+        ret1, self.frame = self.cam.read() #originally 1, but the tutorial left it blank?
+        gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)  # Change grayscale
         aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)  # Use 5x5 dictionary to find markers
         parameters = aruco.DetectorParameters_create()  # Marker detection parameters
 
@@ -73,49 +74,61 @@ class camera:
             for i in range(0, len(ids)):  # Iterate in markers
                 # Estimate pose of each marker and return the values rvec and tvec---different from camera coefficients
                 #0.1 below is aruco_marker_size
-                rvec, tvec, markerPoints = aruco.estimatePoseSingleMarkers(corners[i], 0.1, self.matrix_coefficients,
-                                                                           self.distortion_coefficients)
-
+                rvec, tvec, markerPoints = aruco.estimatePoseSingleMarkers(corners[i], 0.1, self.matrix_coefficients, self.distortion_coefficients)
                 if ids[i] == self.originID:
                     firstRvec = rvec
-                    print("first marker rvec", firstRvec)
+                    # print("first marker rvec", firstRvec)
                     firstTvec = tvec
-                    print("first marker tvec", firstTvec)
+                    # print("first marker tvec", firstTvec)
                     isFirstMarkerCalibrated = True
                     firstMarkerCorners = corners[i]
-                elif ids[i] == self.markerIDs[0]:
-                    secondRvec = rvec
-                    print("second marker rvec", secondRvec)
-                    secondTvec = tvec
-                    print("second marker tvec", secondTvec)
-                    isSecondMarkerCalibrated = True
-                    secondMarkerCorners = corners[i]
+                # elif ids[i] == self.markerIDs[0]:
+                #     secondRvec = rvec
+                #     # print("second marker rvec", secondRvec)
+                #     secondTvec = tvec
+                #     # print("second marker tvec", secondTvec)
+                #     isSecondMarkerCalibrated = True
+                #     secondMarkerCorners = corners[i]
                 # elif ids[i] == thirdMarkerID:
                 #     thirdRvec = rvec
                 #     thirdTvec = tvec
                 #     isThirdMarkerCalibrated = True
                 #     thirdMarkerCorners = corners[i]
 
+                for mark in self.markerIDs:
+                    if ids[i] == mark:
+                        secondRvec = rvec
+                        # print("second marker rvec", secondRvec)
+                        secondTvec = tvec
+                        # print("second marker tvec", secondTvec)
+                        isSecondMarkerCalibrated = True
+                        secondMarkerCorners = corners[i]
+
+                        if firstRvec is not None and firstTvec is not None:  # If there are two markers, reverse the second and get the difference
+                            firstRvec, firstTvec = firstRvec.reshape((3, 1)), firstTvec.reshape((3, 1))
+                            secondRvec, secondTvec = secondRvec.reshape((3, 1)), secondTvec.reshape((3, 1))
+
+                            composedRvec, composedTvec = self.relativePosition(firstRvec, firstTvec, secondRvec, secondTvec)
+
+                            tvec_list.append(composedTvec)
                 (rvec - tvec).any()  # get rid of that nasty numpy value array error
 
-                aruco.drawDetectedMarkers(frame, corners)  # Draw A square around the markers
-
-            if len(ids) > 1 and firstRvec is not None and firstTvec is not None and secondTvec is not None and secondRvec is not None:  # If there are two markers, reverse the second and get the difference
-                firstRvec, firstTvec = firstRvec.reshape((3, 1)), firstTvec.reshape((3, 1))
-                # secondRvec, secondTvec = secondRvec.reshape((3, 1)), secondTvec.reshape((3, 1))
-                # thirdRvec, thirdTvec = thirdRvec.reshape((3, 1)), thirdTvec.reshape((3, 1))
-
-                composedRvec, composedTvec = self.relativePosition(firstRvec, firstTvec, secondRvec, secondTvec)
+                aruco.drawDetectedMarkers(self.frame, corners)  # Draw A square around the markers
+            #
+            # if len(ids) > 1 and firstRvec is not None and firstTvec is not None and secondTvec is not None and secondRvec is not None:  # If there are two markers, reverse the second and get the difference
+            #     firstRvec, firstTvec = firstRvec.reshape((3, 1)), firstTvec.reshape((3, 1))
+            #     secondRvec, secondTvec = secondRvec.reshape((3, 1)), secondTvec.reshape((3, 1))
+            #     # thirdRvec, thirdTvec = thirdRvec.reshape((3, 1)), thirdTvec.reshape((3, 1))
+            #
+            #     composedRvec, composedTvec = self.relativePosition(firstRvec, firstTvec, secondRvec, secondTvec)
                 # composedRvec2, composedTvec2 = relativePosition(firstRvec, firstTvec, thirdRvec, thirdTvec)
+            return tvec_list
 
-                # print("ComposedTvec of vec1 - "+str(camera), composedTvec)
-                # print("ComposedTvec of vec2 -"+str(camera), composedTvec2)
+    def show_image(self):
+        cv2.imshow('frame_'+str(self.cam), self.frame)
 
-            cv2.imshow('frame_'+str(self.cam), frame)
-            return composedTvec
-
-        def end_capture(self):
-            self.cam.release()
+    def end_capture(self):
+        self.cam.release()
 
 
 def loadCoefficients(filePath):
@@ -139,25 +152,33 @@ def track():
      composedRvec, composedTvec = None, None
      composedRvec2, composedTvec2 = None, None
 
-     mtx, dist = loadCoefficients("images_canon/calibrationCoefficients.yaml")
-     mtx2, dist2 = loadCoefficients("images_sony/calibrationCoefficients.yaml")
+     # mtx, dist = loadCoefficients("images_canon/calibrationCoefficients.yaml")
+     mtx, dist = loadCoefficients("images_webcam_black_checkerboard/calibrationCoefficients.yaml")
+     # mtx2, dist2 = loadCoefficients("images_sony/calibrationCoefficients.yaml")
 
-     cam1 = camera(mtx, dist, 0, [1], 1)
-     cam2 = camera(mtx2, dist2, 0, [1], 2)
+     cam1 = camera(mtx, dist, 0, [1, 2], 0)
+     # cam2 = camera(mtx2, dist2, 0, [1], 2)
 
      while True:
          vec1_cam1 = cam1.find_points()
-         vec1_cam2 = cam2.find_points()
-         # print(vec1_cam1)
-         # print(vec1_cam2)
-         if vec1_cam1 is not None and vec1_cam2 is not None:
-             print((vec1_cam1+vec1_cam2) / 2)
-         elif vec1_cam1 is not None:
+         # vec1_cam2 = cam2.find_points()
+         cam1.show_image()
+         # cam2.show_image()
+
+         if vec1_cam1 is not None:
              print(vec1_cam1)
-         elif vec1_cam2 is not None:
-             print(vec1_cam2)
          else:
              print("out of frame")
+
+         # if vec1_cam1 is not None and vec1_cam2 is not None:
+         #     print((vec1_cam1+vec1_cam2) / 2)
+         # elif vec1_cam1 is not None:
+         #     print(vec1_cam1)
+         # elif vec1_cam2 is not None:
+         #     print(vec1_cam2)
+         # else:
+         #     print("out of frame")
+
          # Wait 3 miliseconds for an interaction. Check the key and do the corresponding job.
          key = cv2.waitKey(300) & 0xFF
          if key == ord('q'):  # Quit

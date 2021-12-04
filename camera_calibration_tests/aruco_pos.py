@@ -7,7 +7,7 @@ import argparse
 import math
 
 aruco_marker_size = 0.1
-cap = cv2.VideoCapture(2)
+cap = cv2.VideoCapture(0)
 
 # termination criteria
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
@@ -30,7 +30,7 @@ def calibrate():
     objpoints = []  # 3d point in real world space
     imgpoints = []  # 2d points in image plane.
 
-    images = glob.glob('images_canon/*.jpg')
+    images = glob.glob('images_webcam_black_checkerboard/*.jpg')
     # images = glob.glob('images/*.png')
 
     for fname in images:
@@ -56,7 +56,7 @@ def calibrate():
 
 
 def saveCoefficients(mtx, dist):
-    cv_file = cv2.FileStorage("images_canon/calibrationCoefficients2.yaml", cv2.FILE_STORAGE_WRITE)
+    cv_file = cv2.FileStorage("images_webcam_black_checkerboard/calibrationCoefficients2.yaml", cv2.FILE_STORAGE_WRITE)
     # cv_file = cv2.FileStorage("images/test.yaml", cv2.FILE_STORAGE_WRITE)
     cv_file.write("camera_matrix", mtx)
     cv_file.write("dist_coeff", dist)
