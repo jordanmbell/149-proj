@@ -53,7 +53,7 @@ class camera:
         return img
 
     def find_points(self):
-        tvec_list = []
+        tvec_dict = {}
         composedTvec = None
         firstRvec = None
         firstTvec = None
@@ -82,18 +82,6 @@ class camera:
                     # print("first marker tvec", firstTvec)
                     isFirstMarkerCalibrated = True
                     firstMarkerCorners = corners[i]
-                # elif ids[i] == self.markerIDs[0]:
-                #     secondRvec = rvec
-                #     # print("second marker rvec", secondRvec)
-                #     secondTvec = tvec
-                #     # print("second marker tvec", secondTvec)
-                #     isSecondMarkerCalibrated = True
-                #     secondMarkerCorners = corners[i]
-                # elif ids[i] == thirdMarkerID:
-                #     thirdRvec = rvec
-                #     thirdTvec = tvec
-                #     isThirdMarkerCalibrated = True
-                #     thirdMarkerCorners = corners[i]
 
                 for mark in self.markerIDs:
                     if ids[i] == mark:
@@ -110,19 +98,11 @@ class camera:
 
                             composedRvec, composedTvec = self.relativePosition(firstRvec, firstTvec, secondRvec, secondTvec)
 
-                            tvec_list.append(composedTvec)
+                            tvec_dict[mark] = composedTvec
                 (rvec - tvec).any()  # get rid of that nasty numpy value array error
 
                 aruco.drawDetectedMarkers(self.frame, corners)  # Draw A square around the markers
-            #
-            # if len(ids) > 1 and firstRvec is not None and firstTvec is not None and secondTvec is not None and secondRvec is not None:  # If there are two markers, reverse the second and get the difference
-            #     firstRvec, firstTvec = firstRvec.reshape((3, 1)), firstTvec.reshape((3, 1))
-            #     secondRvec, secondTvec = secondRvec.reshape((3, 1)), secondTvec.reshape((3, 1))
-            #     # thirdRvec, thirdTvec = thirdRvec.reshape((3, 1)), thirdTvec.reshape((3, 1))
-            #
-            #     composedRvec, composedTvec = self.relativePosition(firstRvec, firstTvec, secondRvec, secondTvec)
-                # composedRvec2, composedTvec2 = relativePosition(firstRvec, firstTvec, thirdRvec, thirdTvec)
-            return tvec_list
+            return tvec_dict
 
     def show_image(self):
         cv2.imshow('frame_'+str(self.cam), self.frame)
@@ -152,11 +132,11 @@ def track():
      composedRvec, composedTvec = None, None
      composedRvec2, composedTvec2 = None, None
 
-     # mtx, dist = loadCoefficients("images_canon/calibrationCoefficients.yaml")
-     mtx, dist = loadCoefficients("images_webcam_black_checkerboard/calibrationCoefficients.yaml")
+     mtx, dist = loadCoefficients("images_canon_floor/calibrationCoefficients2.yaml")
+     # mtx, dist = loadCoefficients("images_webcam_black_checkerboard/calibrationCoefficients.yaml")
      # mtx2, dist2 = loadCoefficients("images_sony/calibrationCoefficients.yaml")
 
-     cam1 = camera(mtx, dist, 0, [1, 2], 0)
+     cam1 = camera(mtx, dist, 0, [1, 2, 3], 1)
      # cam2 = camera(mtx2, dist2, 0, [1], 2)
 
      while True:
@@ -186,7 +166,7 @@ def track():
 
      # When everything done, release the captures
      cam1.end_capture()
-     cam2.end_capture()
+     # cam2.end_capture()
      cv2.destroyAllWindows()
 
 if __name__ == '__main__':
