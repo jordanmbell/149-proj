@@ -52,6 +52,8 @@ class camera:
             img = cv2.line(img, tuple(imgpts[i]), tuple(imgpts[j]),(255),3)
         return img
 
+    # def find_points2(self):
+
     def find_points(self):
         tvec_dict = {}
         composedTvec = None
