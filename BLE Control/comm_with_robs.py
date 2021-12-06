@@ -85,7 +85,7 @@ def handle_sigint(comm_tasks, shared: shared_data_t):
 
 
 async def begin_communication(num_robots):
-    addresses = [addr + str(num+1) for num in range(num_robots)]
+    addresses = [addr + str(num) for num in range(num_robots)]
     shared = shared_data_t(4)
     pos_routines = [_connect_to_device(address, shared)
                     for address in addresses]

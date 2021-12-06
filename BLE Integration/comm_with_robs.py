@@ -3,7 +3,6 @@
 import asyncio
 import signal
 import struct
-import sys
 import time
 from typing import List
 
@@ -72,7 +71,7 @@ async def _connect_to_device(address: str, shared_data: shared_data_t):
                 except Exception as e:
                     print(f"\t{e}")
         except BleakError as e:
-            print("not found")
+            print(f"Did not find device {address}")
         await asyncio.sleep(0)  # Allow other events to run
 
 
@@ -85,7 +84,7 @@ def handle_sigint(comm_tasks, shared: shared_data_t):
 
 
 async def begin_communication(num_robots):
-    addresses = [addr + str(num+1) for num in range(num_robots)]
+    addresses = [addr + str(num) for num in range(num_robots)]
     shared = shared_data_t(4)
     pos_routines = [_connect_to_device(address, shared)
                     for address in addresses]
