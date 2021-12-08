@@ -27,6 +27,7 @@ typedef struct {
 } incoming_data_t;
 
 // BLE vars
+bool connected = false;
 incoming_data_t incoming_data;
 rob_data_t robot_data[NUM_ROBOTS];
 // configure initial state
@@ -34,6 +35,8 @@ KobukiSensors_t sensors = {0};
 float distance = 0;
 // Timer for getting the number of the robot
 double num_timer;
+// Timer for switching display
+double display_timer = 0;
 // Current robot time
 double current_time;
 // Current error between robot and server
@@ -64,6 +67,7 @@ static simple_ble_char_t pos_state_char = {.uuid16 = 0x108a};
 simple_ble_app_t* simple_ble_app;
 
 void ble_evt_write(ble_evt_t const* p_ble_evt) {
+  connected = true;
   printf("Enter BLE Handle\n");
   if (simple_ble_is_char_event(p_ble_evt, &pos_state_char)) {
     printf("Got robot data!\n");
@@ -110,12 +114,7 @@ robot_state_t controller(robot_state_t state) {
   } else {
     current_time += 0.02;
   }
-  // read sensors from robot
   kobukiSensorPoll(&sensors);
-
-  // delay before continuing
-  // Note: removing this delay will make responses quicker, but will result
-  //  in printf's in this loop breaking JTAG
   nrf_delay_ms(1);
 
   // handle states
@@ -126,6 +125,10 @@ robot_state_t controller(robot_state_t state) {
         state = GETTING_NUM;
         num_timer = current_time + 10;
       } else {
+        if (connected) {
+          advertising_stop();
+          connected = false;
+        }
         // perform state-specific actions here
         display_write("OFF", DISPLAY_LINE_0);
         kobukiDriveDirect(0,0);
@@ -155,8 +158,11 @@ robot_state_t controller(robot_state_t state) {
       // transition logic
       if (is_button_pressed(&sensors)) {
         state = OFF;
+      } else if (connected) {
+        state = DISPLAY_TIME;
+        display_timer = current_time + 5;
       } else {
-        snprintf(buf, 16, "server_t: %f", current_time);
+        snprintf(buf, 16, "robot_t: %f", current_time);
         display_write(buf, DISPLAY_LINE_1);
         display_write("PENDING", DISPLAY_LINE_0);
         state = PENDING;
@@ -165,6 +171,68 @@ robot_state_t controller(robot_state_t state) {
       }
       break;  // each case needs to end with break!
     }
+
+    case DISPLAY_TIME: {
+      // transition logic
+      if (is_button_pressed(&sensors)) {
+        state = OFF;
+      } else if (current_time > display_timer) {
+        state = DISPLAY_X;
+        display_timer = current_time + 5;
+      } else {
+        snprintf(buf, 16, "server_t: %f", current_time);
+        display_write(buf, DISPLAY_LINE_1);
+        display_write("DISPLAY_TIME", DISPLAY_LINE_0);
+      }
+      break;  // each case needs to end with break!
+    }
+
+    case DISPLAY_X: {
+      // transition logic
+      if (is_button_pressed(&sensors)) {
+        state = OFF;
+      } else if (current_time > display_timer) {
+        state = DISPLAY_Y;
+        display_timer = current_time + 5;
+      } else {
+        snprintf(buf, 16, "my_x: %f", robot_data[robot_num].x_pos);
+        display_write(buf, DISPLAY_LINE_1);
+        display_write("DISPLAY_X", DISPLAY_LINE_0);
+      }
+      break;  // each case needs to end with break!
+    }
+
+    case DISPLAY_Y: {
+      // transition logic
+      if (is_button_pressed(&sensors)) {
+        state = OFF;
+      } else if (current_time > display_timer) {
+        state = DISPLAY_ANG;
+        display_timer = current_time + 5;
+      } else {
+        snprintf(buf, 16, "my_y: %f", robot_data[robot_num].y_pos);
+        display_write(buf, DISPLAY_LINE_1);
+        display_write("DISPLAY_Y", DISPLAY_LINE_0);
+      }
+      break;  // each case needs to end with break!
+    }
+
+    case DISPLAY_ANG: {
+      // transition logic
+      if (is_button_pressed(&sensors)) {
+        state = OFF;
+      } else if (current_time > display_timer) {
+        state = DISPLAY_TIME;
+        display_timer = current_time + 5;
+      } else {
+        snprintf(buf, 16, "my_ang: %f", robot_data[robot_num].angle);
+        display_write(buf, DISPLAY_LINE_1);
+        display_write("DISPLAY_ANG", DISPLAY_LINE_0);
+      }
+      break;  // each case needs to end with break!
+    }
+
+    
   }
 
   // add other cases here
