@@ -313,7 +313,7 @@ robot_state_t controller(robot_state_t state) {
       if (is_button_pressed(&sensors)) {
         printf("Starting timer\n");
         state = GETTING_NUM;
-        num_timer = current_time + 10;
+        num_timer = current_time + 1;
         m = new_command_length(LOC_ORI, max_count);
       } else {
         // perform state-specific actions here
@@ -364,7 +364,7 @@ robot_state_t controller(robot_state_t state) {
         // perform state-specific actions here
         kobukiDriveDirect(0, 0);
       }
-      if (current_time >= start_time)
+      if (true || current_time >= start_time)
         state = START;
       break; // each case needs to end with break!
     }
