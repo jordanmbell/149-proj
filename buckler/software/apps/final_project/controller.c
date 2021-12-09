@@ -9,6 +9,7 @@
 #include "kobukiSensorPoll.h"
 #include "kobukiSensorTypes.h"
 #include "kobukiUtilities.h"
+#include "lsm9ds1.h"
 #include "nrf.h"
 #include "nrf_delay.h"
 #include "simple_ble.h"
