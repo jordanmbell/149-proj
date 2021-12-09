@@ -149,14 +149,11 @@ static void setup_ble()
 
 static float get_distance(uint16_t current_encoder, uint16_t prev_encoder) {
   const float CONVERSION = 0.00065;
-  if (abs(current_encoder - prev_encoder) < 20) {
-    return 0;
-  }
 
   float result = 0.0;
   if (current_encoder >= prev_encoder) {
     result = (float)current_encoder - (float)prev_encoder;
-  } else {
+  } else if (current_encoder){
     result = (float)current_encoder + (0xFFFF - (float)prev_encoder);
   }
   return result = result * CONVERSION;
@@ -425,7 +422,7 @@ robot_state_t controller(robot_state_t state) {
       {
         state = PENDING;
       }
-      else if (measure_distance_or_angle >= set_distance_or_angle)
+      else if (false && measure_distance_or_angle >= set_distance_or_angle)
       {
         state = next_state;
         kobukiDriveDirect(0, 0);
@@ -449,7 +446,7 @@ robot_state_t controller(robot_state_t state) {
         measure_distance_or_angle = get_distance(sensors.rightWheelEncoder, initial_encoder);
         snprintf(buf, 16, "%f", measure_distance_or_angle);
         display_write(buf, DISPLAY_LINE_1);
-        printf("encoder: %d, prev: %d\n", sensors.rightWheelEncoder, initial_encoder);
+        printf("encoder: %d, prev: %d, distance: %f\n", sensors.rightWheelEncoder, initial_encoder, measure_distance_or_angle);
       }
       break; // each case needs to end with break!
     }
