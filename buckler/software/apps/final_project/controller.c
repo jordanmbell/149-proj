@@ -298,7 +298,7 @@ static uint16_t get_relative_xy(float *relative_x, float *relative_y, int counte
 }
 
 robot_state_t controller(robot_state_t state) {
-  if (!connected) {
+  if (connected) {
     power_manage();
   } else {
     current_time += 0.02;
