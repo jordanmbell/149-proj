@@ -499,23 +499,21 @@ robot_state_t controller(robot_state_t state) {
           i1 += relative_x;
           i2 += relative_y;
           drive_formatted(velocity - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, velocity / radd / 1000 + Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
-          printf("speed: %f, angular: %f\n", velocity - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, velocity / radd / 1000 + Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
           measure_distance_or_angle = meas.z_axis;
           char line[16];
           snprintf(line, 16, "%f", measure_distance_or_angle);
           display_write(line, DISPLAY_LINE_1);
-          printf("\n");
         }
         else
         {
           drive_formatted(0, spd);
+          printf("speed: %f, angular: %f\n", 0, spd);
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
           measure_distance_or_angle = meas.z_axis;
           char line[16];
           snprintf(line, 16, "%f", measure_distance_or_angle);
           display_write(line, DISPLAY_LINE_1);
-          printf("\n");
         }
       }
       break; // each case needs to end with break!
