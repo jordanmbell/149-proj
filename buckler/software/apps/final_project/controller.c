@@ -153,8 +153,11 @@ static float get_distance(uint16_t current_encoder, uint16_t prev_encoder) {
   float result = 0.0;
   if (current_encoder >= prev_encoder) {
     result = (float)current_encoder - (float)prev_encoder;
-  } else if (current_encoder){
+  } else if (current_encoder < 0xFFFF/2 && prev_encoder > 0xFFFF/2) {
     result = (float)current_encoder + (0xFFFF - (float)prev_encoder);
+  } else {
+    // BACKWARDS
+    result = 0;
   }
   return result = result * CONVERSION;
 }
