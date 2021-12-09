@@ -68,8 +68,7 @@ simple_ble_app_t *simple_ble_app;
 // Configure initial state
 KobukiSensors_t sensors = {0};
 rob_data_t robot_positions[NUM_ROBOTS];
-robot_position_t *my_position;
-
+rob_data_t *my_position;
 float xinit[] = {0.5, -0.5, 0.5, -0.5};
 float yinit[] = {1, 1, -1, -1};
 float initial_location_x = 0;
@@ -83,7 +82,7 @@ float set_turn_speed = 200;
 float set_radius = 1.5;
 float time_constant = 2;
 float set_distance_or_angle, measure_distance_or_angle;
-float current_time, enter_state_time;
+float enter_state_time;
 float init_state_x = 0, init_state_y = 0;
 uint16_t changed_counter = 0;
 uint16_t initial_encoder;
