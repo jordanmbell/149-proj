@@ -149,6 +149,9 @@ static void setup_ble()
 
 static float get_distance(uint16_t current_encoder, uint16_t prev_encoder) {
   const float CONVERSION = 0.00065;
+  if (abs(current_encoder - prev_encoder) < 20) {
+    return 0;
+  }
 
   float result = 0.0;
   if (current_encoder >= prev_encoder) {
