@@ -386,7 +386,7 @@ robot_state_t controller(robot_state_t state) {
       // transition logic
       if (counter >= m)
       {
-        state = PENDING;
+        state = OFF;
         counter = 0;
       }
       else
