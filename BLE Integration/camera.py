@@ -6,7 +6,12 @@ import argparse
 import math
 import time
 
-cam1_id=1
+cam1_id = 0
+cam_wait_ms = 100
+num_markers = 9
+originID = 0
+markerIDs = range(num_markers)
+
 class camera:
     def __init__(self, mc, dc, originID, markerIDs, camID):
         self.matrix_coefficients = mc
@@ -30,6 +35,9 @@ class camera:
 
 
     def relativePosition(self, rvec1, tvec1, rvec2, tvec2):
+        #tvec1[2][0] = 0
+        #tvec2[2][0] = 0
+        #return 0, tvec2 - tvec1 
         rvec1, tvec1 = rvec1.reshape((3, 1)), tvec1.reshape(
             (3, 1))
         rvec2, tvec2 = rvec2.reshape((3, 1)), tvec2.reshape((3, 1))
@@ -65,7 +73,7 @@ class camera:
         secondTvec = None
         ret1, self.frame = self.cam.read() #originally 1, but the tutorial left it blank?
         gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)  # Change grayscale
-        aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)  # Use 5x5 dictionary to find markers
+        aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_250)  # Use 5x5 dictionary to find markers
         parameters = aruco.DetectorParameters_create()  # Marker detection parameters
 
         # lists of ids and the corners beloning to each id
@@ -78,7 +86,8 @@ class camera:
             for i in range(0, len(ids)):  # Iterate in markers
                 # Estimate pose of each marker and return the values rvec and tvec---different from camera coefficients
                 #0.1 below is aruco_marker_size
-                rvec, tvec, markerPoints = aruco.estimatePoseSingleMarkers(corners[i], 0.1, self.matrix_coefficients, self.distortion_coefficients)
+                aruco_marker_size = 0.2
+                rvec, tvec, markerPoints = aruco.estimatePoseSingleMarkers(corners[i], aruco_marker_size, self.matrix_coefficients, self.distortion_coefficients)
                 if ids[i] == self.originID:
                     firstRvec = rvec
                     # print("first marker rvec", firstRvec)
@@ -97,12 +106,15 @@ class camera:
                         secondMarkerCorners = corners[i]
 
                         if firstRvec is not None and firstTvec is not None:  # If there are two markers, reverse the second and get the difference
+                            aruco.drawAxis(self.frame, self.matrix_coefficients, self.distortion_coefficients, secondRvec, secondTvec, 0.1)
+                            
                             firstRvec, firstTvec = firstRvec.reshape((3, 1)), firstTvec.reshape((3, 1))
                             secondRvec, secondTvec = secondRvec.reshape((3, 1)), secondTvec.reshape((3, 1))
 
                             composedRvec, composedTvec = self.relativePosition(firstRvec, firstTvec, secondRvec, secondTvec)
 
                             tvec_dict[mark] = composedTvec
+                            
                 (rvec - tvec).any()  # get rid of that nasty numpy value array error
 
                 aruco.drawDetectedMarkers(self.frame, corners)  # Draw A square around the markers
@@ -136,11 +148,12 @@ def track(shared_dict):
      composedRvec, composedTvec = None, None
      composedRvec2, composedTvec2 = None, None
 
-     mtx, dist = loadCoefficients("../camera_calibration_tests/images_canon_floor/calibrationCoefficients2.yaml")
+     #mtx, dist = loadCoefficients("../camera_calibration_tests/images_canon_floor/calibrationCoefficients2.yaml")
+     mtx, dist = loadCoefficients("../camera_calibration_tests/images_canon/calibrationCoefficients.yaml")
      # mtx, dist = loadCoefficients("images_webcam_black_checkerboard/calibrationCoefficients.yaml")
      # mtx2, dist2 = loadCoefficients("images_sony/calibrationCoefficients.yaml")
 
-     cam1 = camera(mtx, dist, 0, [1, 2, 3], cam1_id)
+     cam1 = camera(mtx, dist, originID, markerIDs, cam1_id)
      # cam2 = camera(mtx2, dist2, 0, [1], 2)
 
      while True:
@@ -148,16 +161,14 @@ def track(shared_dict):
          # vec1_cam2 = cam2.find_points()
          cam1.show_image()
          # cam2.show_image()
-         
-
 
          if vec1_cam1 is not None:
              #print(vec1_cam1)
              for id in vec1_cam1.keys():
-                 shared_dict[id] = [vec1_cam1[id][0], vec1_cam1[id][1]]
-             print(shared_dict)
-         else:
-             print("out of frame")
+                 shared_dict[id] = [vec1_cam1[id][0], vec1_cam1[id][1], vec1_cam1[id][2]]
+             #print(shared_dict)
+         #else:
+             #print("out of frame")
 
          # if vec1_cam1 is not None and vec1_cam2 is not None:
          #     print((vec1_cam1+vec1_cam2) / 2)
@@ -169,7 +180,7 @@ def track(shared_dict):
          #     print("out of frame")
 
          # Wait 3 miliseconds for an interaction. Check the key and do the corresponding job.
-         key = cv2.waitKey(300) & 0xFF
+         key = cv2.waitKey(cam_wait_ms) & 0xFF
          if key == ord('q'):  # Quit
              break
 
@@ -178,14 +189,12 @@ def track(shared_dict):
      # cam2.end_capture()
      cv2.destroyAllWindows()
 
-
-
-
+# Dummy tracking function for debugging
 def track_dummy(shared_dict):
     r = 3
     tau = 10
     t = 0
     while True:
-        shared_dict[0] = [r * np.cos(t/tau), r * np.sin(t/tau)]
+        shared_dict[0] = [r * np.cos(t/tau), r * np.sin(t/tau), -1]
         t += 1
         time.sleep(0.1)
