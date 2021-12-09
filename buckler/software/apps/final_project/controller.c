@@ -301,21 +301,21 @@ static void drive_formatted(float overall_speed, float angular_speed) {
   rightSpeed = overall_speed + wheel_distance/2*angular_speed*1000;
   leftSpeed = overall_speed - wheel_distance/2*angular_speed*1000;
 
-  int delta = 0;
-  if (old_left != 0 && old_right != 0) {
-    float left_vel = (sensors.leftWheelEncoder - old_left);
-    float right_vel = (sensors.rightWheelEncoder - old_right);
+  // int delta = 0;
+  // if (old_left != 0 && old_right != 0) {
+  //   float left_vel = (sensors.leftWheelEncoder - old_left);
+  //   float right_vel = (sensors.rightWheelEncoder - old_right);
     
-    float klocal = 75;
-    delta = klocal * (left_vel / leftSpeed - right_vel / rightSpeed);
-  }
+  //   float klocal = 75;
+  //   delta = klocal * (left_vel / leftSpeed - right_vel / rightSpeed);
+  // }
 
 
   old_left = sensors.leftWheelEncoder;
   old_right = sensors.rightWheelEncoder;
 
 
-  kobukiDriveDirect(leftSpeed - delta, rightSpeed * 0.9 + delta);
+  kobukiDriveDirect(leftSpeed, rightSpeed);
 }
 
 robot_state_t controller(robot_state_t state) {
