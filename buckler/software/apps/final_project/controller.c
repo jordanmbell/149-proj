@@ -76,7 +76,7 @@ float initial_location_x = 0;
 float initial_location_y = 0;
 float current_x, current_y;
 float relative_x = 0, relative_y = 0, velocity;
-float center_command[] = {1.5, 90, 1.5, 90, 1.5};
+float center_command[] = {0, 90, 1.5, 90, 1.5};
 uint16_t LOC_ORI[] = {0, 1, 0, 2, 0}; // 1 left,2 right
 float set_speed = 200;
 float set_turn_speed = 200;
@@ -499,6 +499,7 @@ robot_state_t controller(robot_state_t state) {
           i1 += relative_x;
           i2 += relative_y;
           drive_formatted(velocity - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, velocity / radd / 1000 + Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
+          printf("speed: %f, angular: %f\n", velocity - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, velocity / radd / 1000 + Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
           measure_distance_or_angle = meas.z_axis;
           char line[16];
