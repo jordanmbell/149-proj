@@ -48,10 +48,8 @@ async def main():
             if shared_data.connected:
                 change = False
                 for i in range(4):
-                    if i in marker_to_robot.keys():
-                        shared_data.update_robot(marker_to_robot[i], 
-                                shared_dict[i][0], shared_dict[i][1], shared_dict[i][1])
-                        change = True
+                    shared_data.update_robot(i, i, i, i)
+                    change = True
                 if change:
                     shared_data.push_update()
 
