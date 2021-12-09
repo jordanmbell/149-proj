@@ -293,13 +293,21 @@ static uint16_t get_relative_xy(float *relative_x, float *relative_y, int counte
   return 0;
 }
 
+float old_left = 0;
+float old_right = 0;
 static void drive_formatted(float overall_speed, float angular_speed) {
   float leftSpeed, rightSpeed;
 
   rightSpeed = overall_speed + wheel_distance/2*angular_speed*1000;
   leftSpeed = overall_speed - wheel_distance/2*angular_speed*1000;
 
-  kobukiDriveDirect(leftSpeed, rightSpeed * 0.9);
+  float left_vel = (sensors.leftWheelEncoder - old_left);
+  float right_vel = (sensors.rightWheelEncoder - old_right);
+  float klocal = 10;
+  int delta = klocal * (left_vel / leftSpeed - right_vel / rightSpeed);
+
+
+  kobukiDriveDirect(leftSpeed - delta, rightSpeed * 0.9 + delta);
 }
 
 robot_state_t controller(robot_state_t state) {
