@@ -14,7 +14,7 @@
 #include "nrf_delay.h"
 #include "simple_ble.h"
 
-#define wheel_distance 0.2
+#define wheel_distance 0.4
 #define NUM_ROBOTS 4
 #define pi 3.141592653589793
 
