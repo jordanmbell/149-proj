@@ -147,20 +147,21 @@ static void setup_ble()
   simple_ble_adv_only_name();
 }
 
-static float measure_distance(uint16_t current_encoder, uint16_t previous_encoder)
-{
-  const float CONVERSION = 0.00065;
+static float get_distance(uint16_t current_encoder, uint16_t prev_encoder) {
+  const float CONVERSION = 0.0006108;
+  int32_t diff;
+  float distance;
 
-  float result = 0.0;
-  if (current_encoder >= previous_encoder)
-  {
-    result = (float)current_encoder - (float)previous_encoder;
+  if (current_encoder < prev_encoder) {
+    diff = (1 << 16) + current_encoder - prev_encoder;
+  } else {
+    diff = current_encoder - prev_encoder;
   }
-  else
-  {
-    result = (float)current_encoder + (0xFFFF - (float)previous_encoder);
-  }
-  return result = result * CONVERSION;
+
+  // diff = (int32_t) current_encoder - (int32_t) prev_encoder;
+
+  distance = diff * CONVERSION;
+  return distance;
 }
 
 static uint16_t new_command_length(uint16_t LOC_ORI[], uint16_t max_count)
