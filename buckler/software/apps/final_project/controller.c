@@ -445,11 +445,11 @@ robot_state_t controller(robot_state_t state) {
         d2 = relative_y - d2;
         i1 += relative_x;
         i2 += relative_y;
-        kobukiDriveDirect(spd - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
+        //kobukiDriveDirect(spd - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
         measure_distance_or_angle = get_distance(sensors.rightWheelEncoder, initial_encoder);
         snprintf(buf, 16, "%f", measure_distance_or_angle);
         display_write(buf, DISPLAY_LINE_1);
-        printf("encoder: %d, prev: %d", sensors.rightWheelEncoder, initial_encoder);
+        printf("encoder: %d, prev: %d\n", sensors.rightWheelEncoder, initial_encoder);
       }
       break; // each case needs to end with break!
     }
