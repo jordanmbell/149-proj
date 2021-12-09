@@ -76,8 +76,8 @@ float initial_location_x = 0;
 float initial_location_y = 0;
 float current_x, current_y;
 float relative_x = 0, relative_y = 0, velocity;
-float center_command[] = {1.5, 0, 0, 0, 0};
-uint16_t LOC_ORI[] = {0, 0, 0, 0, 0}; // 1 left,2 right
+float center_command[] = {0.5, 90, 0.5, 90, 0.5};
+uint16_t LOC_ORI[] = {0, 1, 0, 2, 0}; // 1 left,2 right
 float set_speed = 200;
 float set_turn_speed = 200;
 float set_radius = 1.5;
