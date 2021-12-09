@@ -14,7 +14,7 @@
 #include "nrf_delay.h"
 #include "simple_ble.h"
 
-#define wheel_distance 0.4
+#define wheel_distance 0.229
 #define NUM_ROBOTS 4
 #define pi 3.141592653589793
 
@@ -78,9 +78,9 @@ float current_x, current_y;
 float relative_x = 0, relative_y = 0, velocity;
 float center_command[] = {0.5, 90, 0.5, 90, 0.5};
 uint16_t LOC_ORI[] = {0, 1, 0, 2, 0}; // 1 left,2 right
-float set_speed = 200;
-float set_turn_speed = 200;
-float set_radius = 0.5;
+float set_speed = 100;
+float set_turn_speed = 100;
+float set_radius = 0.25;
 float time_constant = 2;
 float set_distance_or_angle, measure_distance_or_angle;
 float enter_state_time;
