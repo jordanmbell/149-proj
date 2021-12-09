@@ -3,7 +3,6 @@
 import asyncio
 import signal
 import struct
-import sys
 import time
 from typing import List
 
@@ -72,7 +71,7 @@ async def _connect_to_device(address: str, shared_data: shared_data_t):
                 except Exception as e:
                     print(f"\t{e}")
         except BleakError as e:
-            print("not found")
+            print(f"Did not find device {address}")
         await asyncio.sleep(0)  # Allow other events to run
 
 
