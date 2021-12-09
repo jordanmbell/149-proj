@@ -508,7 +508,7 @@ robot_state_t controller(robot_state_t state) {
         else
         {
           drive_formatted(0, spd);
-          printf("speed: %f, angular: %f\n", 0, spd);
+          printf("speed: %d, angular: %f\n", 0, spd);
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
           measure_distance_or_angle = meas.z_axis;
           char line[16];
