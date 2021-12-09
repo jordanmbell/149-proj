@@ -295,6 +295,15 @@ static uint16_t get_relative_xy(float *relative_x, float *relative_y, int counte
   return 0;
 }
 
+static void drive_formatted(float overall_speed, float angular_speed) {
+  float leftSpeed, rightSpeed;
+
+  rightSpeed = overall_speed + wheel_distance/2*angular_speed;
+  leftSpeed = overall_speed - wheel_distance/2*angular_speed;
+
+  kobukiDriveDirect(leftSpeed, rightSpeed);
+}
+
 robot_state_t controller(robot_state_t state) {
   if (connected) {
     power_manage();
@@ -321,7 +330,7 @@ robot_state_t controller(robot_state_t state) {
       } else {
         // perform state-specific actions here
         display_write("OFF", DISPLAY_LINE_0);
-        kobukiDriveDirect(0,0);
+        drive_formatted(0,0);
         state = OFF;
       }
       break; // each case needs to end with break!
@@ -350,7 +359,7 @@ robot_state_t controller(robot_state_t state) {
         display_write(buf, DISPLAY_LINE_1);
         display_write("GETTING_NUM", DISPLAY_LINE_0);
         state = GETTING_NUM;
-        kobukiDriveDirect(0, 0);
+        drive_formatted(0, 0);
       }
       break;
     }
@@ -365,7 +374,7 @@ robot_state_t controller(robot_state_t state) {
         display_write("PENDING", DISPLAY_LINE_0);
         state = PENDING;
         // perform state-specific actions here
-        kobukiDriveDirect(0, 0);
+        drive_formatted(0, 0);
       }
       if (true || current_time >= start_time)
         state = START;
@@ -425,10 +434,10 @@ robot_state_t controller(robot_state_t state) {
       {
         state = PENDING;
       }
-      else if (false && measure_distance_or_angle >= set_distance_or_angle)
+      else if (measure_distance_or_angle >= set_distance_or_angle)
       {
         state = next_state;
-        kobukiDriveDirect(0, 0);
+        drive_formatted(0, 0);
         measure_distance_or_angle = 0;
         initial_encoder = sensors.rightWheelEncoder;
         lsm9ds1_stop_gyro_integration();
@@ -445,7 +454,7 @@ robot_state_t controller(robot_state_t state) {
         d2 = relative_y - d2;
         i1 += relative_x;
         i2 += relative_y;
-        //kobukiDriveDirect(spd - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
+        drive_formatted(spd - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
         measure_distance_or_angle = get_distance(sensors.rightWheelEncoder, initial_encoder);
         snprintf(buf, 16, "%f", measure_distance_or_angle);
         display_write(buf, DISPLAY_LINE_1);
@@ -468,7 +477,7 @@ robot_state_t controller(robot_state_t state) {
       else if (measure_distance_or_angle >= set_distance_or_angle)
       {
         state = next_state;
-        kobukiDriveDirect(0, 0);
+        drive_formatted(0, 0);
         measure_distance_or_angle = 0;
         initial_encoder = sensors.rightWheelEncoder;
         lsm9ds1_stop_gyro_integration();
@@ -489,7 +498,7 @@ robot_state_t controller(robot_state_t state) {
           d2 = relative_y - d2;
           i1 += relative_x;
           i2 += relative_y;
-          kobukiDriveDirect(velocity - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, velocity / radd / 1000 + Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
+          drive_formatted(velocity - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, velocity / radd / 1000 + Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
           measure_distance_or_angle = meas.z_axis;
           char line[16];
@@ -499,7 +508,7 @@ robot_state_t controller(robot_state_t state) {
         }
         else
         {
-          kobukiDriveDirect(0, spd);
+          drive_formatted(0, spd);
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
           measure_distance_or_angle = meas.z_axis;
           char line[16];
@@ -524,7 +533,7 @@ robot_state_t controller(robot_state_t state) {
       else if (measure_distance_or_angle <= -set_distance_or_angle)
       {
         state = next_state;
-        kobukiDriveDirect(0, 0);
+        drive_formatted(0, 0);
         measure_distance_or_angle = 0;
         initial_encoder = sensors.rightWheelEncoder;
         lsm9ds1_stop_gyro_integration();
@@ -544,7 +553,7 @@ robot_state_t controller(robot_state_t state) {
           d2 = relative_y - d2;
           i1 += relative_x;
           i2 += relative_y;
-          kobukiDriveDirect(velocity - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, -velocity / radd / 1000 + Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
+          drive_formatted(velocity - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, -velocity / radd / 1000 + Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
           measure_distance_or_angle = meas.z_axis;
           char line[16];
@@ -554,7 +563,7 @@ robot_state_t controller(robot_state_t state) {
         }
         else
         {
-          kobukiDriveDirect(0, -spd);
+          drive_formatted(0, -spd);
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
           measure_distance_or_angle = meas.z_axis;
           char line[16];
