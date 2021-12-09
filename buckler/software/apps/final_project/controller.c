@@ -34,7 +34,7 @@ typedef struct
 
 // BLE vars
 incoming_data_t incoming_data;
-rob_data_t robot_data[NUM_ROBOTS];
+rob_data_t robot_data[NUM_ROBOTS] = {0};
 float start_time = 30;
 bool connected = false;
 // configure initial state
@@ -449,9 +449,8 @@ robot_state_t controller(robot_state_t state) {
         i2 += relative_y;
         kobukiDriveDirect(spd - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
         measure_distance_or_angle = get_distance(sensors.rightWheelEncoder, initial_encoder);
-        char line[16];
-        snprintf(line, 16, "%f", measure_distance_or_angle);
-        display_write(line, DISPLAY_LINE_1);
+        snprintf(buf, 16, "%f", measure_distance_or_angle);
+        display_write(buf, DISPLAY_LINE_1);
         printf("\n");
       }
       break; // each case needs to end with break!
