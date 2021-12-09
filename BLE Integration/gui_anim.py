@@ -4,7 +4,7 @@ import matplotlib.animation as animation
 import numpy as np
 
 # Set up graph
-frame_size = 5
+frame_size = 2
 plt.style.use('seaborn')
 fig = plt.figure(figsize=(6, 6))
 ax = fig.add_subplot(1, 1, 1)
@@ -18,10 +18,12 @@ def animate(i, xs, ys, shared_dict, num_markers):
 
     # Add x and y to lists
     #print(shared_dict)
+    rot_list = []
     for k in range(num_markers):
-        x, y, _ = shared_dict[k]
+        x, y, rot = shared_dict[k]
         xs[k].append(x)
         ys[k].append(y)
+        rot_list.append(rot)
 
     # Limit x and y lists to n_items
     n_items = 20
@@ -38,7 +40,11 @@ def animate(i, xs, ys, shared_dict, num_markers):
             ax.plot(x_range, y_range, alpha=0.1*j, c=colors[k] )
 
     for k in range(num_markers):
-        ax.scatter(xs[k][-1], ys[k][-1], c=colors[k], s=20, label=str(k))
+        x, y = xs[k][-1], ys[k][-1]
+        ax.scatter(x, y,  c=colors[k], s=20, label=str(k))
+        rot = np.radians(rot_list[k]) + np.pi/2
+        arrowx, arrowy = np.cos(rot), np.sin(rot)
+        ax.arrow(x, y, arrowx*0.3, arrowy*0.3, head_length = 0.1, head_width = 0.1)
 
     # Format plot
     plt.title('Position')
@@ -58,4 +64,3 @@ def start_animation(shared_dict, num_markers):
         ys.append([])
     ani = animation.FuncAnimation(fig, animate, fargs=(xs, ys, shared_dict, num_markers), interval=1)
     plt.show()
-
