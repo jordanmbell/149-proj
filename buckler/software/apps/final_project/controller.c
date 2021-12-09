@@ -369,7 +369,7 @@ robot_state_t controller(robot_state_t state) {
         // perform state-specific actions here
         kobukiDriveDirect(0, 0);
       }
-      if (current_time >= start_time)
+      if (connected && current_time >= start_time)
         state = START;
       break; // each case needs to end with break!
     }
