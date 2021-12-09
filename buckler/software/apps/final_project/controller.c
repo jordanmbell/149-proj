@@ -438,10 +438,10 @@ robot_state_t controller(robot_state_t state) {
       else
       {
         display_write("LEADER_FORWARD", DISPLAY_LINE_0);
-        current_x = xinit[robot_num] - my_position->y_pos;
-        current_y = yinit[robot_num] + my_position->x_pos;
-        get_relative_xy(&relative_x, &relative_y, counter - 1, LOC, command, current_time - enter_state_time, spd, -1, current_x, current_y, init_state_x, init_state_y);
-        printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
+        //current_x = xinit[robot_num] - my_position->y_pos;
+        //current_y = yinit[robot_num] + my_position->x_pos;
+        //get_relative_xy(&relative_x, &relative_y, counter - 1, LOC, command, current_time - enter_state_time, spd, -1, current_x, current_y, init_state_x, init_state_y);
+        //printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
         // printf("t: %f \n",current_time);
         d1 = relative_x - d1;
         d2 = relative_y - d2;
@@ -451,6 +451,7 @@ robot_state_t controller(robot_state_t state) {
         measure_distance_or_angle = get_distance(sensors.rightWheelEncoder, initial_encoder);
         snprintf(buf, 16, "%f", measure_distance_or_angle);
         display_write(buf, DISPLAY_LINE_1);
+        printf("encoder: %f, prev: %f", sensors.rightWheelEncoder, initial_encoder);
       }
       break; // each case needs to end with break!
     }
