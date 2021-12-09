@@ -78,7 +78,7 @@ float center_command[] = {0.5, 90, 0.5, 90, 0.5};
 uint16_t LOC_ORI[] = {0, 1, 0, 2, 0}; // 1 left,2 right
 float set_speed = 150;
 float set_turn_speed = 150;
-float set_radius = 0.25;
+float set_radius = 0.5;
 float time_constant = 2;
 float set_distance_or_angle, measure_distance_or_angle;
 float enter_state_time;
