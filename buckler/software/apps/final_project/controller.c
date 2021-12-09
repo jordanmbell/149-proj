@@ -306,7 +306,7 @@ static void drive_formatted(float overall_speed, float angular_speed) {
     float left_vel = (sensors.leftWheelEncoder - old_left);
     float right_vel = (sensors.rightWheelEncoder - old_right);
     
-    float klocal = 100;
+    float klocal = 50;
     delta = klocal * (left_vel / leftSpeed - right_vel / rightSpeed);
   }
 
