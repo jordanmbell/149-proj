@@ -70,16 +70,14 @@ simple_ble_app_t *simple_ble_app;
 KobukiSensors_t sensors = {0};
 rob_data_t robot_positions[NUM_ROBOTS];
 rob_data_t *my_position;
-float xinit[] = {0.5, -0.5, 0.5, -0.5};
-float yinit[] = {1, 1, -1, -1};
 float initial_location_x = 0;
 float initial_location_y = 0;
 float current_x, current_y;
 float relative_x = 0, relative_y = 0, velocity;
 float center_command[] = {0.5, 90, 0.5, 90, 0.5};
 uint16_t LOC_ORI[] = {0, 1, 0, 2, 0}; // 1 left,2 right
-float set_speed = 100;
-float set_turn_speed = 100;
+float set_speed = 150;
+float set_turn_speed = 150;
 float set_radius = 0.25;
 float time_constant = 2;
 float set_distance_or_angle, measure_distance_or_angle;
@@ -301,7 +299,7 @@ static void drive_formatted(float overall_speed, float angular_speed) {
   rightSpeed = overall_speed + wheel_distance/2*angular_speed*1000;
   leftSpeed = overall_speed - wheel_distance/2*angular_speed*1000;
 
-  kobukiDriveDirect(leftSpeed, rightSpeed);
+  kobukiDriveDirect(leftSpeed, rightSpeed * 0.9);
 }
 
 robot_state_t controller(robot_state_t state) {
@@ -347,8 +345,8 @@ robot_state_t controller(robot_state_t state) {
         measure_distance_or_angle = 0;
         my_position = robot_positions + robot_num;
 
-        initial_location_x = xinit[robot_num];
-        initial_location_y = yinit[robot_num];
+        initial_location_x = my_position->x_pos;
+        initial_location_y = my_position->y_pos;
         printf("Robot %d is at x: %f, y: %f \n", robot_num, initial_location_x, initial_location_y);
         translate_command(LOC_ORI, center_command, command, LOC, radius, speed_mat, set_speed, max_count, initial_location_x, initial_location_y, set_radius, time_constant, set_turn_speed, m); // translate original command into a command list with preturn/afterturn
         for (j = 0; j < m; j++)
@@ -415,8 +413,8 @@ robot_state_t controller(robot_state_t state) {
         spd = speed_mat[counter];
         initial_encoder = sensors.rightWheelEncoder;
         enter_state_time = current_time;
-        init_state_x = xinit[robot_num] - my_position->y_pos;
-        init_state_y = yinit[robot_num] + my_position->x_pos;
+        init_state_x = my_position->x_pos;
+        init_state_y = my_position->y_pos;
         counter += 1;
         i1 = 0;
         d1 = 0;
@@ -445,15 +443,15 @@ robot_state_t controller(robot_state_t state) {
       else
       {
         display_write("LEADER_FORWARD", DISPLAY_LINE_0);
-        //current_x = xinit[robot_num] - my_position->y_pos;
-        //current_y = yinit[robot_num] + my_position->x_pos;
-        //get_relative_xy(&relative_x, &relative_y, counter - 1, LOC, command, current_time - enter_state_time, spd, -1, current_x, current_y, init_state_x, init_state_y);
-        //printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
+        current_x = my_position->x_pos;
+        current_y = my_position->y_pos;
+        get_relative_xy(&relative_x, &relative_y, counter - 1, LOC, command, current_time - enter_state_time, spd, -1, current_x, current_y, init_state_x, init_state_y);
+        printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
         // printf("t: %f \n",current_time);
-        d1 = relative_x - d1;
-        d2 = relative_y - d2;
-        i1 += relative_x;
-        i2 += relative_y;
+        d1 = relative_y - d1;
+        d2 = relative_x - d2;
+        i1 += relative_y;
+        i2 += relative_x;
         drive_formatted(spd - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
         measure_distance_or_angle = get_distance(sensors.rightWheelEncoder, initial_encoder);
         snprintf(buf, 16, "%f", measure_distance_or_angle);
@@ -489,15 +487,15 @@ robot_state_t controller(robot_state_t state) {
         {
           velocity = spd / rad * (sqrt(pow(initial_location_y, 2) + pow(rad + initial_location_x, 2)));
           radd = sqrt(pow(rad + initial_location_x, 2) + pow(initial_location_y, 2));
-          current_x = xinit[robot_num] - my_position->y_pos;
-          current_y = yinit[robot_num] + my_position->x_pos;
+          current_x = my_position->x_pos;
+          current_y = my_position->y_pos;
           get_relative_xy(&relative_x, &relative_y, counter - 1, LOC, command, current_time - enter_state_time, velocity, radd, current_x, current_y, init_state_x, init_state_y);
           printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
           // printf("t: %f \n",current_time);
-          d1 = relative_x - d1;
-          d2 = relative_y - d2;
-          i1 += relative_x;
-          i2 += relative_y;
+          d1 = relative_y - d1;
+          d2 = relative_x - d2;
+          i1 += relative_y;
+          i2 += relative_x;
           drive_formatted(velocity - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, velocity / radd / 1000 + Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
           measure_distance_or_angle = meas.z_axis;
@@ -544,14 +542,14 @@ robot_state_t controller(robot_state_t state) {
         {
           velocity = spd / rad * (sqrt(pow(initial_location_y, 2) + pow(rad - initial_location_x, 2)));
           radd = sqrt(pow(rad - initial_location_x, 2) + pow(initial_location_y, 2));
-          current_x = xinit[robot_num] - my_position->y_pos;
-          current_y = yinit[robot_num] + my_position->x_pos;
+          current_x = my_position->x_pos;
+          current_y = my_position->y_pos;
           get_relative_xy(&relative_x, &relative_y, counter - 1, LOC, command, current_time - enter_state_time, velocity, radd, current_x, current_y, init_state_x, init_state_y);
           printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
-          d1 = relative_x - d1;
-          d2 = relative_y - d2;
-          i1 += relative_x;
-          i2 += relative_y;
+          d1 = relative_y - d1;
+          d2 = relative_x - d2;
+          i1 += relative_y;
+          i2 += relative_x;
           drive_formatted(velocity - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, -velocity / radd / 1000 + Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
           measure_distance_or_angle = meas.z_axis;
