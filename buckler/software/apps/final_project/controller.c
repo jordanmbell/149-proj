@@ -402,7 +402,7 @@ robot_state_t controller(robot_state_t state) {
     } else if (l_1 > l_2) {
       // TURNING RIGHT
       float theta_cur = (l_2 - l_1) / wheel_distance;
-      float radius_cur = (l_2 + l_1) / (2 * theta_cur);
+      float radius_cur = (l_2 + l_1) / (2 * fabs(theta_cur));
       current_x = current_x + radius_cur * cos(current_ang) - radius_cur * cos(current_ang + theta_cur);
       current_y = current_y + radius_cur * sin(current_ang) - radius_cur * sin(current_ang + theta_cur);
       current_ang = current_ang + theta_cur;
