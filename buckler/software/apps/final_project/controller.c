@@ -596,6 +596,9 @@ robot_state_t controller(robot_state_t state) {
       }
       else if (current_time - enter_state_time >= LOC_TIME[counter - 1])
       {
+        if (turning_in_place) {
+          current_ang += set_distance_or_angle / 180 * M_PI;
+        }
         state = next_state;
         drive_formatted(0, 0);
         measure_distance_or_angle = 0;
@@ -652,6 +655,9 @@ robot_state_t controller(robot_state_t state) {
       }
       else if (current_time - enter_state_time >= LOC_TIME[counter - 1])
       {
+        if (turning_in_place) {
+          current_ang -= set_distance_or_angle / 180 * M_PI;
+        }
         state = next_state;
         drive_formatted(0, 0);
         measure_distance_or_angle = 0;
