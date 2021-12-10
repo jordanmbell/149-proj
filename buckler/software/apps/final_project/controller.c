@@ -628,9 +628,8 @@ robot_state_t controller(robot_state_t state) {
         {
           turning_in_place = true;
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
-          current_ang = meas.z_axis + current_ang;
 
-          float ideal_speed = ((set_distance_or_angle / 180 * M_PI) + initial_angle - current_ang ) / ((LOC_TIME[counter - 1] + enter_state_time) - current_time);
+          float ideal_speed = ((set_distance_or_angle / 180 * M_PI) + initial_angle - (meas.z_axis + current_ang) ) / ((LOC_TIME[counter - 1] + enter_state_time) - current_time);
           drive_formatted(0, ideal_speed);
           printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
           
@@ -687,9 +686,8 @@ robot_state_t controller(robot_state_t state) {
         {
           turning_in_place = true;
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
-          current_ang = meas.z_axis + current_ang;
 
-          float ideal_speed = ((set_distance_or_angle / 180 * M_PI) - initial_angle + current_ang) / ((LOC_TIME[counter - 1] + enter_state_time) - current_time);
+          float ideal_speed = ((set_distance_or_angle / 180 * M_PI) - initial_angle + meas.z_axis + current_ang) / ((LOC_TIME[counter - 1] + enter_state_time) - current_time);
           printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
           
           drive_formatted(0, -ideal_speed);
