@@ -120,6 +120,7 @@ uint16_t last_right;
 uint16_t last_left;
 int robot_num = 0;
 bool turning_in_place = false;
+float last_global_angle = 0;
 
 // You may need to add additional variables to keep track of state here
 uint16_t prev_encoder = 0;
@@ -383,10 +384,17 @@ robot_state_t controller(robot_state_t state) {
 
   if (updated_data) {
     updated_data = false;
-    current_x = my_position->x_pos;
-    current_y = my_position->y_pos;
-    current_ang = my_position->angle;
-  } else if (!connected) {
+    if (turning_in_place) {
+      lsm9ds1_stop_gyro_integration();
+      current_ang = my_position->angle;
+      last_global_angle = current_ang;
+      lsm9ds1_start_gyro_integration();
+    } else {
+      current_x = my_position->x_pos;
+      current_y = my_position->y_pos;
+      current_ang = my_position->angle;
+    }
+  } else if (!connected && !turning_in_place) {
     float l_2 = get_distance(sensors.rightWheelEncoder, last_right);
     float l_1 = get_distance(sensors.leftWheelEncoder, last_left);
 
@@ -516,6 +524,7 @@ robot_state_t controller(robot_state_t state) {
         {
           state = LEADER_TURNLEFT;
           printf("1 is at com:%f, RAD:%f, spd:%f \n", set_distance_or_angle, rad, spd);
+          lsm9ds1_start_gyro_integration();
         }
         else if (LOC[counter] == 0)
         {
@@ -526,6 +535,7 @@ robot_state_t controller(robot_state_t state) {
         {
           state = LEADER_TURNRIGHT;
           printf("2 is at com:%f, RAD:%f, spd:%f \n", set_distance_or_angle, rad, spd);
+          lsm9ds1_start_gyro_integration();
         }
         next_state = START;
         measure_distance_or_angle = 0;
@@ -534,6 +544,7 @@ robot_state_t controller(robot_state_t state) {
         spd = speed_mat[counter];
         initial_encoder = sensors.rightWheelEncoder;
         initial_angle = current_ang;
+        last_global_angle = initial_angle;
         enter_state_time = current_time;
         init_state_x = my_position->x_pos;
         init_state_y = my_position->y_pos;
@@ -596,13 +607,12 @@ robot_state_t controller(robot_state_t state) {
       }
       else if (current_time - enter_state_time >= LOC_TIME[counter - 1])
       {
-        if (turning_in_place) {
-          current_ang += set_distance_or_angle / 180 * M_PI;
-        }
         state = next_state;
         drive_formatted(0, 0);
         measure_distance_or_angle = 0;
         initial_encoder = sensors.rightWheelEncoder;
+        lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
+        current_ang = meas.z_axis + last_global_angle;
         lsm9ds1_stop_gyro_integration();
         turning_in_place = false;
       }
@@ -629,14 +639,19 @@ robot_state_t controller(robot_state_t state) {
         else
         {
           turning_in_place = true;
-          float ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
-          drive_formatted(0, ideal_speed);
-          printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
-          
-          snprintf(buf, 16, "%f", ideal_speed);
-          display_write(buf, DISPLAY_LINE_1);
-          snprintf(buf, 16, "%f", current_time);
-          display_write(buf, DISPLAY_LINE_0);
+          lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
+          if (fabs(meas.z_axis) + fabs(last_global_angle - initial_angle) <= set_distance_or_angle * pi / 180) {
+            // float ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
+            drive_formatted(0, -0.5);
+            printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
+            
+            snprintf(buf, 16, "%f", 0.5);
+            display_write(buf, DISPLAY_LINE_1);
+            snprintf(buf, 16, "%f", current_time);
+            display_write(buf, DISPLAY_LINE_0);
+          } else {
+            drive_formatted(0, 0);
+          }
         }
       }
       break; // each case needs to end with break!
@@ -654,19 +669,17 @@ robot_state_t controller(robot_state_t state) {
       }
       else if (current_time - enter_state_time >= LOC_TIME[counter - 1])
       {
-        if (turning_in_place) {
-          current_ang -= set_distance_or_angle / 180 * M_PI;
-        }
         state = next_state;
         drive_formatted(0, 0);
         measure_distance_or_angle = 0;
         initial_encoder = sensors.rightWheelEncoder;
+        lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
+        current_ang = meas.z_axis + last_global_angle;
         lsm9ds1_stop_gyro_integration();
         turning_in_place = false;
       }
       else
       {
-        display_write("LEADER_TURNRIGHT", DISPLAY_LINE_0);
         if (rad != 0)
         {
           velocity = spd / rad * (sqrt(pow(initial_location_y, 2) + pow(rad - initial_location_x, 2)));
@@ -686,14 +699,20 @@ robot_state_t controller(robot_state_t state) {
         else
         {
           turning_in_place = true;
-          float ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
-          drive_formatted(0, -ideal_speed);
-          printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
+          lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
+          if (fabs(meas.z_axis) + fabs(last_global_angle - initial_angle) <= set_distance_or_angle * pi / 180) {
+            // float ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
+            drive_formatted(0, -0.5);
+            printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
+            
+            snprintf(buf, 16, "%f", -0.5);
+            display_write(buf, DISPLAY_LINE_1);
+            snprintf(buf, 16, "%f", current_time);
+            display_write(buf, DISPLAY_LINE_0);
+          } else {
+            drive_formatted(0, 0);
+          }
           
-          snprintf(buf, 16, "%f", -ideal_speed);
-          display_write(buf, DISPLAY_LINE_1);
-          snprintf(buf, 16, "%f", current_time);
-          display_write(buf, DISPLAY_LINE_0);
         }
       }
       break; // each case needs to end with break!
