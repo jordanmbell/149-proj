@@ -73,10 +73,9 @@ rob_data_t robot_positions[NUM_ROBOTS];
 rob_data_t *my_position;
 float initial_location_x = 0;
 float initial_location_y = 0.5;
-float current_x, current_y, current_ang;
-current_x = 0;
-current_y = 0;
-current_ang = 0;
+float current_x = 0;
+float current_y = 0;
+float current_ang = 0;
 float relative_x = 0, relative_y = 0, velocity;
 float start_time = 5;
 int encoder_at_last_measure;
@@ -305,18 +304,18 @@ static float get_relative_xy(float *relative_x, float *relative_y, uint16_t coun
     if (rad[i] != 0){
         if (LOC[i] == 0)
         {
-            *endx = initx - command[i] * sin(init_direction);
-            *endy = endy + command[i] * cos(init_direction);
+            *end_x = initx - command[i] * sin(init_direction);
+            *end_y = endy + command[i] * cos(init_direction);
         }
         else if (LOC[i] == 1)
         {
-            *endx = initx - rad[i] * cos(init_direction) + rad[i] * cos(init_direction + command[i] / 180 * pi);
-            *endy = inity - rad[i] * sin(init_direction) + rad[i] * sin(init_direction + command[i] / 180 * pi);
+            *end_x = initx - rad[i] * cos(init_direction) + rad[i] * cos(init_direction + command[i] / 180 * pi);
+            *end_y = inity - rad[i] * sin(init_direction) + rad[i] * sin(init_direction + command[i] / 180 * pi);
         }
         else if (LOC[i] == 2)
         {
-            *endx = initx + rad[i] * cos(init_direction) - rad[i] * cos(-init_direction + command[i] / 180 * pi);
-            *endy = inity + rad[i] * sin(init_direction) + rad[i] * sin(-init_direction + command[i] / 180 * pi);
+            *end_x = initx + rad[i] * cos(init_direction) - rad[i] * cos(-init_direction + command[i] / 180 * pi);
+            *end_y = inity + rad[i] * sin(init_direction) + rad[i] * sin(-init_direction + command[i] / 180 * pi);
         }
     }
     // printf("initdire = %f \n",init_direction);
@@ -490,9 +489,10 @@ robot_state_t controller(robot_state_t state) {
         // perform state-specific actions here
         drive_formatted(0, 0);
       }
-      if (current_time >= start_time)
+      if (current_time >= start_time) {
         state = START;
         command_idx = 0;
+      }
       break; // each case needs to end with break!
     }
 
