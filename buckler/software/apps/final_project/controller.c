@@ -97,7 +97,7 @@ uint16_t counter = 0;
 robot_state_t next_state;
 uint16_t m;
 float rad, radd, spd;
-float Kp1 = 1000;
+float Kp1 = 2000;
 float Kp2 = 10;
 float Ki1;
 float Ki2;
@@ -685,7 +685,7 @@ robot_state_t controller(robot_state_t state) {
         {
           turning_in_place = true;
           float ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
-          drive_formatted(0, ideal_speed);
+          drive_formatted(0, -ideal_speed);
           printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
           
           snprintf(buf, 16, "%f", -ideal_speed);
