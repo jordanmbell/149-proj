@@ -50,7 +50,7 @@ char buf[16];
 static simple_ble_config_t ble_config = {
     // c0:98:e5:49:xx:xx
     .platform_id = 0x49,     // used as 4th octect in device BLE address
-    .device_id = 0x9870,     // TODO: replace with your lab bench number
+    .device_id = 0x0870,     // TODO: replace with your lab bench number
     .adv_name = "EE149 LED", // used in advertisements if there is room
     .adv_interval = MSEC_TO_UNITS(1000, UNIT_0_625_MS),
     .min_conn_interval = MSEC_TO_UNITS(10, UNIT_1_25_MS),
@@ -632,7 +632,7 @@ robot_state_t controller(robot_state_t state) {
 
           float ideal_speed = ((set_distance_or_angle / 180 * M_PI) + initial_angle - current_ang ) / ((LOC_TIME[counter] + enter_state_time) - current_time);
           drive_formatted(0, ideal_speed);
-          printf("speed: %d, angular: %f\n", 0, ideal_speed);
+          printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, current_ang, LOC_TIME[coutner], enter_state_time, current_time);
           
           snprintf(buf, 16, "%f", ideal_speed);
           display_write(buf, DISPLAY_LINE_1);
@@ -690,6 +690,8 @@ robot_state_t controller(robot_state_t state) {
           current_ang = meas.z_axis + current_ang;
 
           float ideal_speed = ((set_distance_or_angle / 180 * M_PI) - initial_angle + current_ang) / ((LOC_TIME[counter] + enter_state_time) - current_time);
+          printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, current_ang, LOC_TIME[coutner], enter_state_time, current_time);
+          
           drive_formatted(0, -ideal_speed);
           snprintf(buf, 16, "%f", ideal_speed);
           display_write(buf, DISPLAY_LINE_1);
