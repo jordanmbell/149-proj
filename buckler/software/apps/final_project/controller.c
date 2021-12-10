@@ -634,7 +634,7 @@ robot_state_t controller(robot_state_t state) {
           printf("speed: %d, angular: %f\n", 0, ideal_speed);
           
           char line[16];
-          snprintf(line, 16, "%f", ideal_speed);
+          snprintf(buf, 16, "%.2f, %.2f, %.2f", set_distance_or_angle, initial_angle, current_ang);
           display_write(line, DISPLAY_LINE_1);
         }
       }
