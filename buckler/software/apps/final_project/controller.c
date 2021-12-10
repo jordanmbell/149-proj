@@ -305,7 +305,7 @@ static float get_relative_xy(float *relative_x, float *relative_y, uint16_t coun
         if (LOC[i] == 0)
         {
             *end_x = initx - command[i] * sin(init_direction);
-            *end_y = endy + command[i] * cos(init_direction);
+            *end_y = inity + command[i] * cos(init_direction);
         }
         else if (LOC[i] == 1)
         {
@@ -606,7 +606,7 @@ robot_state_t controller(robot_state_t state) {
           radd = sqrt(pow(rad + initial_location_x, 2) + pow(initial_location_y, 2));
           current_x = my_position->x_pos;
           current_y = my_position->y_pos;
-          get_relative_xy(&relative_x, &relative_y, counter - 1, LOC, command, current_time - enter_state_time, velocity, radd, current_x, current_y, init_state_x, init_state_y);
+          get_relative_xy(&relative_x, &relative_y, counter - 1, modified_r_mat, current_time - enter_state_time, spd, -1, current_x, current_y, init_state_x, init_state_y, &end_x, &end_y);
           printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
           // printf("t: %f \n",current_time);
           d1 = relative_y - d1;
@@ -661,7 +661,7 @@ robot_state_t controller(robot_state_t state) {
           radd = sqrt(pow(rad - initial_location_x, 2) + pow(initial_location_y, 2));
           current_x = my_position->x_pos;
           current_y = my_position->y_pos;
-          get_relative_xy(&relative_x, &relative_y, counter - 1, LOC, command, current_time - enter_state_time, velocity, radd, current_x, current_y, init_state_x, init_state_y);
+          get_relative_xy(&relative_x, &relative_y, counter - 1, modified_r_mat, current_time - enter_state_time, spd, -1, current_x, current_y, init_state_x, init_state_y, &end_x, &end_y);
           printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
           d1 = relative_y - d1;
           d2 = relative_x - d2;
