@@ -123,7 +123,7 @@ bool turning_in_place = false;
 
 // You may need to add additional variables to keep track of state here
 uint16_t prev_encoder = 0;
-uint16_t timer = 0;
+float timer = 0;
 
 double last_clock_time = 0;
 
@@ -427,6 +427,11 @@ robot_state_t controller(robot_state_t state) {
         display_write("OFF", DISPLAY_LINE_0);
         kobukiDriveDirect(0,0);
         state = OFF;
+        if (current_time > timer + 5) {
+          timer = current_time;
+          snprintf(buf, 16, "%f", current_time);
+          display_write(buf, DISPLAY_LINE_1);
+        }
       }
       break; // each case needs to end with break!
     }
