@@ -95,7 +95,7 @@ robot_state_t next_state;
 uint16_t m;
 float rad, radd, spd;
 float Kp1 = 0;
-float Kp2 = 5;
+float Kp2 = 10;
 float Ki1;
 float Ki2;
 float Kd1;
