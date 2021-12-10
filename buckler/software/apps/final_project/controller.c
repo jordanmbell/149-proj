@@ -612,7 +612,7 @@ robot_state_t controller(robot_state_t state) {
         measure_distance_or_angle = 0;
         initial_encoder = sensors.rightWheelEncoder;
         lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
-        current_ang = meas.z_axis + last_global_angle;
+        current_ang = meas.z_axis * pi / 180 + last_global_angle;
         lsm9ds1_stop_gyro_integration();
         turning_in_place = false;
       }
@@ -640,7 +640,7 @@ robot_state_t controller(robot_state_t state) {
         {
           turning_in_place = true;
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
-          if (fabs(meas.z_axis) + fabs(last_global_angle - initial_angle) <= set_distance_or_angle * pi / 180) {
+          if (fabs(meas.z_axis * pi / 180) + fabs(last_global_angle - initial_angle) <= set_distance_or_angle * pi / 180) {
             // float ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
             drive_formatted(0, 0.5);
             // printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
@@ -674,7 +674,7 @@ robot_state_t controller(robot_state_t state) {
         measure_distance_or_angle = 0;
         initial_encoder = sensors.rightWheelEncoder;
         lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
-        current_ang = meas.z_axis + last_global_angle;
+        current_ang = meas.z_axis * pi / 180 + last_global_angle;
         lsm9ds1_stop_gyro_integration();
         turning_in_place = false;
       }
@@ -700,7 +700,7 @@ robot_state_t controller(robot_state_t state) {
         {
           turning_in_place = true;
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
-          if (fabs(meas.z_axis) + fabs(last_global_angle - initial_angle) <= set_distance_or_angle * pi / 180) {
+          if (fabs(meas.z_axis * pi / 180) + fabs(last_global_angle - initial_angle) <= set_distance_or_angle * pi / 180) {
             // float ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
             drive_formatted(0, -0.5);
             // printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
