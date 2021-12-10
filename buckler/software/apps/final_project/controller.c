@@ -492,6 +492,9 @@ robot_state_t controller(robot_state_t state) {
       if (current_time >= start_time) {
         state = START;
         command_idx = 0;
+        current_x = 0;
+        current_y = 0;
+        current_ang = 0;
       }
       break; // each case needs to end with break!
     }
