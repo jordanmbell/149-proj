@@ -361,21 +361,6 @@ static void drive_formatted(float overall_speed, float angular_speed) {
 
   rightSpeed = overall_speed + wheel_distance/2*angular_speed*1000;
   leftSpeed = overall_speed - wheel_distance/2*angular_speed*1000;
-
-  // int delta = 0;
-  // if (old_left != 0 && old_right != 0) {
-  //   float left_vel = (sensors.leftWheelEncoder - old_left);
-  //   float right_vel = (sensors.rightWheelEncoder - old_right);
-    
-  //   float klocal = 75;
-  //   delta = klocal * (left_vel / leftSpeed - right_vel / rightSpeed);
-  // }
-
-
-  old_left = sensors.leftWheelEncoder;
-  old_right = sensors.rightWheelEncoder;
-
-
   kobukiDriveDirect(leftSpeed, rightSpeed*0.95);
 }
 
@@ -706,7 +691,7 @@ robot_state_t controller(robot_state_t state) {
 
           float ideal_speed = (set_distance_or_angle - initial_angle + current_ang) / ((LOC_TIME[counter] + enter_state_time) - current_time);
           drive_formatted(0, -ideal_speed);
-          snprintf(buf, 16, "%f", -ideal_speed);
+          snprintf(buf, 16, "%.2f, %.2f, %.2f", set_distance_or_angle, initial_angle, current_ang);
           display_write(buf, DISPLAY_LINE_1);
         }
       }
