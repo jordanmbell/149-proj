@@ -81,7 +81,7 @@ int encoder_at_last_measure;
 int command_idx = 0;
 float cur_distance_from_end;
 float command_length[] = {10, 10, 10, 10, 10};
-float center_command[] = {0.5, 90, 0.5, 90, 0.5};
+float center_command[] = {3, 90, 0.5, 90, 0.5};
 uint16_t LOC_ORI[] = {0, 1, 0, 2, 0}; // 1 left,2 right
 float set_radius = 0.5;
 float time_constant = 2;
