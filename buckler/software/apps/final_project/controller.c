@@ -35,7 +35,7 @@ typedef struct
 // BLE vars
 incoming_data_t incoming_data;
 rob_data_t robot_data[NUM_ROBOTS] = {0};
-float start_time = 30;
+float start_time = 5;
 bool connected = false;
 bool updated_data = false;
 // configure initial state
@@ -77,7 +77,6 @@ float current_x = 0;
 float current_y = 0;
 float current_ang = 0;
 float relative_x = 0, relative_y = 0, velocity;
-float start_time = 5;
 int encoder_at_last_measure;
 int command_idx = 0;
 float cur_distance_from_end;
