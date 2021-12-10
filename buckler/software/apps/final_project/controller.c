@@ -409,8 +409,7 @@ robot_state_t controller(robot_state_t state) {
       current_x -= l_1 * sin(current_ang);
       current_y += l_1 * cos(current_ang);
     }
-    lsm9ds1_start_gyro_integration();
-    printf("cur_x: %f, cur_y: %f, cur_ang: %f\n", current_x, current_y, current_ang);
+    lsm9ds1_start_gyro_integration();\
   }
   last_right = sensors.rightWheelEncoder;
   last_left = sensors.leftWheelEncoder;
