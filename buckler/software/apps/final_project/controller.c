@@ -72,7 +72,7 @@ KobukiSensors_t sensors = {0};
 rob_data_t robot_positions[NUM_ROBOTS];
 rob_data_t *my_position;
 float initial_location_x = 0.5;
-float initial_location_y = 0.5;
+float initial_location_y = 1;
 float current_x = 0;
 float current_y = 0;
 float current_ang = 0;
@@ -83,7 +83,7 @@ float cur_distance_from_end;
 float command_length[] = {10, 10, 10, 10, 10}; // {2, 6, 2, 2, 6, 2, 10, 2, 6, 2, 10}
 float center_command[] = {90, 90, 0.5, 90, 0.5};
 uint16_t LOC_ORI[] = {1, 2, 0, 1, 0}; // 1 left,2 right
-float set_radius = 0.5;
+float set_radius = 1.5;
 float time_constant = 2;
 float set_distance_or_angle, measure_distance_or_angle;
 float enter_state_time;
@@ -633,7 +633,7 @@ robot_state_t controller(robot_state_t state) {
           drive_formatted(0, ideal_speed);
           printf("speed: %d, angular: %f\n", 0, ideal_speed);
           
-          snprintf(buf, 16, "%.2f, %.2f, %.2f", set_distance_or_angle, initial_angle, current_ang);
+          snprintf(buf, 16, "%.3f, %.3f, %.3f", set_distance_or_angle, initial_angle, current_ang);
           display_write(buf, DISPLAY_LINE_1);
         }
       }
