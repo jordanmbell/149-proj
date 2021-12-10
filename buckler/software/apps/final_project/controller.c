@@ -429,7 +429,7 @@ robot_state_t controller(robot_state_t state) {
       } else {
         // perform state-specific actions here
         display_write("OFF", DISPLAY_LINE_0);
-        drive_formatted(40,-40);
+        drive_formatted(20,-20);
         state = OFF;
       }
       break; // each case needs to end with break!
