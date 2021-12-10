@@ -14,28 +14,39 @@ from camera import *
 
 # Trace construction
 from trace import *
+
 # Variables to configure -------------
+num_markers = 9
+num_robots = 4
 marker_to_robot = {
+    0:0,
     1:1,
     2:2,
     3:3
 }
 
 update_delay_s = 0.01
-num_markers = 9
 
-route_locations = [[0,0], [0, 1], [2,1], [2, 2], [3,3]]  # For now, trace locations set by user
+
+route_locations = [[1,-4], [4,3]]  # For now, trace locations set by user
 turn_radius = 0.5  # meter
 speed = 0.01         # meter/sec
 angular_speed = 10  # deg /sec
 setup_time = 4
+starting_orientation = np.array([0,1])
+
+open_ble = False
 # End of variables to configure -------------
 
 # Main server loop
 async def main():
     # BLE Connection setup
-    shared_data = shared_data_t(4)
-    handle_sigint(None, shared_data)
+    if open_ble:
+        shared_data, comm_tasks = await begin_communication(num_robots)
+        handle_sigint(comm_tasks, shared_data)
+    else:
+        shared_data = shared_data_t(4)
+        handle_sigint(None, shared_data)
 
     # For now, assume that everything is connected
     shared_data.disconnect = False
@@ -53,28 +64,41 @@ async def main():
 
         # Calculate trace given positions of markers or user defined coordinates
         trace_data = trace_data_t()
-        trace_data.route(route_locations, turn_radius, speed, angular_speed, setup_time)
+        trace_data.route_with_orientation(route_locations, turn_radius, speed, angular_speed, setup_time, starting_orientation)
+        print(trace_data)
 
         # Graph markers Process
-        p_graph = Process(target=start_animation, args=(shared_marker_dict, num_markers, trace_data, route_locations))
+        p_graph = Process(target=start_animation, args=(shared_marker_dict, num_markers, trace_data, route_locations, starting_orientation))
         p_graph.start()
 
-        # Update shared data for BLE clients
+        # Update shared date for BLE clients
         while not shared_data.disconnect:
             if shared_data.connected:
-                for i in range(4):
+                change = False
+                for i in range(num_robots):
                     if i in marker_to_robot.keys():
-                        shared_data.update_robot(marker_to_robot[i],         # Robot ID
-                         shared_marker_dict[i][0], shared_marker_dict[i][1], # Robot X,Y
-                         shared_marker_dict[i][2])                           # Robot Rot (not implemented rn)
+                        shared_data.update_robot(marker_to_robot[i],
+                                shared_marker_dict[i][0], shared_marker_dict[i][1],  # Robot X Y
+                                shared_marker_dict[i][2])                            # Robot Rotation
+                        change = True
+                if change:
+                    shared_data.push_update()
+
             await asyncio.sleep(update_delay_s)
 
-        # Clean up
+        # Clean up processes
         print("Waiting to close camera")
         p_track.join()
         print("Waiting to close matplotlib graph")
         p_graph.join()
-        print("Finished cleanup")
+        print("Finished multiprocess cleanup")
+
+    # Main loop finished, await communication shutdown
+    print("Shutdown communication")
+    shared_data.disconnect = True
+    if open_ble:
+        await comm_tasks
+    print("All tasks finished")
 
 if __name__=="__main__":
     asyncio.run(main())

@@ -49,7 +49,7 @@ async def main():
                 change = False
                 for i in range(4):
                     if i in marker_to_robot.keys():
-                        shared_data.update_robot(marker_to_robot[i], 
+                        shared_data.update_robot(marker_to_robot[i],
                                 shared_dict[i][0], shared_dict[i][1], shared_dict[i][1])
                         change = True
                 if change:
@@ -71,4 +71,3 @@ async def main():
 
 if __name__=="__main__":
     asyncio.run(main())
-

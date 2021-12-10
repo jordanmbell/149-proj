@@ -15,7 +15,7 @@ colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', '
 
 # This function is called periodically from FuncAnimation
 # xs and ys are lists of past x,y to show a trail
-def animate(i, xs, ys, shared_dict, num_markers, trace_data, route_locations):
+def animate(i, xs, ys, shared_dict, num_markers, trace_data, route_locations, starting_orientation):
 
     # Add x and y to lists
     #print(shared_dict)
@@ -50,6 +50,43 @@ def animate(i, xs, ys, shared_dict, num_markers, trace_data, route_locations):
     # Plot route_locations
     for l in range(len(route_locations)):
         ax.scatter(route_locations[l][0], route_locations[l][1],  c='black', s=20, label="Target: " + str(l), marker ="*")
+
+    # Plot trace
+    n_cmds = len(trace_data.cmds)
+    loc = np.array(route_locations[0])
+    orientation = starting_orientation
+    for l in range(n_cmds):
+        next_loc = None
+        cmd = trace_data.cmds[l]
+        if cmd == cmd_straight:
+            distance = trace_data.cmd_param_dist[l]
+            next_loc = orientation * distance + loc
+        elif cmd == cmd_clockwise:
+            turn_radius = trace_data.cmd_param_dist[l]
+            angle = -np.radians(trace_data.cmd_param_angle[l])
+            rotation = np.array([
+                [np.cos(angle), -np.sin(angle)],
+                [np.sin(angle), np.cos(angle)]
+            ])
+            next_loc = orientation * turn_radius
+            next_loc += rotation @ orientation * turn_radius + loc
+            orientation = rotation @ orientation
+        elif cmd == cmd_anticlockwise:
+            turn_radius = trace_data.cmd_param_dist[l]
+            angle = np.radians(trace_data.cmd_param_angle[l])
+            rotation = np.array([
+                [np.cos(angle), -np.sin(angle)],
+                [np.sin(angle), np.cos(angle)]
+            ])
+            next_loc = orientation * turn_radius
+            next_loc += rotation @ orientation * turn_radius + loc
+            orientation = rotation @ orientation
+
+        ax.plot([loc[0], next_loc[0]], [loc[1], next_loc[1]], c='blue')
+        loc = next_loc
+
+
+
     # Format plot
     plt.title('Position')
     plt.legend()
@@ -60,11 +97,11 @@ def animate(i, xs, ys, shared_dict, num_markers, trace_data, route_locations):
 
 
 # Called by multiprocess to start the animation
-def start_animation(shared_dict, num_markers, trace_data, route_locations):
+def start_animation(shared_dict, num_markers, trace_data, route_locations, starting_orientation):
     xs = []
     ys = []
     for _ in range(num_markers):
         xs.append([])
         ys.append([])
-    ani = animation.FuncAnimation(fig, animate, fargs=(xs, ys, shared_dict, num_markers, trace_data, route_locations), interval=1)
+    ani = animation.FuncAnimation(fig, animate, fargs=(xs, ys, shared_dict, num_markers, trace_data, route_locations, starting_orientation), interval=1)
     plt.show()

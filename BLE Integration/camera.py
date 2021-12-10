@@ -7,6 +7,7 @@ import math
 import time
 
 cam1_id = 1
+cam2_id = None
 cam_wait_ms = 1
 num_markers = 9
 originID = 4
@@ -179,36 +180,42 @@ def track(shared_dict):
 
      # mtx, dist = loadCoefficients("../camera_calibration_tests/images_canon_floor/calibrationCoefficients2.yaml")
      mtx, dist = loadCoefficients("../camera_calibration_tests/images_canon/calibrationCoefficients.yaml")
-     # mtx, dist = loadCoefficients("images_webcam_black_checkerboard/calibrationCoefficients.yaml")
+     # mtx2, dist2 = loadCoefficients("images_webcam_black_checkerboard/calibrationCoefficients.yaml")
      # mtx2, dist2 = loadCoefficients("images_sony/calibrationCoefficients.yaml")
 
      cam1 = camera(mtx, dist, originID, markerIDs, cam1_id, referenceIDs)
-     # cam2 = camera(mtx2, dist2, 0, [1], 2)
      cam1.calibrate_square()
+     if cam2_id is not None:
+          mtx2, dist2 = loadCoefficients("images_webcam_black_checkerboard/calibrationCoefficients.yaml")
+          cam2 = camera(mtx, dist, originID, markerIDs, cam2_id, referenceIDs)
+          cam2.calibrate_square()
 
      while True:
          vec1_cam1 = cam1.find_points(markerIDs, False)
-         # vec1_cam2 = cam2.find_points()
+         if cam2_id is not None:
+             vec1_cam2 = cam2.find_points(markerIDs, False)
+             cam2.show_image()
          cam1.show_image()
-         # cam2.show_image()
 
-         if vec1_cam1 is not None:
-             for id in vec1_cam1.keys():
-                 # shared_dict[id] = [vec1_cam1[id][0], vec1_cam1[id][1], 0]  #Need to add rotation
-                 shared_dict[id] = vec1_cam1[id]  #Need to add rotation
-                 # if id == 1:
-                 #     print(id, " ",shared_dict[id][2])
-         #else:
-             #print("out of frame")
+         # if vec1_cam1 is not None:
+         #     for id in vec1_cam1.keys():
+         #         shared_dict[id] = vec1_cam1[id]
 
-         # if vec1_cam1 is not None and vec1_cam2 is not None:
-         #     print((vec1_cam1+vec1_cam2) / 2)
-         # elif vec1_cam1 is not None:
-         #     print(vec1_cam1)
-         # elif vec1_cam2 is not None:
-         #     print(vec1_cam2)
-         # else:
-         #     print("out of frame")
+
+         for id in range(num_markers):
+             in_cam1 = vec1_cam1 is not None and id in vec1_cam1.keys()
+             in_cam2 = cam2_id is not None and vec1_cam2 is not None and id in vec1_cam2.keys()
+             if in_cam1 and in_cam2:
+                 x = (vec1_cam1[id][0] + vec1_cam2[id][0])/2
+                 y =  (vec1_cam1[id][1] + vec1_cam2[id][1])/2
+                 rot = vec1_cam1[id][2]
+                 shared_dict[id] = [x, y, rot]
+             elif in_cam1:
+                shared_dict[id] = vec1_cam1[id]
+             elif in_cam2:
+                shared_dict[id] = vec1_cam2[id]
+             # else:
+             #    print(id, "is out of frame")
 
          # Wait 3 miliseconds for an interaction. Check the key and do the corresponding job.
          key = cv2.waitKey(cam_wait_ms) & 0xFF
