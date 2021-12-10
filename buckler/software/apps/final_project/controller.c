@@ -382,14 +382,11 @@ robot_state_t controller(robot_state_t state) {
   nrf_delay_ms(1);
 
   if (updated_data) {
-    lsm9ds1_stop_gyro_integration();
     updated_data = false;
     current_x = my_position->x_pos;
     current_y = my_position->y_pos;
     current_ang = my_position->angle;
-    lsm9ds1_start_gyro_integration();
-  } else if (!connected && !turning_in_place) {
-    lsm9ds1_stop_gyro_integration();
+  } else if (!connected) {
     float l_2 = get_distance(sensors.rightWheelEncoder, last_right);
     float l_1 = get_distance(sensors.leftWheelEncoder, last_left);
 
@@ -412,7 +409,6 @@ robot_state_t controller(robot_state_t state) {
       current_x -= l_1 * sin(current_ang);
       current_y += l_1 * cos(current_ang);
     }
-    lsm9ds1_start_gyro_integration();\
   }
   last_right = sensors.rightWheelEncoder;
   last_left = sensors.leftWheelEncoder;
@@ -628,9 +624,6 @@ robot_state_t controller(robot_state_t state) {
         else
         {
           turning_in_place = true;
-          lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
-
-          // float ideal_speed = ((set_distance_or_angle / 180 * M_PI) + initial_angle - (current_ang) ) / ((LOC_TIME[counter - 1]));
           float ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
           drive_formatted(0, ideal_speed);
           printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
@@ -687,13 +680,11 @@ robot_state_t controller(robot_state_t state) {
         else
         {
           turning_in_place = true;
-          lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
-
-          float ideal_speed = ((set_distance_or_angle / 180 * M_PI) - initial_angle + meas.z_axis + current_ang) / ((LOC_TIME[counter - 1] + enter_state_time) - current_time);
+          float ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
+          drive_formatted(0, ideal_speed);
           printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
           
-          drive_formatted(0, -ideal_speed);
-          snprintf(buf, 16, "%f", ideal_speed);
+          snprintf(buf, 16, "%f", -ideal_speed);
           display_write(buf, DISPLAY_LINE_1);
         }
       }
