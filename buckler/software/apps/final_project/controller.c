@@ -466,7 +466,7 @@ robot_state_t controller(robot_state_t state) {
                 }
             }
         for (j = 0; j < m; j++)
-          printf("Robot %d has com:%f, LOC:%i, RAD:%f, spd:%f \n", robot_num, command[j], LOC[j], radius[j], speed_mat[j]);
+          printf("Robot %d has com:%f, LOC:%i, RAD:%f, spd:%f, LOCT: %f \n", robot_num, command[j], LOC[j], radius[j], speed_mat[j], LOC_TIME[j]);
       } else {
         snprintf(buf, 16, "%d, %f", robot_num, num_timer - current_time);
         printf("%d, %f\n", robot_num, current_time);
