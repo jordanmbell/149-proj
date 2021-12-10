@@ -69,6 +69,10 @@ class camera:
 
     def calibrate_square(self):
         square_dict = self.find_points(self.referenceIDs, True)
+        while square_dict is None or not (all(id in square_dict.keys() for id in self.referenceIDs )):
+            print("\t Trying to find ref ids: ", self.referenceIDs)
+            time.sleep(2)
+            square_dict = self.find_points(self.referenceIDs, True)
         self.calib_sq_matrix = np.array([
             [square_dict[self.referenceIDs[0]][0], square_dict[self.referenceIDs[1]][0]],
             [square_dict[self.referenceIDs[0]][1], square_dict[self.referenceIDs[1]][1]],
