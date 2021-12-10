@@ -642,7 +642,7 @@ robot_state_t controller(robot_state_t state) {
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
           if (fabs(meas.z_axis) + fabs(last_global_angle - initial_angle) <= set_distance_or_angle * pi / 180) {
             // float ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
-            drive_formatted(0, -0.5);
+            drive_formatted(0, 0.5);
             // printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
             
             snprintf(buf, 16, "%f", 0.5);
@@ -707,7 +707,7 @@ robot_state_t controller(robot_state_t state) {
             
             snprintf(buf, 16, "%f", -0.5);
             display_write(buf, DISPLAY_LINE_1);
-            snprintf(buf, 16, "%f", current_time);
+            snprintf(buf, 16, "angle: %f", meas.z_axis);
             display_write(buf, DISPLAY_LINE_0);
           } else {
             drive_formatted(0, 0);
