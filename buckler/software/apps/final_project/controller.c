@@ -608,7 +608,7 @@ robot_state_t controller(robot_state_t state) {
       }
       else
       {
-        display_write("LEADER_TURNLEFT", DISPLAY_LINE_0);
+
         if (rad != 0)
         {
           velocity = spd / rad * (sqrt(pow(initial_location_y, 2) + pow(rad + initial_location_x, 2)));
@@ -623,6 +623,8 @@ robot_state_t controller(robot_state_t state) {
           drive_formatted(velocity - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, velocity / radd / 1000 + Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
           snprintf(buf, 16, "%f", relative_x);
           display_write(buf, DISPLAY_LINE_1);
+          snprintf(buf, 16, "%f", relative_y);
+          display_write(buf, DISPLAY_LINE_0);
         }
         else
         {
@@ -676,7 +678,8 @@ robot_state_t controller(robot_state_t state) {
           drive_formatted(velocity - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, -velocity / radd / 1000 + Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
           snprintf(buf, 16, "%f", relative_x);
           display_write(buf, DISPLAY_LINE_1);
-          printf("\n");
+          snprintf(buf, 16, "%f", relative_y);
+          display_write(buf, DISPLAY_LINE_0);
         }
         else
         {
