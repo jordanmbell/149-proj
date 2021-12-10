@@ -623,7 +623,7 @@ robot_state_t controller(robot_state_t state) {
           drive_formatted(velocity - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, velocity / radd / 1000 + Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
           snprintf(buf, 16, "%f", current_ang / pi * 180);
           display_write(buf, DISPLAY_LINE_1);
-          snprintf(buf, 16, "%f", relative_y);
+          snprintf(buf, 16, "%f", current_time);
           display_write(buf, DISPLAY_LINE_0);
         }
         else
@@ -635,6 +635,8 @@ robot_state_t controller(robot_state_t state) {
           
           snprintf(buf, 16, "%f", ideal_speed);
           display_write(buf, DISPLAY_LINE_1);
+          snprintf(buf, 16, "%f", current_time);
+          display_write(buf, DISPLAY_LINE_0);
         }
       }
       break; // each case needs to end with break!
@@ -678,7 +680,7 @@ robot_state_t controller(robot_state_t state) {
           drive_formatted(velocity - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, -velocity / radd / 1000 + Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
           snprintf(buf, 16, "%f", current_ang / pi * 180);
           display_write(buf, DISPLAY_LINE_1);
-          snprintf(buf, 16, "%f", relative_y);
+          snprintf(buf, 16, "%f", current_time);
           display_write(buf, DISPLAY_LINE_0);
         }
         else
@@ -690,6 +692,8 @@ robot_state_t controller(robot_state_t state) {
           
           snprintf(buf, 16, "%f", -ideal_speed);
           display_write(buf, DISPLAY_LINE_1);
+          snprintf(buf, 16, "%f", current_time);
+          display_write(buf, DISPLAY_LINE_0);
         }
       }
       break; // each case needs to end with break!
