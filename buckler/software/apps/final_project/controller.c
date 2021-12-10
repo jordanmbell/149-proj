@@ -71,8 +71,10 @@ simple_ble_app_t *simple_ble_app;
 KobukiSensors_t sensors = {0};
 rob_data_t robot_positions[NUM_ROBOTS];
 rob_data_t *my_position;
-float initial_location_x = 0.5;
-float initial_location_y = 1;
+float initial_location_x = 0;
+float initial_location_y = 0;
+float xlist[NUM_ROBOTS] = {0.5,0.5,-0.5,-0.5};
+float ylist[NUM_ROBOTS] = {1,-1,1,-1};
 float current_x = 0;
 float current_y = 0;
 float current_ang = 0;
@@ -444,8 +446,8 @@ robot_state_t controller(robot_state_t state) {
         measure_distance_or_angle = 0;
         my_position = robot_positions + robot_num;
 
-        initial_location_x = my_position->x_pos;
-        initial_location_y = my_position->y_pos;
+        initial_location_x = xlist[robot_num];
+        initial_location_y = ylist[robot_num];
         printf("Robot %d is at x: %f, y: %f \n", robot_num, initial_location_x, initial_location_y);
         translate_command(LOC_ORI, center_command, command, LOC, radius, speed_mat, max_count, initial_location_x, initial_location_y, set_radius, time_constant, m); // translate original command into a command list with preturn/afterturn
         for (i = 0; i < m; i++)
