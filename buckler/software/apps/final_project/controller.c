@@ -632,7 +632,7 @@ robot_state_t controller(robot_state_t state) {
 
           float ideal_speed = ((set_distance_or_angle / 180 * M_PI) + initial_angle - current_ang ) / ((LOC_TIME[counter] + enter_state_time) - current_time);
           drive_formatted(0, ideal_speed);
-          printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, current_ang, LOC_TIME[coutner], enter_state_time, current_time);
+          printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, current_ang, LOC_TIME[counter], enter_state_time, current_time);
           
           snprintf(buf, 16, "%f", ideal_speed);
           display_write(buf, DISPLAY_LINE_1);
@@ -690,7 +690,7 @@ robot_state_t controller(robot_state_t state) {
           current_ang = meas.z_axis + current_ang;
 
           float ideal_speed = ((set_distance_or_angle / 180 * M_PI) - initial_angle + current_ang) / ((LOC_TIME[counter] + enter_state_time) - current_time);
-          printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, current_ang, LOC_TIME[coutner], enter_state_time, current_time);
+          printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, current_ang, LOC_TIME[counter], enter_state_time, current_time);
           
           drive_formatted(0, -ideal_speed);
           snprintf(buf, 16, "%f", ideal_speed);
