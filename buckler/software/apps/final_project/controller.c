@@ -364,7 +364,7 @@ static void drive_formatted(float overall_speed, float angular_speed) {
   rightSpeed = overall_speed + wheel_distance/2*angular_speed*1000;
   leftSpeed = overall_speed - wheel_distance/2*angular_speed*1000;
   printf("RIGHT: %f, LEFT: %f\n", rightSpeed, leftSpeed);
-  kobukiDriveDirect(leftSpeed, rightSpeed);
+  kobukiDriveDirect(leftSpeed, rightSpeed*0.95);
 }
 
 robot_state_t controller(robot_state_t state) {
@@ -554,7 +554,7 @@ robot_state_t controller(robot_state_t state) {
       {
         state = PENDING;
       }
-      else if (current_time - enter_state_time >= LOC_TIME[counter])
+      else if (current_time - enter_state_time >= LOC_TIME[counter - 1])
       {
         command_idx += 1;
         state = next_state;
@@ -593,7 +593,7 @@ robot_state_t controller(robot_state_t state) {
         state = PENDING;
         lsm9ds1_stop_gyro_integration();
       }
-      else if (current_time - enter_state_time >= LOC_TIME[counter])
+      else if (current_time - enter_state_time >= LOC_TIME[counter - 1])
       {
         state = next_state;
         drive_formatted(0, 0);
