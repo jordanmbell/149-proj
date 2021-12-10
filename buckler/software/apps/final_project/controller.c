@@ -366,7 +366,7 @@ static void drive_formatted(float overall_speed, float angular_speed) {
   old_right = sensors.rightWheelEncoder;
 
 
-  kobukiDriveDirect(leftSpeed, rightSpeed);
+  kobukiDriveDirect(leftSpeed, rightSpeed*0.95);
 }
 
 robot_state_t controller(robot_state_t state) {
