@@ -12,6 +12,8 @@ from gui_anim import *
 # Camera Tracking
 from camera import *
 
+# Trace construction
+from trace import *
 # Variables to configure -------------
 marker_to_robot = {
     1:1,
@@ -21,6 +23,12 @@ marker_to_robot = {
 
 update_delay_s = 0.01
 num_markers = 9
+
+route_locations = [[0,0], [0, 1], [2,1], [2, 2], [3,3]]  # For now, trace locations set by user
+turn_radius = 0.5  # meter
+speed = 0.01         # meter/sec
+angular_speed = 10  # deg /sec
+setup_time = 4
 # End of variables to configure -------------
 
 # Main server loop
@@ -39,13 +47,17 @@ async def main():
         for i in range(num_markers):
             shared_marker_dict[i] = [0,0,0]
 
-        # Graph markers Process
-        p_graph = Process(target=start_animation, args=(shared_marker_dict, num_markers))
-        p_graph.start()
-
         # ArUco Tracker Process
         p_track = Process(target=track, args=(shared_marker_dict, ))
         p_track.start()
+
+        # Calculate trace given positions of markers or user defined coordinates
+        trace_data = trace_data_t()
+        trace_data.route(route_locations, turn_radius, speed, angular_speed, setup_time)
+
+        # Graph markers Process
+        p_graph = Process(target=start_animation, args=(shared_marker_dict, num_markers, trace_data, route_locations))
+        p_graph.start()
 
         # Update shared data for BLE clients
         while not shared_data.disconnect:

@@ -133,7 +133,7 @@ class camera:
                                 # print(self.origin_yaw)
                                 z1    = math.atan2(rvec[0][0][0], rvec[0][0][1])
                                 z1 = z1 - self.origin_yaw
-                                z1 = (z1*(-360)/math.pi) % 360
+                                z1 = (z1*(360)/math.pi) % 360
                             pos =  self.calib_sq_matrix @ composedTvec[:2]
 
                             tvec_dict[mark] = [pos[0][0], pos[1][0], z1]
@@ -192,8 +192,8 @@ def track(shared_dict):
              for id in vec1_cam1.keys():
                  # shared_dict[id] = [vec1_cam1[id][0], vec1_cam1[id][1], 0]  #Need to add rotation
                  shared_dict[id] = vec1_cam1[id]  #Need to add rotation
-                 if id in referenceIDs or id == originID:
-                     print(id, " ",shared_dict[id][2])
+                 # if id == 1:
+                 #     print(id, " ",shared_dict[id][2])
          #else:
              #print("out of frame")
 

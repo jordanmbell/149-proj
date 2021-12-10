@@ -2,9 +2,10 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
+from trace import *
 
 # Set up graph
-frame_size = 2
+frame_size = 5
 plt.style.use('seaborn')
 fig = plt.figure(figsize=(6, 6))
 ax = fig.add_subplot(1, 1, 1)
@@ -14,7 +15,7 @@ colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', '
 
 # This function is called periodically from FuncAnimation
 # xs and ys are lists of past x,y to show a trail
-def animate(i, xs, ys, shared_dict, num_markers):
+def animate(i, xs, ys, shared_dict, num_markers, trace_data, route_locations):
 
     # Add x and y to lists
     #print(shared_dict)
@@ -46,6 +47,9 @@ def animate(i, xs, ys, shared_dict, num_markers):
         arrowx, arrowy = np.cos(rot), np.sin(rot)
         ax.arrow(x, y, arrowx*0.3, arrowy*0.3, head_length = 0.1, head_width = 0.1)
 
+    # Plot route_locations
+    for l in range(len(route_locations)):
+        ax.scatter(route_locations[l][0], route_locations[l][1],  c='black', s=20, label="Target: " + str(l), marker ="*")
     # Format plot
     plt.title('Position')
     plt.legend()
@@ -56,11 +60,11 @@ def animate(i, xs, ys, shared_dict, num_markers):
 
 
 # Called by multiprocess to start the animation
-def start_animation(shared_dict, num_markers):
+def start_animation(shared_dict, num_markers, trace_data, route_locations):
     xs = []
     ys = []
     for _ in range(num_markers):
         xs.append([])
         ys.append([])
-    ani = animation.FuncAnimation(fig, animate, fargs=(xs, ys, shared_dict, num_markers), interval=1)
+    ani = animation.FuncAnimation(fig, animate, fargs=(xs, ys, shared_dict, num_markers, trace_data, route_locations), interval=1)
     plt.show()
