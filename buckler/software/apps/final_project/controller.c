@@ -634,7 +634,7 @@ robot_state_t controller(robot_state_t state) {
           drive_formatted(0, ideal_speed);
           printf("speed: %d, angular: %f\n", 0, ideal_speed);
           
-          snprintf(buf, 16, "%.2f, %.2f, %.2f", (set_distance_or_angle / 180 * M_PI), initial_angle, current_ang);
+          snprintf(buf, 16, "%f", ideal_speed);
           display_write(buf, DISPLAY_LINE_1);
         }
       }
@@ -691,7 +691,7 @@ robot_state_t controller(robot_state_t state) {
 
           float ideal_speed = ((set_distance_or_angle / 180 * M_PI) - initial_angle + current_ang) / ((LOC_TIME[counter] + enter_state_time) - current_time);
           drive_formatted(0, -ideal_speed);
-          snprintf(buf, 16, "%.2f, %.2f, %.2f", (set_distance_or_angle / 180 * M_PI), initial_angle, current_ang);
+          snprintf(buf, 16, "%f", ideal_speed);
           display_write(buf, DISPLAY_LINE_1);
         }
       }
