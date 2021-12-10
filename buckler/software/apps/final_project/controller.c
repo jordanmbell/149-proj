@@ -633,9 +633,8 @@ robot_state_t controller(robot_state_t state) {
           drive_formatted(0, ideal_speed);
           printf("speed: %d, angular: %f\n", 0, ideal_speed);
           
-          char line[16];
           snprintf(buf, 16, "%.2f, %.2f, %.2f", set_distance_or_angle, initial_angle, current_ang);
-          display_write(line, DISPLAY_LINE_1);
+          display_write(buf, DISPLAY_LINE_1);
         }
       }
       break; // each case needs to end with break!
