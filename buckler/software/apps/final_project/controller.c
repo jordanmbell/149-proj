@@ -74,6 +74,9 @@ rob_data_t *my_position;
 float initial_location_x = 0;
 float initial_location_y = 0.5;
 float current_x, current_y, current_ang;
+current_x = 0;
+current_y = 0;
+current_ang = 0;
 float relative_x = 0, relative_y = 0, velocity;
 float start_time = 5;
 int encoder_at_last_measure;
@@ -387,7 +390,7 @@ robot_state_t controller(robot_state_t state) {
     current_x = my_position->x_pos;
     current_y = my_position->y_pos;
     current_ang = my_position->angle;
-  } else if (connected) {
+  } else if (!connected) {
     float l_2 = get_distance(sensors.rightWheelEncoder, last_right);
     float l_1 = get_distance(sensors.leftWheelEncoder, last_left);
 
