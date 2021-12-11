@@ -462,7 +462,6 @@ robot_state_t controller(robot_state_t state) {
         display_write("OFF", DISPLAY_LINE_0);
         kobukiDriveDirect(0,0);
         state = OFF;
-        printf("m: %d,max_count %d", m, max_count);
         if (current_time > timer + 5) {
           timer = current_time;
           snprintf(buf, 16, "%f", current_time);
@@ -509,7 +508,6 @@ robot_state_t controller(robot_state_t state) {
       if (connected && current_time >= start_time) {
         initial_location_x = current_x;
         initial_location_y = current_y;
-        printf("Robot %d is at x: %f, y: %f \n", robot_num, initial_location_x, initial_location_y);
         m = new_command_length(LOC_ORI, max_count);
         translate_command(LOC_ORI, center_command, command, LOC, radius, speed_mat, max_count, initial_location_x, initial_location_y, set_radius, time_constant, m); // translate original command into a command list with preturn/afterturn
         for (i = 0; i < m; i++)
