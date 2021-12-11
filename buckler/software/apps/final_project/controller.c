@@ -381,7 +381,6 @@ static void drive_formatted(double overall_speed, double angular_speed) {
 
   rightSpeed = overall_speed + wheel_distance/2*angular_speed*1000;
   leftSpeed = overall_speed - wheel_distance/2*angular_speed*1000;
-  printf("RIGHT: %f, LEFT: %f\n", rightSpeed, leftSpeed);
   kobukiDriveDirect(leftSpeed, rightSpeed);
 }
 
@@ -484,7 +483,6 @@ robot_state_t controller(robot_state_t state) {
         my_position = robot_positions + robot_num;
       } else {
         snprintf(buf, 16, "%d, %f", robot_num, num_timer - current_time);
-        printf("%d, %f\n", robot_num, current_time);
         display_write(buf, DISPLAY_LINE_1);
         display_write("GETTING_NUM", DISPLAY_LINE_0);
         state = GETTING_NUM;
