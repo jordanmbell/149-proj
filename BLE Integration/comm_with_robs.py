@@ -7,6 +7,7 @@ import time
 from typing import List
 
 from bleak import BleakClient, BleakError
+from numpy import MAXDIMS
 
 from trace_data import trace_data_t
 
@@ -16,6 +17,7 @@ ROBOT_SERVICE_UUID = "32e61089-2b22-4db5-a914-43ce41986c70"
 POS_CHAR_UUID = "32e6108a-2b22-4db5-a914-43ce41986c70"
 
 MESSAGES_PER_SECOND = 10
+MAX_COMMANDS = 10
 
 
 class shared_data_t:
@@ -55,22 +57,33 @@ class shared_data_t:
             data_arr.extend([data.x_pos, data.y_pos, data.angle])
 
         # Push Trace Data
+        num_commands = len(self.trace_data.cmds)
+        data_arr.append(num_commands)
         for data in self.trace_data.cmds:
             data_arr.append(data)
-        for i in range(len(self.trace_data.cmds)):
+        # Fill in blank spots
+        for _ in range(num_commands, MAX_COMMANDS):
+            data_arr.append(0)
+        for i in range(num_commands):
             cmd = self.trace_data.cmds[i]
-            if cmd == 0:
+            if cmd == 0: # Straight command
                 data_arr.append(self.trace_data.cmd_param_dist[i])
             else:
                 data_arr.append(self.trace_data.cmd_param_angle[i])
+        # Fill in blank spots
+        for _ in range(num_commands, MAX_COMMANDS):
+            data_arr.append(0)
         for data in self.trace_data.cmd_times:
             data_arr.append(data)
+        # Fill in blank spots
+        for _ in range(num_commands, MAX_COMMANDS):
+            data_arr.append(0)
         data_arr.append(self.start_moving_time)
 
         self.packed_bytes = bytearray(struct.pack(
-            "d" * (1 + len(self.rob_data)) + # Timestamp + rob_data
-            "i" * (len(self.trace_data.cmds)) + # cmds
-            "d" * (2 * len(self.trace_data.cmds) + 1), # dist, ang, times, start_time
+            "d" * (1 + len(self.rob_data)*3) + # Timestamp + rob_data
+            "i" * (MAX_COMMANDS + 1) + # len, cmds
+            "d" * (MAX_COMMANDS * 2 + 1), # dist, ang, times, start_time
              *data_arr
         ))
 
@@ -88,7 +101,7 @@ async def _connect_to_device(address: str, shared_data: shared_data_t):
                     while not shared_data.disconnect:
                         if shared_data.timestamp > last:
                             last = shared_data.timestamp
-                            await client.write_gatt_char(POS_CHAR_UUID, shared_data.packed_bytes)
+                            await client.write_gatt_char(POS_CHAR_UUID, shared_data.get_packed_bytes())
                             print(last)
                             # Rate limit
                             await asyncio.sleep(1 / MESSAGES_PER_SECOND)

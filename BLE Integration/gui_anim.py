@@ -2,7 +2,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
-from trace_data import *
+from trace_data import trace_data_t, cmd_anticlockwise, cmd_clockwise, cmd_straight
 
 # Set up graph
 frame_size = 5
@@ -15,7 +15,7 @@ colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', '
 
 # This function is called periodically from FuncAnimation
 # xs and ys are lists of past x,y to show a trail
-def animate(i, xs, ys, shared_dict, num_markers, trace_data, route_locations, starting_orientation):
+def animate(i, xs, ys, shared_dict, num_markers, trace_data: trace_data_t, route_locations, starting_orientation):
 
     # Add x and y to lists
     #print(shared_dict)
@@ -97,7 +97,7 @@ def animate(i, xs, ys, shared_dict, num_markers, trace_data, route_locations, st
 
 
 # Called by multiprocess to start the animation
-def start_animation(shared_dict, num_markers, trace_data, route_locations, starting_orientation):
+def start_animation(shared_dict, num_markers, trace_data: trace_data_t, route_locations, starting_orientation):
     xs = []
     ys = []
     for _ in range(num_markers):

@@ -142,6 +142,7 @@ void ble_evt_write(ble_evt_t const *p_ble_evt)
     if (!connected) {
       // Parse trace data
       start_time = incoming_data.start_time;
+      max_count = incoming_data.cmd_len;
       for (int i = 0; i < incoming_data.cmd_len; i++) {
         LOC_ORI[i] = incoming_data.trace_cmd[i];
         command_length[i] = incoming_data.trace_time[i];
@@ -455,7 +456,6 @@ robot_state_t controller(robot_state_t state) {
         printf("Starting timer\n");
         state = GETTING_NUM;
         num_timer = current_time + 10;
-        m = new_command_length(LOC_ORI, max_count);
       } else {
         // perform state-specific actions here
         display_write("OFF", DISPLAY_LINE_0);
@@ -508,6 +508,7 @@ robot_state_t controller(robot_state_t state) {
         initial_location_x = current_x;
         initial_location_y = current_y;
         printf("Robot %d is at x: %f, y: %f \n", robot_num, initial_location_x, initial_location_y);
+        m = new_command_length(LOC_ORI, max_count);
         translate_command(LOC_ORI, center_command, command, LOC, radius, speed_mat, max_count, initial_location_x, initial_location_y, set_radius, time_constant, m); // translate original command into a command list with preturn/afterturn
         for (i = 0; i < m; i++)
             {
