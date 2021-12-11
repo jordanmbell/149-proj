@@ -85,7 +85,7 @@ float cur_distance_from_end;
 float command_length[] = {20, 20, 20, 20, 20}; // {2, 6, 2, 2, 6, 2, 10, 2, 6, 2, 10}
 float center_command[] = {90, 90, 1.5, 90, 1.5};
 uint16_t LOC_ORI[] = {1, 2, 0, 1, 0}; // 1 left,2 right
-float set_radius = {1, 1, 1, 1, 1};
+float set_radius[] = {1, 1, 1, 1, 1};
 float time_constant = 2;
 float set_distance_or_angle, measure_distance_or_angle;
 float enter_state_time;
@@ -459,7 +459,7 @@ robot_state_t controller(robot_state_t state) {
         initial_location_x = xlist[robot_num];
         initial_location_y = ylist[robot_num];
         printf("Robot %d is at x: %f, y: %f \n", robot_num, initial_location_x, initial_location_y);
-        translate_command(LOC_ORI, center_command, command, LOC, radius, speed_mat, max_count, initial_location_x, initial_location_y, set_radius[], time_constant, m); // translate original command into a command list with preturn/afterturn
+        translate_command(LOC_ORI, center_command, command, LOC, radius, speed_mat, max_count, initial_location_x, initial_location_y, set_radius, time_constant, m); // translate original command into a command list with preturn/afterturn
         for (i = 0; i < m; i++)
             {
                 if (radius[i] == 0 || radius[i] == -1)
