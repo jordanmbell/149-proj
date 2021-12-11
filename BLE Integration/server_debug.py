@@ -17,7 +17,7 @@ from trace_data import trace_data_t
 
 # Variables to configure -------------
 num_markers = 9
-num_robots = 1
+num_robots = 4
 marker_to_robot = {
     0:0,
     1:1,
