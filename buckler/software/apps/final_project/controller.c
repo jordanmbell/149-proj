@@ -143,12 +143,18 @@ void ble_evt_write(ble_evt_t const *p_ble_evt)
       // Parse trace data
       start_time = incoming_data.start_time;
       max_count = incoming_data.cmd_len;
+      for (i = 0; i < sizeof(incoming_data); i++)
+      {
+          if (i > 0) printf(":");
+          printf("%02X", (*char)incoming_data[i]);
+      }
+      printf("\n");
       for (int i = 0; i < incoming_data.cmd_len; i++) {
         LOC_ORI[i] = incoming_data.trace_cmd[i];
         command_length[i] = incoming_data.trace_time[i];
         center_command[i] = incoming_data.trace_dist_angle[i];
         set_radius[i] = 0.3;
-        printf("LOC: %d, length: %f,center: %f", LOC_ORI[i], command_length[i], center_command[i]);
+        printf("cmd:len: %d, LOC: %d, length: %f,center: %f\n", incoming_data.cmd_len, LOC_ORI[i], command_length[i], center_command[i]);
       }
       
     }
