@@ -32,9 +32,9 @@ typedef struct
   double timestamp;
   rob_data_t robot_data[NUM_ROBOTS];
   int cmd_len;
-  int trace_cmd[10];
-  double trace_dist_angle[10];
-  double trace_time[10];
+  int trace_cmd[MAX_COMMANDS];
+  double trace_dist_angle[MAX_COMMANDS];
+  double trace_time[MAX_COMMANDS];
   double start_time;
 } incoming_data_t;
 
