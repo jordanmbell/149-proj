@@ -6,7 +6,7 @@ import argparse
 import math
 import time
 
-cam1_id = 1
+cam1_id = 2
 cam2_id = None
 cam_wait_ms = 1
 num_markers = 9
@@ -71,6 +71,7 @@ class camera:
     def calibrate_square(self):
         square_dict = self.find_points(self.referenceIDs, True)
         while square_dict is None or not (all(id in square_dict.keys() for id in self.referenceIDs )):
+            self.show_image()
             print("\t Trying to find ref ids: ", self.referenceIDs)
             time.sleep(2)
             square_dict = self.find_points(self.referenceIDs, True)
@@ -179,14 +180,15 @@ def track(shared_dict):
      composedRvec2, composedTvec2 = None, None
 
      # mtx, dist = loadCoefficients("../camera_calibration_tests/images_canon_floor/calibrationCoefficients2.yaml")
-     mtx, dist = loadCoefficients("../camera_calibration_tests/images_canon/calibrationCoefficients.yaml")
+     # mtx, dist = loadCoefficients("../camera_calibration_tests/images_canon/calibrationCoefficients.yaml")
      # mtx2, dist2 = loadCoefficients("images_webcam_black_checkerboard/calibrationCoefficients.yaml")
-     # mtx2, dist2 = loadCoefficients("images_sony/calibrationCoefficients.yaml")
+     mtx, dist = loadCoefficients("../camera_calibration_tests/images_sony/calibrationCoefficients.yaml")
 
      cam1 = camera(mtx, dist, originID, markerIDs, cam1_id, referenceIDs)
      cam1.calibrate_square()
      if cam2_id is not None:
-          mtx2, dist2 = loadCoefficients("images_webcam_black_checkerboard/calibrationCoefficients.yaml")
+          # mtx2, dist2 = loadCoefficients("images_webcam_black_checkerboard/calibrationCoefficients.yaml")
+          mtx2, dist2 = loadCoefficients("../camera_calibration_tests/images_sony/calibrationCoefficients.yaml")
           cam2 = camera(mtx, dist, originID, markerIDs, cam2_id, referenceIDs)
           cam2.calibrate_square()
 

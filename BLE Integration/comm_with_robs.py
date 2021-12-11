@@ -8,6 +8,8 @@ from typing import List
 
 from bleak import BleakClient, BleakError
 
+from trace import trace_data_t
+
 timeout = 10
 addr = "c0:98:e5:49:98:7"
 ROBOT_SERVICE_UUID = "32e61089-2b22-4db5-a914-43ce41986c70"
@@ -27,6 +29,8 @@ class shared_data_t:
     timestamp: float = 0.0
     rob_data: List[robot_data] = []
     num_robots = 0
+    trace_data = None
+    start_moving_time = None
     packed_bytes: bytearray
 
     def __init__(self, num_robots):
@@ -39,13 +43,32 @@ class shared_data_t:
         self.rob_data[robot_num].y_pos = y_pos
         self.rob_data[robot_num].angle = angle
 
+    def update_trace_data(self, trace_data, start_moving_time):
+        self.trace_data = trace_data
+        self.start_moving_time = start_moving_time
+
     def push_update(self):
         self.timestamp = time.time() - self.start
         data_arr = [self.timestamp]
+        # Push Robot data
         for data in self.rob_data:
             data_arr.extend([data.x_pos, data.y_pos, data.angle])
+
+        # Push Trace Data
+        for data in self.trace_data.cmds:
+            data_arr.append(data)
+        for data in self.trace_data.cmd_param_dist:
+            data_arr.append(data)
+        for data in self.trace_data.cmd_param_angle:
+            data_arr.append(data)
+        data_arr.append(self.start_moving_time)
+
+        # self.packed_bytes = bytearray(struct.pack(
+        #     "d"*(self.num_robots*3 + 1), *data_arr))
+
         self.packed_bytes = bytearray(struct.pack(
-            "d"*(self.num_robots*3 + 1), *data_arr))
+            "d" * (len(data_arr)), *data_arr
+        ))
 
 
 async def _connect_to_device(address: str, shared_data: shared_data_t):

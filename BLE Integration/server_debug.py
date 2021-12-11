@@ -29,13 +29,15 @@ update_delay_s = 0.01
 
 
 route_locations = [[1,-4], [4,3]]  # For now, trace locations set by user
-turn_radius = 0.5  # meter
+turn_radius = 1.5  # meter
 speed = 0.01         # meter/sec
 angular_speed = 10  # deg /sec
 setup_time = 4
 starting_orientation = np.array([0,1])
 
 open_ble = False
+
+delta_moving_time = 10    # Set when the robots should start moving after connection
 # End of variables to configure -------------
 
 # Main server loop
@@ -44,13 +46,14 @@ async def main():
     if open_ble:
         shared_data, comm_tasks = await begin_communication(num_robots)
         handle_sigint(comm_tasks, shared_data)
+        shared_data.disconnect = False
     else:
         shared_data = shared_data_t(4)
         handle_sigint(None, shared_data)
+        shared_data.disconnect = False
+        shared_data.connected = num_robots
 
-    # For now, assume that everything is connected
-    shared_data.disconnect = False
-    shared_data.connected = True
+
 
     # Multiprocess manager to share marker coordinates across processes
     with Manager() as manager:
@@ -65,7 +68,18 @@ async def main():
         # Calculate trace given positions of markers or user defined coordinates
         trace_data = trace_data_t()
         trace_data.route_with_orientation(route_locations, turn_radius, speed, angular_speed, setup_time, starting_orientation)
+
+        while not shared_data.connected == num_robots:
+            if shared_data.disconnect:
+                break
+            print("Waiting for BLE connection before pushing trace data")
+            await asyncio.sleep(5)
+        start_moving_time = delta_moving_time + time.time() - shared_data.start
+        print("BLE connected to all robots: pushing trace data and start time: ")
         print(trace_data)
+        print(start_moving_time)
+        shared_data.update_trace_data(trace_data, start_moving_time)
+        shared_data.push_update()
 
         # Graph markers Process
         p_graph = Process(target=start_animation, args=(shared_marker_dict, num_markers, trace_data, route_locations, starting_orientation))
