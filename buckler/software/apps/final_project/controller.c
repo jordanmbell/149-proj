@@ -459,7 +459,7 @@ robot_state_t controller(robot_state_t state) {
         initial_location_x = xlist[robot_num];
         initial_location_y = ylist[robot_num];
         printf("Robot %d is at x: %f, y: %f \n", robot_num, initial_location_x, initial_location_y);
-        translate_command(LOC_ORI, center_command, command, LOC, radius, speed_mat, max_count, initial_location_x, initial_location_y, set_radius, time_constant, m); // translate original command into a command list with preturn/afterturn
+        translate_command(LOC_ORI, center_command, command, LOC, radius, speed_mat, max_count, initial_location_x, initial_location_y, set_radius[], time_constant, m); // translate original command into a command list with preturn/afterturn
         for (i = 0; i < m; i++)
             {
                 if (radius[i] == 0 || radius[i] == -1)
