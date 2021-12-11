@@ -73,8 +73,8 @@ rob_data_t robot_positions[NUM_ROBOTS];
 rob_data_t *my_position;
 float initial_location_x = 0;
 float initial_location_y = 0;
-float xlist[NUM_ROBOTS] = {0.5,0.5,-0.5,-0.5};
-float ylist[NUM_ROBOTS] = {1,-1,1,-1};
+float xlist[NUM_ROBOTS] = {0.25,0.25,-0.25,-0.25};
+float ylist[NUM_ROBOTS] = {0.5,-0.5,0.5,-0.5};
 float current_x = 0;
 float current_y = 0;
 float current_ang = 0;
@@ -85,7 +85,7 @@ float cur_distance_from_end;
 float command_length[] = {20, 20, 20, 20, 20}; // {2, 6, 2, 2, 6, 2, 10, 2, 6, 2, 10}
 float center_command[] = {90, 90, 1.5, 90, 1.5};
 uint16_t LOC_ORI[] = {1, 2, 0, 1, 0}; // 1 left,2 right
-float set_radius = 1.5;
+float set_radius = {1, 1, 1, 1, 1};
 float time_constant = 2;
 float set_distance_or_angle, measure_distance_or_angle;
 float enter_state_time;
@@ -191,7 +191,7 @@ static uint16_t new_command_length(uint16_t LOC_ORI[], uint16_t max_count)
   return changed_counter * 2 + max_count;
 }
 
-static uint16_t translate_command(uint16_t LOC_ORI[], float center_command[], float command[], uint16_t LOC[], float radius[], float speed_mat[], uint16_t max_count, float initial_location_x, float initial_location_y, float set_radius, float time_constant, uint16_t m)
+static uint16_t translate_command(uint16_t LOC_ORI[], float center_command[], float command[], uint16_t LOC[], float radius[], float speed_mat[], uint16_t max_count, float initial_location_x, float initial_location_y, float set_radius[], float time_constant, uint16_t m)
 {
   // translate original command into a command list with preturn/afterturn
   uint16_t i;
@@ -209,47 +209,47 @@ static uint16_t translate_command(uint16_t LOC_ORI[], float center_command[], fl
     }
     else if (LOC_ORI[i] == 2)
     {
-      command[j] = atan(initial_location_y / (set_radius - initial_location_x)) / pi * 180;
+      command[j] = atan(initial_location_y / (set_radius[i] - initial_location_x)) / pi * 180;
       LOC[j] = LOC_ORI[i];
       radius[j] = 0;
-      speed_mat[j] = atan(initial_location_y / (set_radius - initial_location_x)) / time_constant;
+      speed_mat[j] = atan(initial_location_y / (set_radius[i] - initial_location_x)) / time_constant;
       LOC_TIME[j] = time_constant;
       j++;
 
       command[j] = center_command[i];
       LOC[j] = LOC_ORI[i];
-      radius[j] = set_radius;
-      speed_mat[j] = center_command[i]*set_radius/180*pi/command_length[i]*1000;
+      radius[j] = set_radius[i];
+      speed_mat[j] = center_command[i]*set_radius[i]/180*pi/command_length[i]*1000;
       LOC_TIME[j] = command_length[i]-2*time_constant;
       j++;
 
-      command[j] = atan(initial_location_y / (set_radius - initial_location_x)) / pi * 180;
+      command[j] = atan(initial_location_y / (set_radius[i] - initial_location_x)) / pi * 180;
       LOC[j] = 3 - LOC_ORI[i];
       radius[j] = 0;
-      speed_mat[j] = atan(initial_location_y / (set_radius - initial_location_x)) / time_constant;
+      speed_mat[j] = atan(initial_location_y / (set_radius[i] - initial_location_x)) / time_constant;
       LOC_TIME[j] = time_constant;
       j++;
     }
     else if (LOC_ORI[i] == 1)
     {
-      command[j] = atan(initial_location_y / (set_radius + initial_location_x)) / pi * 180;
+      command[j] = atan(initial_location_y / (set_radius[i] + initial_location_x)) / pi * 180;
       LOC[j] = LOC_ORI[i];
       radius[j] = 0;
-      speed_mat[j] = atan(initial_location_y / (set_radius + initial_location_x)) / time_constant;
+      speed_mat[j] = atan(initial_location_y / (set_radius[i] + initial_location_x)) / time_constant;
       LOC_TIME[j] = time_constant;
       j++;
 
       command[j] = center_command[i];
       LOC[j] = LOC_ORI[i];
-      radius[j] = set_radius;
-      speed_mat[j] = center_command[i]*set_radius/180*pi/command_length[i]*1000;
+      radius[j] = set_radius[i];
+      speed_mat[j] = center_command[i]*set_radius[i]/180*pi/command_length[i]*1000;
       LOC_TIME[j] = command_length[i]-2*time_constant;
       j++;
 
-      command[j] = atan(initial_location_y / (set_radius + initial_location_x)) / pi * 180;
+      command[j] = atan(initial_location_y / (set_radius[i] + initial_location_x)) / pi * 180;
       LOC[j] = 3 - LOC_ORI[i];
       radius[j] = 0;
-      speed_mat[j] = atan(initial_location_y / (set_radius + initial_location_x)) / time_constant;
+      speed_mat[j] = atan(initial_location_y / (set_radius[i] + initial_location_x)) / time_constant;
       LOC_TIME[j] = time_constant;
       j++;
     }
