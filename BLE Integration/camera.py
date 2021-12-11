@@ -6,8 +6,8 @@ import argparse
 import math
 import time
 
-cam1_id = 2
-cam2_id = None
+cam1_id = 1
+cam2_id = 2
 cam_wait_ms = 1
 num_markers = 9
 originID = 4
@@ -28,6 +28,7 @@ class camera:
 
         #aruco_marker_size = 0.1
         self.cam = cv2.VideoCapture(camID)
+        self.camID = camID
         #self.cam2 = cv2.VideoCapture(2)
 
         #is this (below) needed?
@@ -71,8 +72,8 @@ class camera:
     def calibrate_square(self):
         square_dict = self.find_points(self.referenceIDs, True)
         while square_dict is None or not (all(id in square_dict.keys() for id in self.referenceIDs )):
-            self.show_image()
-            print("\t Trying to find ref ids: ", self.referenceIDs)
+            #self.show_image()
+            print("\tCam ", self.camID, " trying to find ref ids: ", self.referenceIDs)
             time.sleep(2)
             square_dict = self.find_points(self.referenceIDs, True)
         self.calib_sq_matrix = np.array([
@@ -175,14 +176,14 @@ def loadCoefficients(filePath):
     cv_file.release()
     return [camera_matrix, dist_matrix]
 
-def track(shared_dict):
+def track(shared_dict, shared_is_calibrated):
      composedRvec, composedTvec = None, None
      composedRvec2, composedTvec2 = None, None
 
-     # mtx, dist = loadCoefficients("../camera_calibration_tests/images_canon_floor/calibrationCoefficients2.yaml")
+     mtx, dist = loadCoefficients("../camera_calibration_tests/images_canon_floor/calibrationCoefficients2.yaml")
      # mtx, dist = loadCoefficients("../camera_calibration_tests/images_canon/calibrationCoefficients.yaml")
-     # mtx2, dist2 = loadCoefficients("images_webcam_black_checkerboard/calibrationCoefficients.yaml")
-     mtx, dist = loadCoefficients("../camera_calibration_tests/images_sony/calibrationCoefficients.yaml")
+     # mtx, dist = loadCoefficients("images_webcam_black_checkerboard/calibrationCoefficients.yaml")
+     # mtx, dist = loadCoefficients("../camera_calibration_tests/images_sony/calibrationCoefficients.yaml")
 
      cam1 = camera(mtx, dist, originID, markerIDs, cam1_id, referenceIDs)
      cam1.calibrate_square()
@@ -191,7 +192,8 @@ def track(shared_dict):
           mtx2, dist2 = loadCoefficients("../camera_calibration_tests/images_sony/calibrationCoefficients.yaml")
           cam2 = camera(mtx, dist, originID, markerIDs, cam2_id, referenceIDs)
           cam2.calibrate_square()
-
+    # Update server process that we found the robots
+     shared_is_calibrated.value = 1
      while True:
          vec1_cam1 = cam1.find_points(markerIDs, False)
          if cam2_id is not None:
@@ -210,14 +212,18 @@ def track(shared_dict):
              if in_cam1 and in_cam2:
                  x = (vec1_cam1[id][0] + vec1_cam2[id][0])/2
                  y =  (vec1_cam1[id][1] + vec1_cam2[id][1])/2
-                 rot = vec1_cam1[id][2]
+                 # rot = vec1_cam1[id][2]
+
+                 #averaging the rotations
+                 sine_sum = np.sin(np.radians(vec1_cam1[id][2])) + np.sin(np.radians(vec1_cam2[id][2]))
+                 cosine_sum = np.cos(np.radians(vec1_cam1[id][2])) + np.cos(np.radians(vec1_cam2[id][2]))
+                 rot = np.degrees(np.arctan(sine_sum/cosine_sum))
+
                  shared_dict[id] = [x, y, rot]
              elif in_cam1:
                 shared_dict[id] = vec1_cam1[id]
              elif in_cam2:
                 shared_dict[id] = vec1_cam2[id]
-             # else:
-             #    print(id, "is out of frame")
 
          # Wait 3 miliseconds for an interaction. Check the key and do the corresponding job.
          key = cv2.waitKey(cam_wait_ms) & 0xFF

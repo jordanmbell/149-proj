@@ -55,20 +55,20 @@ class shared_data_t:
             data_arr.extend([data.x_pos, data.y_pos, data.angle])
 
         # Push Trace Data
-        for data in self.trace_data.cmds:
-            data_arr.append(data)
-        for data in self.trace_data.cmd_param_dist:
-            data_arr.append(data)
-        for data in self.trace_data.cmd_param_angle:
-            data_arr.append(data)
-        data_arr.append(self.start_moving_time)
-
-        # self.packed_bytes = bytearray(struct.pack(
-        #     "d"*(self.num_robots*3 + 1), *data_arr))
+        # for data in self.trace_data.cmds:
+        #     data_arr.append(data)
+        # for data in self.trace_data.cmd_param_dist:
+        #     data_arr.append(data)
+        # for data in self.trace_data.cmd_param_angle:
+        #     data_arr.append(data)
+        # data_arr.append(self.start_moving_time)
 
         self.packed_bytes = bytearray(struct.pack(
-            "d" * (len(data_arr)), *data_arr
-        ))
+            "d"*(self.num_robots*3 + 1), *data_arr))
+
+        # self.packed_bytes = bytearray(struct.pack(
+        #     "d" * (len(data_arr)), *data_arr
+        # ))
 
 
 async def _connect_to_device(address: str, shared_data: shared_data_t):
@@ -93,8 +93,8 @@ async def _connect_to_device(address: str, shared_data: shared_data_t):
                     await client.disconnect()
                 except Exception as e:
                     print(f"\t{e}")
-        except BleakError as e:
-            print(f"Did not find device {address}")
+        except Exception as e:
+            print(f"Did not find device {address} : {e}")
         await asyncio.sleep(0)  # Allow other events to run
 
 
