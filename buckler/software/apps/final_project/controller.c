@@ -73,8 +73,8 @@ rob_data_t robot_positions[NUM_ROBOTS];
 rob_data_t *my_position;
 float initial_location_x = 0;
 float initial_location_y = 0;
-float xlist[NUM_ROBOTS] = {0.25,0.25,-0.25,-0.25};
-float ylist[NUM_ROBOTS] = {0.5,-0.5,0.5,-0.5};
+float xlist[NUM_ROBOTS] = {0.1,0.1,-0.1,-0.1};
+float ylist[NUM_ROBOTS] = {0.2,-0.2,0.2,-0.2};
 float current_x = 0;
 float current_y = 0;
 float current_ang = 0;
@@ -83,9 +83,9 @@ int encoder_at_last_measure;
 int command_idx = 0;
 float cur_distance_from_end;
 float command_length[] = {20, 20, 20, 20, 20}; // {2, 6, 2, 2, 6, 2, 10, 2, 6, 2, 10}
-float center_command[] = {90, 90, 1.5, 90, 1.5};
-uint16_t LOC_ORI[] = {1, 2, 0, 1, 0}; // 1 left,2 right
-float set_radius[] = {1, 1, 1, 1, 1};
+float center_command[] = {1.5, 90, 1.5, 90, 1.5};
+uint16_t LOC_ORI[] = {0, 1, 0, 2, 0}; // 1 left,2 right
+float set_radius[] = {0.3, 0.3, 0.3, 0.3, 0.3};
 float time_constant = 2;
 float set_distance_or_angle, measure_distance_or_angle;
 float enter_state_time;
