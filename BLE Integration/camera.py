@@ -6,7 +6,7 @@ import argparse
 import math
 import time
 
-cam1_id = 1
+cam1_id = 2
 cam_wait_ms = 1
 num_markers = 9
 originID = 4

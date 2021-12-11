@@ -6,8 +6,10 @@ import glob
 import argparse
 import math
 
+# --coefficients 1 --firstMarker 0 --secondMarker 1 --thirdMarker 2
+
 aruco_marker_size = 0.1
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(2)
 
 # termination criteria
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
@@ -24,7 +26,7 @@ def calibrate():
 
     #adjusting object points
     square_size = .0254
-    objp = objp*square_size;
+    objp = objp*square_size
 
     # Arrays to store object points and image points from all the images.
     objpoints = []  # 3d point in real world space
@@ -130,7 +132,7 @@ def track(matrix_coefficients, distortion_coefficients):
         ret, frame = cap.read(1)#changed from 0
         # operations on the frame come here
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # Change grayscale
-        aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)  # Use 5x5 dictionary to find markers
+        aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_250)  # Use 5x5 dictionary to find markers
         parameters = aruco.DetectorParameters_create()  # Marker detection parameters
 
         # lists of ids and the corners beloning to each id

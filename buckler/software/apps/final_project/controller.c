@@ -405,7 +405,7 @@ robot_state_t controller(robot_state_t state) {
       current_y = my_position->y_pos;
       current_ang = my_position->angle;
     }
-  } else if (!connected && !turning_in_place) {
+  } else if (connected && !turning_in_place) {
     float l_2 = get_distance(sensors.rightWheelEncoder, last_right);
     float l_1 = get_distance(sensors.leftWheelEncoder, last_left);
 
@@ -511,7 +511,7 @@ robot_state_t controller(robot_state_t state) {
         // perform state-specific actions here
         drive_formatted(0, 0);
       }
-      if (current_time >= start_time) {
+      if (connected && current_time >= start_time) {
         state = START;
         command_idx = 0;
         current_x = 0;

@@ -34,11 +34,11 @@ def animate(i, xs, ys, shared_dict, num_markers, trace_data, route_locations):
 
     # Draw x and y lists
     ax.clear()
-    n_div = 20
-    for k in range(num_markers):
-        for j in range(n_div):
-            x_range, y_range = xs[k][-(n_items - (n_items//n_div)*j):], ys[k][-(n_items - (n_items//n_div)*j):]
-            ax.plot(x_range, y_range, alpha=0.1*j, c=colors[k] )
+    # n_div = 20
+    # for k in range(num_markers):
+    #     for j in range(n_div):
+    #         x_range, y_range = xs[k][-(n_items - (n_items//n_div)*j):], ys[k][-(n_items - (n_items//n_div)*j):]
+    #         ax.plot(x_range, y_range, alpha=0.1*j, c=colors[k] )
 
     for k in range(num_markers):
         x, y = xs[k][-1], ys[k][-1]
