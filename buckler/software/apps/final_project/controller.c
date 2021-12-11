@@ -219,7 +219,7 @@ static uint16_t translate_command(uint16_t LOC_ORI[], float center_command[], fl
       command[j] = center_command[i];
       LOC[j] = LOC_ORI[i];
       radius[j] = set_radius[i];
-      speed_mat[j] = center_command[i]*set_radius[i]/180*pi/command_length[i]*1000;
+      speed_mat[j] = center_command[i]*set_radius[i]/180*pi/(command_length[i]-2*time_constant)*1000;
       LOC_TIME[j] = command_length[i]-2*time_constant;
       j++;
 
@@ -242,7 +242,7 @@ static uint16_t translate_command(uint16_t LOC_ORI[], float center_command[], fl
       command[j] = center_command[i];
       LOC[j] = LOC_ORI[i];
       radius[j] = set_radius[i];
-      speed_mat[j] = center_command[i]*set_radius[i]/180*pi/command_length[i]*1000;
+      speed_mat[j] = center_command[i]*set_radius[i]/180*pi/(command_length[i]-2*time_constant)*1000;
       LOC_TIME[j] = command_length[i]-2*time_constant;
       j++;
 
