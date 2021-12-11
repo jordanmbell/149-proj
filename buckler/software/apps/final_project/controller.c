@@ -38,12 +38,14 @@ rob_data_t robot_data[NUM_ROBOTS] = {0};
 float start_time = 5;
 bool connected = false;
 bool updated_data = false;
+double server_time;
 // configure initial state
 float distance = 0;
 // Timer for getting the number of the robot
 double num_timer;
 // Current robot time
 double current_time;
+double time_incr = 0.02;
 // Buffer for string writes.
 char buf[16];
 // Intervals for advertising and connections
@@ -131,12 +133,11 @@ double last_clock_time = 0;
 void ble_evt_write(ble_evt_t const *p_ble_evt)
 {
   printf("Enter BLE Handle\n");
-  connected = true;
   if (simple_ble_is_char_event(p_ble_evt, &pos_state_char))
   {
     updated_data = true;
     printf("Got robot data!\n");
-    current_time = incoming_data.timestamp;
+    server_time = incoming_data.timestamp;
     for (int i = 0; i < NUM_ROBOTS; i++)
     {
       robot_data[i].x_pos = incoming_data.robot_data[i].x_pos;
@@ -371,8 +372,6 @@ static void drive_formatted(float overall_speed, float angular_speed) {
 robot_state_t controller(robot_state_t state) {
   if (connected) {
     power_manage();
-  } else {
-    current_time += 0.02;
   }
   // read sensors from robot
   kobukiSensorPoll(&sensors);
@@ -382,8 +381,20 @@ robot_state_t controller(robot_state_t state) {
   //  in printf's in this loop breaking JTAG
   nrf_delay_ms(1);
 
+  current_time += time_incr;
+
+
   if (updated_data) {
     updated_data = false;
+    if (connected) {
+      if (server_time > current_time) {
+       time_incr += 0.0001;
+      } else {
+        time_incr -= 0.0001;
+      }
+    }
+    current_time = server_time;
+    connected = true;
     if (turning_in_place) {
       lsm9ds1_stop_gyro_integration();
       current_ang = my_position->angle;
