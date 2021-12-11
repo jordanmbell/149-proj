@@ -17,7 +17,7 @@
 #define wheel_distance 0.229
 #define NUM_ROBOTS 4
 #define pi 3.141592653589793
-#define MAX_COMMANDS 10
+#define MAX_COMMANDS 3
 
 /****** BLE SETUP ****/
 typedef struct
