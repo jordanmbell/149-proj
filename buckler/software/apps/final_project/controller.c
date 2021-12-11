@@ -110,7 +110,7 @@ float Ki2;
 float Kd1;
 float Kd2;
 float d1, d2, i1, i2;
-uint16_t max_count = sizeof(center_command) / sizeof(center_command[0]);
+uint16_t max_count;
 uint16_t j = 0;
 uint16_t i = 0;
 float command[MAX_COMMANDS * 3];
@@ -461,6 +461,7 @@ robot_state_t controller(robot_state_t state) {
         display_write("OFF", DISPLAY_LINE_0);
         kobukiDriveDirect(0,0);
         state = OFF;
+        printf("m: %d,max_count %d", m, max_count);
         if (current_time > timer + 5) {
           timer = current_time;
           snprintf(buf, 16, "%f", current_time);
