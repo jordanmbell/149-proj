@@ -13,11 +13,11 @@ from gui_anim import *
 from camera import *
 
 # Trace construction
-from trace import *
+from trace_data import trace_data_t
 
 # Variables to configure -------------
 num_markers = 9
-num_robots = 4
+num_robots = 1
 marker_to_robot = {
     0:0,
     1:1,
@@ -35,7 +35,7 @@ angular_speed = 10  # deg /sec
 setup_time = 4
 starting_orientation = np.array([0,1])
 
-open_ble = False
+open_ble = True
 
 delta_moving_time = 10    # Set when the robots should start moving after connection
 # End of variables to configure -------------
@@ -66,7 +66,7 @@ async def main():
         p_track.start()
 
         # Calculate trace given positions of markers or user defined coordinates
-        trace_data = trace_data_t()
+        trace_data: trace_data_t = trace_data_t()
         trace_data.route_with_orientation(route_locations, turn_radius, speed, angular_speed, setup_time, starting_orientation)
 
         while not shared_data.connected == num_robots:

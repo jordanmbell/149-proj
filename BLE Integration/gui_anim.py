@@ -2,7 +2,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
-from trace import *
+from trace_data import *
 
 # Set up graph
 frame_size = 5
