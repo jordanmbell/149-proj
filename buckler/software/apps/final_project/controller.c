@@ -83,7 +83,7 @@ int encoder_at_last_measure;
 int command_idx = 0;
 float cur_distance_from_end;
 float command_length[] = {20, 20, 20, 20, 20}; // {2, 6, 2, 2, 6, 2, 10, 2, 6, 2, 10}
-float center_command[] = {1.5, 90, 1.5, 90, 1.5};
+float center_command[] = {0.5, 90, 0.5, 90, 1.5};
 uint16_t LOC_ORI[] = {0, 1, 0, 2, 0}; // 1 left,2 right
 float set_radius[] = {0.3, 0.3, 0.3, 0.3, 0.3};
 float time_constant = 2;
@@ -98,7 +98,7 @@ robot_state_t next_state;
 uint16_t m;
 float rad, radd, spd;
 float Kp1 = 2000;
-float Kp2 = 10;
+float Kp2 = 8;
 float Ki1;
 float Ki2;
 float Kd1;
