@@ -148,7 +148,9 @@ void ble_evt_write(ble_evt_t const *p_ble_evt)
         command_length[i] = incoming_data.trace_time[i];
         center_command[i] = incoming_data.trace_dist_angle[i];
         set_radius[i] = 0.3;
+        printf("LOC: %d, length: %f,center: %f", LOC_ORI[i], command_length[i], center_command[i])
       }
+      
     }
     updated_data = true;
     printf("Got robot data!\n");
