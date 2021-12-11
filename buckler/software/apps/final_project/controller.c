@@ -17,6 +17,7 @@
 #define wheel_distance 0.229
 #define NUM_ROBOTS 4
 #define pi 3.141592653589793
+#define MAX_COMMANDS 10
 
 /****** BLE SETUP ****/
 typedef struct
@@ -30,12 +31,17 @@ typedef struct
 {
   double timestamp;
   rob_data_t robot_data[NUM_ROBOTS];
+  int cmd_len;
+  int trace_cmd[10];
+  double trace_dist_angle[10];
+  double trace_time[10];
+  double start_time;
 } incoming_data_t;
 
 // BLE vars
 incoming_data_t incoming_data;
 rob_data_t robot_data[NUM_ROBOTS] = {0};
-float start_time = 5;
+double start_time = 5;
 bool connected = false;
 bool updated_data = false;
 double server_time;
@@ -75,8 +81,6 @@ rob_data_t robot_positions[NUM_ROBOTS];
 rob_data_t *my_position;
 float initial_location_x = 0;
 float initial_location_y = 0;
-float xlist[NUM_ROBOTS] = {0.1,0.1,-0.1,-0.1};
-float ylist[NUM_ROBOTS] = {0.2,-0.2,0.2,-0.2};
 float current_x = 0;
 float current_y = 0;
 float current_ang = 0;
@@ -84,10 +88,10 @@ float relative_x = 0, relative_y = 0, velocity;
 int encoder_at_last_measure;
 int command_idx = 0;
 float cur_distance_from_end;
-float command_length[] = {8, 15, 8, 15, 8}; // {2, 6, 2, 2, 6, 2, 10, 2, 6, 2, 10}
-float center_command[] = {0.5, 90, 0.5, 90, 1.5};
-uint16_t LOC_ORI[] = {0, 1, 0, 2, 0}; // 1 left,2 right
-float set_radius[] = {0.3, 0.3, 0.3, 0.3, 0.3};
+double command_length[MAX_COMMANDS]; //= {8, 15, 8, 15, 8}; // {2, 6, 2, 2, 6, 2, 10, 2, 6, 2, 10}
+double center_command[MAX_COMMANDS]; //= {0.5, 90, 0.5, 90, 1.5};
+int LOC_ORI[MAX_COMMANDS]; // = {0, 1, 0, 2, 0}; // 1 left,2 right
+float set_radius[MAX_COMMANDS];
 float time_constant = 2;
 float set_distance_or_angle, measure_distance_or_angle;
 float enter_state_time;
@@ -109,12 +113,12 @@ float d1, d2, i1, i2;
 uint16_t max_count = sizeof(center_command) / sizeof(center_command[0]);
 uint16_t j = 0;
 uint16_t i = 0;
-float command[20];
-uint16_t LOC[20];
-float radius[20];
-float speed_mat[20];
-float modified_r_mat[20];
-float LOC_TIME[20];
+float command[MAX_COMMANDS * 3];
+uint16_t LOC[MAX_COMMANDS * 3];
+float radius[MAX_COMMANDS * 3];
+float speed_mat[MAX_COMMANDS * 3];
+float modified_r_mat[MAX_COMMANDS * 3];
+float LOC_TIME[MAX_COMMANDS * 3];
 float end_x;
 float end_y;
 float theta;
@@ -135,6 +139,16 @@ void ble_evt_write(ble_evt_t const *p_ble_evt)
   printf("Enter BLE Handle\n");
   if (simple_ble_is_char_event(p_ble_evt, &pos_state_char))
   {
+    if (!connected) {
+      // Parse trace data
+      start_time = incoming_data.start_time;
+      for (int i = 0; i < incoming_data.cmd_len; i++) {
+        LOC_ORI[i] = incoming_data.trace_cmd[i];
+        command_length[i] = incoming_data.trace_time[i];
+        center_command[i] = incoming_data.trace_dist_angle[i];
+        set_radius[i] = 0.3;
+      }
+    }
     updated_data = true;
     printf("Got robot data!\n");
     server_time = incoming_data.timestamp;
@@ -383,7 +397,7 @@ robot_state_t controller(robot_state_t state) {
 
   current_time += time_incr;
 
-
+  __disable_irq();
   if (updated_data) {
     updated_data = false;
     if (connected) {
@@ -405,7 +419,7 @@ robot_state_t controller(robot_state_t state) {
       current_y = my_position->y_pos;
       current_ang = my_position->angle;
     }
-  } else if (!connected && !turning_in_place) {
+  } else if (connected && !turning_in_place) {
     float l_2 = get_distance(sensors.rightWheelEncoder, last_right);
     float l_1 = get_distance(sensors.leftWheelEncoder, last_left);
 
@@ -429,6 +443,7 @@ robot_state_t controller(robot_state_t state) {
       current_y += l_1 * cos(current_ang);
     }
   }
+  __enable_irq();
   last_right = sensors.rightWheelEncoder;
   last_left = sensors.leftWheelEncoder;
 
@@ -439,7 +454,7 @@ robot_state_t controller(robot_state_t state) {
       if (is_button_pressed(&sensors)) {
         printf("Starting timer\n");
         state = GETTING_NUM;
-        num_timer = current_time + 1;
+        num_timer = current_time + 10;
         m = new_command_length(LOC_ORI, max_count);
       } else {
         // perform state-specific actions here
@@ -466,28 +481,6 @@ robot_state_t controller(robot_state_t state) {
         initial_encoder = sensors.rightWheelEncoder;
         measure_distance_or_angle = 0;
         my_position = robot_positions + robot_num;
-
-        initial_location_x = xlist[robot_num];
-        initial_location_y = ylist[robot_num];
-        printf("Robot %d is at x: %f, y: %f \n", robot_num, initial_location_x, initial_location_y);
-        translate_command(LOC_ORI, center_command, command, LOC, radius, speed_mat, max_count, initial_location_x, initial_location_y, set_radius, time_constant, m); // translate original command into a command list with preturn/afterturn
-        for (i = 0; i < m; i++)
-            {
-                if (radius[i] == 0 || radius[i] == -1)
-                {
-                    modified_r_mat[i] = radius[i];
-                }
-                else if (LOC[i] == 1)
-                {
-                    modified_r_mat[i] = sqrt(pow(radius[i] + initial_location_x, 2) + pow(initial_location_y, 2));
-                }
-                else if (LOC[i] == 2)
-                {
-                    modified_r_mat[i] = sqrt(pow(radius[i] - initial_location_x, 2) + pow(initial_location_y, 2));
-                }
-            }
-        for (j = 0; j < m; j++)
-          printf("Robot %d has com:%f, LOC:%i, RAD:%f, spd:%f, LOCT: %f \n", robot_num, command[j], LOC[j], radius[j], speed_mat[j], LOC_TIME[j]);
       } else {
         snprintf(buf, 16, "%d, %f", robot_num, num_timer - current_time);
         printf("%d, %f\n", robot_num, current_time);
@@ -511,12 +504,30 @@ robot_state_t controller(robot_state_t state) {
         // perform state-specific actions here
         drive_formatted(0, 0);
       }
-      if (current_time >= start_time) {
+      if (connected && current_time >= start_time) {
+        initial_location_x = current_x;
+        initial_location_y = current_y;
+        printf("Robot %d is at x: %f, y: %f \n", robot_num, initial_location_x, initial_location_y);
+        translate_command(LOC_ORI, center_command, command, LOC, radius, speed_mat, max_count, initial_location_x, initial_location_y, set_radius, time_constant, m); // translate original command into a command list with preturn/afterturn
+        for (i = 0; i < m; i++)
+            {
+                if (radius[i] == 0 || radius[i] == -1)
+                {
+                    modified_r_mat[i] = radius[i];
+                }
+                else if (LOC[i] == 1)
+                {
+                    modified_r_mat[i] = sqrt(pow(radius[i] + initial_location_x, 2) + pow(initial_location_y, 2));
+                }
+                else if (LOC[i] == 2)
+                {
+                    modified_r_mat[i] = sqrt(pow(radius[i] - initial_location_x, 2) + pow(initial_location_y, 2));
+                }
+            }
+        for (j = 0; j < m; j++)
+          printf("Robot %d has com:%f, LOC:%i, RAD:%f, spd:%f, LOCT: %f \n", robot_num, command[j], LOC[j], radius[j], speed_mat[j], LOC_TIME[j]);
         state = START;
         command_idx = 0;
-        current_x = 0;
-        current_y = 0;
-        current_ang = 0;
       }
       break; // each case needs to end with break!
     }

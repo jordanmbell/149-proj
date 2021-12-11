@@ -13,11 +13,11 @@ from gui_anim import *
 from camera import *
 
 # Trace construction
-from trace import *
+from trace_data import trace_data_t
 
 # Variables to configure -------------
 num_markers = 9
-num_robots = 4
+num_robots = 1
 marker_to_robot = {
     0:0,
     1:1,
@@ -67,8 +67,8 @@ async def main():
         p_track.start()
 
         # Calculate trace given positions of markers or user defined coordinates
-        trace_data = trace_data_t()
-        #trace_data.route_with_orientation(route_locations, turn_radius, speed, angular_speed, setup_time, starting_orientation)
+        trace_data: trace_data_t = trace_data_t()
+        trace_data.route_with_orientation(route_locations, turn_radius, speed, angular_speed, setup_time, starting_orientation)
 
         # Graph markers Process
         p_graph = Process(target=start_animation, args=(shared_marker_dict, num_markers, trace_data, route_locations, starting_orientation))
