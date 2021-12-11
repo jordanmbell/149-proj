@@ -146,7 +146,7 @@ void ble_evt_write(ble_evt_t const *p_ble_evt)
       for (i = 0; i < sizeof(incoming_data); i++)
       {
           if (i > 0) printf(":");
-          printf("%02X", ((char[])incoming_data)[i]);
+          printf("%02X", ((char*)incoming_data)[i]);
       }
       printf("\n");
       for (int i = 0; i < incoming_data.cmd_len; i++) {
