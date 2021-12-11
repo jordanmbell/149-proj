@@ -68,7 +68,7 @@ class shared_data_t:
         data_arr.append(self.start_moving_time)
 
         self.packed_bytes = bytearray(struct.pack(
-            "d" * (1 + len(self.rob_data)) + # Timestamp + rob_data
+            "d" * (1 + len(self.rob_data)*3) + # Timestamp + rob_data
             "i" * (len(self.trace_data.cmds)) + # cmds
             "d" * (2 * len(self.trace_data.cmds) + 1), # dist, ang, times, start_time
              *data_arr

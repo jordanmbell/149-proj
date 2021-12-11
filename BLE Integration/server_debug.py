@@ -36,6 +36,7 @@ setup_time = 4
 starting_orientation = np.array([0,1])
 
 open_ble = True
+plot_graph = False
 
 delta_moving_time = 10    # Set when the robots should start moving after connection
 # End of variables to configure -------------
@@ -71,21 +72,22 @@ async def main():
         trace_data.route_with_orientation(route_locations, turn_radius, speed, angular_speed, setup_time, starting_orientation)
 
         # Graph markers Process
-        p_graph = Process(target=start_animation, args=(shared_marker_dict, num_markers, trace_data, route_locations, starting_orientation))
-        p_graph.start()
+        if (plot_graph):
+            p_graph = Process(target=start_animation, args=(shared_marker_dict, num_markers, trace_data, route_locations, starting_orientation))
+            p_graph.start()
 
         # Wait for BLE connections to finish before sending trace and robot data
-        # while not shared_data.connected == num_robots:
-        #     if shared_data.disconnect:
-        #         break
-        #     print("Waiting for BLE connection before pushing trace data")
-        #     await asyncio.sleep(5)
-        # start_moving_time = delta_moving_time + time.time() - shared_data.start
-        # print("BLE connected to all robots: pushing trace data and start time: ")
-        # print(trace_data)
-        # print(start_moving_time)
-        # shared_data.update_trace_data(trace_data, start_moving_time)
-        # shared_data.push_update()
+        while not shared_data.connected == 1:
+            if shared_data.disconnect:
+                break
+            print("Waiting for BLE connection before pushing trace data")
+            await asyncio.sleep(5)
+        start_moving_time = delta_moving_time + time.time() - shared_data.start
+        print("BLE connected to all robots: pushing trace data and start time: ")
+        print(trace_data)
+        print(start_moving_time)
+        shared_data.update_trace_data(trace_data, start_moving_time)
+        shared_data.push_update()
 
         # Wait for camera to be shared_is_calibrated
         while not shared_is_calibrated.value:
@@ -144,7 +146,8 @@ async def main():
         print("Waiting to close camera")
         p_track.join()
         print("Waiting to close matplotlib graph")
-        p_graph.join()
+        if (plot_graph):
+            p_graph.join()
         print("Finished multiprocess cleanup")
         print("All tasks finished")
 
