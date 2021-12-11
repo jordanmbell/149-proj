@@ -82,7 +82,7 @@ float relative_x = 0, relative_y = 0, velocity;
 int encoder_at_last_measure;
 int command_idx = 0;
 float cur_distance_from_end;
-float command_length[] = {20, 20, 20, 20, 20}; // {2, 6, 2, 2, 6, 2, 10, 2, 6, 2, 10}
+float command_length[] = {8, 15, 8, 15, 8}; // {2, 6, 2, 2, 6, 2, 10, 2, 6, 2, 10}
 float center_command[] = {0.5, 90, 0.5, 90, 1.5};
 uint16_t LOC_ORI[] = {0, 1, 0, 2, 0}; // 1 left,2 right
 float set_radius[] = {0.3, 0.3, 0.3, 0.3, 0.3};
