@@ -454,7 +454,7 @@ robot_state_t controller(robot_state_t state) {
       if (is_button_pressed(&sensors)) {
         printf("Starting timer\n");
         state = GETTING_NUM;
-        num_timer = current_time + 1;
+        num_timer = current_time + 10;
         m = new_command_length(LOC_ORI, max_count);
       } else {
         // perform state-specific actions here
