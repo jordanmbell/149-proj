@@ -25,7 +25,7 @@ marker_to_robot = {
     3:3
 }
 
-update_delay_s = 1
+update_delay_s = 0.1
 
 
 route_locations = [[0,0], [3,3]]  # For now, trace locations set by user
@@ -134,7 +134,8 @@ async def main():
                         y = shared_marker_dict[i][1] - delta_y
                         rot = (shared_marker_dict[i][2] - delta_rot) % 360
                         rot = np.radians(rot)
-                        # print("updating ", i, ", x = ",x," y = ", y, " rot = ", rot)
+                        if i == 1:
+                            print("updating ", i, ", x = ",x," y = ", y, " rot = ", rot)
                         shared_data.update_robot(marker_to_robot[i],
                                 x, y, rot)
                         change = True

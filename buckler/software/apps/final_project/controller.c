@@ -120,7 +120,7 @@ uint16_t last_left;
 int robot_num = 0;
 bool turning_in_place = false;
 double last_global_angle = 0;
-double update_trust = 0.1;
+double update_trust = 0.01;
 
 // You may need to add additional variables to keep track of state here
 double timer = 0;
