@@ -88,7 +88,7 @@ int encoder_at_last_measure;
 int command_idx = 0;
 double cur_distance_from_end;
 double command_length[MAX_COMMANDS] = {10, 12, 10, 12, 10, 12, 10, 12}; // {2, 6, 2, 2, 6, 2, 10, 2, 6, 2, 10}
-double center_command[MAX_COMMANDS] = {0.75, 90, 1.5, 90, 1.5, 90, 1.5, 90};
+double center_command[MAX_COMMANDS] = {0.75, 90, 0.75, 90, 0.75, 90, 0.75, 90};
 int LOC_ORI[MAX_COMMANDS] = {0, 1, 0, 1, 0, 1, 0, 1}; // 1 left,2 right
 double set_radius[MAX_COMMANDS] = {0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3};
 uint16_t max_count = 8;
