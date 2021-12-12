@@ -556,8 +556,8 @@ robot_state_t controller(robot_state_t state) {
         initial_angle = current_ang;
         last_global_angle = initial_angle;
         enter_state_time = current_time;
-        init_state_x = robot_data[robot_num].x_pos;
-        init_state_y = robot_data[robot_num].y_pos;
+        // init_state_x = robot_data[robot_num].x_pos;
+        // init_state_y = robot_data[robot_num].y_pos;
         counter += 1;
         i1 = 0;
         d1 = 0;
