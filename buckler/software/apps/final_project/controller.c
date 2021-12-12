@@ -132,7 +132,7 @@ void ble_evt_write(ble_evt_t const *p_ble_evt)
   printf("Enter BLE Handle\n");
   if (simple_ble_is_char_event(p_ble_evt, &pos_state_char))
   {
-    if (!connected) {
+    if (false) {
       // Parse trace data
       start_time = incoming_data.start_time;
       max_count = incoming_data.cmd_len;

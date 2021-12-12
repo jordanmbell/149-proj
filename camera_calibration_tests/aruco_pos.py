@@ -9,7 +9,7 @@ import math
 # --coefficients 1 --firstMarker 0 --secondMarker 1 --thirdMarker 2
 
 aruco_marker_size = 0.1
-cap = cv2.VideoCapture(3)
+cap = cv2.VideoCapture(1)
 
 # termination criteria
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
