@@ -233,7 +233,7 @@ static uint16_t translate_command()
       command[j] = center_command[i];
       LOC[j] = LOC_ORI[i];
       radius[j] = set_radius[i];
-      speed_mat[j] = center_command[i]*set_radius[i]/180*pi/(command_length[i]-2*time_constant)*1000;
+      speed_mat[j] = center_command[i]*set_radius[i]/180*M_PI/(command_length[i]-2*time_constant)*1000;
       LOC_TIME[j] = command_length[i]-2*time_constant;
       j++;
 
@@ -288,7 +288,7 @@ static uint16_t translate_command()
   return 0;
 }
 
-static double get_relative_xy(double *relative_x, double *relative_y, uint16_t counter, double rad[], double time, double speed, double radius, double current_x, double current_y, double initial_location_x, double initial_location_y, double *end_x, double *end_y)
+static double get_relative_xy(double rad[], double time, double speed, double radius, double current_x, double current_y, double initial_location_x, double initial_location_y, double *end_x, double *end_y)
 {
     if (radius == 0)
     {
@@ -302,7 +302,7 @@ static double get_relative_xy(double *relative_x, double *relative_y, uint16_t c
     double inity = initial_location_y;
     double supposed_x, supposed_y, theta;
     uint16_t i = 0;
-    for (i = 0; i < counter; i++)
+    for (i = 0; i < counter - 1; i++)
     {
         if (rad[i] != 0)
         {
@@ -313,13 +313,13 @@ static double get_relative_xy(double *relative_x, double *relative_y, uint16_t c
             }
             else if (LOC[i] == 1)
             {
-                initx = initx - rad[i] * cos(init_direction) + rad[i] * cos(init_direction + command[i] / 180 * pi);
-                inity = inity - rad[i] * sin(init_direction) + rad[i] * sin(init_direction + command[i] / 180 * pi);
+                initx = initx - rad[i] * cos(init_direction) + rad[i] * cos(init_direction + command[i] / 180 * M_PI);
+                inity = inity - rad[i] * sin(init_direction) + rad[i] * sin(init_direction + command[i] / 180 * M_PI);
             }
             else if (LOC[i] == 2)
             {
-                initx = initx + rad[i] * cos(init_direction) - rad[i] * cos(-init_direction + command[i] / 180 * pi);
-                inity = inity + rad[i] * sin(init_direction) + rad[i] * sin(-init_direction + command[i] / 180 * pi);
+                initx = initx + rad[i] * cos(init_direction) - rad[i] * cos(-init_direction + command[i] / 180 * M_PI);
+                inity = inity + rad[i] * sin(init_direction) + rad[i] * sin(-init_direction + command[i] / 180 * M_PI);
             }
         }
 
@@ -341,30 +341,30 @@ static double get_relative_xy(double *relative_x, double *relative_y, uint16_t c
         }
         else if (LOC[i] == 1)
         {
-            *end_x = initx - rad[i] * cos(init_direction) + rad[i] * cos(init_direction + command[i] / 180 * pi);
-            *end_y = inity - rad[i] * sin(init_direction) + rad[i] * sin(init_direction + command[i] / 180 * pi);
+            *end_x = initx - rad[i] * cos(init_direction) + rad[i] * cos(init_direction + command[i] / 180 * M_PI);
+            *end_y = inity - rad[i] * sin(init_direction) + rad[i] * sin(init_direction + command[i] / 180 * M_PI);
         }
         else if (LOC[i] == 2)
         {
-            *end_x = initx + rad[i] * cos(init_direction) - rad[i] * cos(-init_direction + command[i] / 180 * pi);
-            *end_y = inity + rad[i] * sin(init_direction) + rad[i] * sin(-init_direction + command[i] / 180 * pi);
+            *end_x = initx + rad[i] * cos(init_direction) - rad[i] * cos(-init_direction + command[i] / 180 * M_PI);
+            *end_y = inity + rad[i] * sin(init_direction) + rad[i] * sin(-init_direction + command[i] / 180 * M_PI);
         }
     }
     // printf("initdire = %f \n",init_direction);
 
-    if (LOC[counter] == 0)
+    if (LOC[counter - 1] == 0)
     {
         theta = init_direction;
         supposed_x = initx - time * speed / 1000 * sin(theta);
         supposed_y = inity + time * speed / 1000 * cos(theta);
     }
-    else if (LOC[counter] == 1)
+    else if (LOC[counter - 1] == 1)
     {
         theta = init_direction + speed / 1000 / radius * time;
         supposed_x = initx - radius * cos(init_direction) + radius * cos(theta);
         supposed_y = inity - radius * sin(init_direction) + radius * sin(theta);
     }
-    else if (LOC[counter] == 2)
+    else if (LOC[counter - 1] == 2)
     {
         theta = init_direction - speed / 1000 / radius * time;
         supposed_x = initx + radius * cos(init_direction) - radius * cos(theta);
@@ -605,7 +605,7 @@ robot_state_t controller(robot_state_t state) {
       }
       else
       {
-        get_relative_xy(&relative_x, &relative_y, counter - 1, modified_r_mat, current_time - enter_state_time, spd, -1, current_x, current_y, init_state_x, init_state_y, &end_x, &end_y);
+        get_relative_xy(modified_r_mat, current_time - enter_state_time, spd, -1, current_x, current_y, init_state_x, init_state_y, &end_x, &end_y);
         display_write("LEADER_FORWARD", DISPLAY_LINE_0); 
         // printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
         // printf("t: %f \n",current_time);
@@ -653,7 +653,7 @@ robot_state_t controller(robot_state_t state) {
         {
           velocity = spd / rad * (sqrt(pow(initial_location_y, 2) + pow(rad + initial_location_x, 2)));
           radd = sqrt(pow(rad + initial_location_x, 2) + pow(initial_location_y, 2));
-          double should_angle = get_relative_xy(&relative_x, &relative_y, counter - 1, modified_r_mat, current_time - enter_state_time, velocity, radd, current_x, current_y, init_state_x, init_state_y, &end_x, &end_y);
+          double should_angle = get_relative_xy(modified_r_mat, current_time - enter_state_time, velocity, radd, current_x, current_y, init_state_x, init_state_y, &end_x, &end_y);
           // printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
           // printf("t: %f \n",current_time);
           d1 = relative_y - d1;
@@ -718,7 +718,7 @@ robot_state_t controller(robot_state_t state) {
         {
           velocity = spd / rad * (sqrt(pow(initial_location_y, 2) + pow(rad - initial_location_x, 2)));
           radd = sqrt(pow(rad - initial_location_x, 2) + pow(initial_location_y, 2));
-          get_relative_xy(&relative_x, &relative_y, counter - 1, modified_r_mat, current_time - enter_state_time, velocity, radd, current_x, current_y, init_state_x, init_state_y, &end_x, &end_y);
+          get_relative_xy(modified_r_mat, current_time - enter_state_time, velocity, radd, current_x, current_y, init_state_x, init_state_y, &end_x, &end_y);
           // printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
           d1 = relative_y - d1;
           d2 = relative_x - d2;
