@@ -77,10 +77,10 @@ simple_ble_app_t *simple_ble_app;
 // Configure initial state
 KobukiSensors_t sensors = {0};
 rob_data_t robot_positions[NUM_ROBOTS];
-double initial_location_x = 0;
-double initial_location_y = 0;
-double current_x = 0;
-double current_y = 0;
+double initial_location_x = 0.5;
+double initial_location_y = 0.5;
+double current_x = 0.5;
+double current_y = 0.5;
 double current_ang = 0;
 double relative_x = 0, relative_y = 0, velocity;
 int encoder_at_last_measure;
@@ -89,7 +89,7 @@ double cur_distance_from_end;
 double command_length[MAX_COMMANDS] = {8, 15, 8, 15, 8}; // {2, 6, 2, 2, 6, 2, 10, 2, 6, 2, 10}
 double center_command[MAX_COMMANDS] = {0.5, 90, 0.5, 90, 1.5};
 int LOC_ORI[MAX_COMMANDS] = {0, 1, 0, 2, 0}; // 1 left,2 right
-double set_radius[MAX_COMMANDS];
+double set_radius[MAX_COMMANDS] = {0.3, 0.3, 0.3, 0.3, 0.3};
 double time_constant = 2;
 double set_distance_or_angle, measure_distance_or_angle;
 double enter_state_time;
@@ -409,7 +409,7 @@ robot_state_t controller(robot_state_t state) {
       current_ang -= delta_ang * update_trust;
       printf("cur_x: %f, cur_y: %f, cur_amg: %f\n", current_x, current_y, current_ang);
     }
-  } else if (connected && !turning_in_place) {
+  } else if (!connected && !turning_in_place) {
     double l_2 = get_distance(sensors.rightWheelEncoder, last_right);
     double l_1 = get_distance(sensors.leftWheelEncoder, last_left);
 
@@ -490,7 +490,7 @@ robot_state_t controller(robot_state_t state) {
         // perform state-specific actions here
         drive_formatted(0, 0);
       }
-      if (connected && current_time >= start_time) {
+      if (!connected && current_time >= start_time) {
         initial_location_x = current_x;
         initial_location_y = current_y;
         m = new_command_length();
