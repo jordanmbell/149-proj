@@ -296,8 +296,8 @@ static double get_relative_xy(double time, double speed, double radius_cur)
     }
 
     double init_direction = 0;
-    double initx = init_state_x;
-    double inity = init_state_y;
+    double initx = initial_location_x;
+    double inity = initial_location_x;
     double supposed_x, supposed_y, theta;
     uint16_t i = 0;
     for (i = 0; i < counter - 1; i++)
