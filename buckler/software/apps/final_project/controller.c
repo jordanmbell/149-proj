@@ -330,7 +330,7 @@ static double get_relative_xy(double time, double speed, double radius_cur)
             init_direction -= command[i] / 180 * M_PI;
         }
     }
-    // printf("initdire = %f \n",init_direction);
+    printf("initx = %f, inity = %f, init_tdirr = %f \n",initx, inity, init_direction);
 
     if (LOC[counter - 1] == 0)
     {
