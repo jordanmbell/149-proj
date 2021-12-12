@@ -288,9 +288,9 @@ static uint16_t translate_command()
   return 0;
 }
 
-static double get_relative_xy(double time, double speed, double radius, double current_x, double current_y, double initial_location_x, double initial_location_y, double *end_x, double *end_y)
+static double get_relative_xy(double time, double speed, double radius_cur, double current_x, double current_y, double initial_location_x, double initial_location_y, double *end_x, double *end_y)
 {
-    if (radius == 0)
+    if (radius_cur == 0)
     {
         *relative_x = 0;
         *relative_y = 0;
@@ -325,11 +325,11 @@ static double get_relative_xy(double time, double speed, double radius, double c
 
         if (LOC[i] == 1)
         {
-            init_direction += command[i] / 180 * pi;
+            init_direction += command[i] / 180 * M_PI;
         }
         else if (LOC[i] == 2)
         {
-            init_direction -= command[i] / 180 * pi;
+            init_direction -= command[i] / 180 * M_PI;
         }
     }
 
@@ -360,15 +360,15 @@ static double get_relative_xy(double time, double speed, double radius, double c
     }
     else if (LOC[counter - 1] == 1)
     {
-        theta = init_direction + speed / 1000 / radius * time;
-        supposed_x = initx - radius * cos(init_direction) + radius * cos(theta);
-        supposed_y = inity - radius * sin(init_direction) + radius * sin(theta);
+        theta = init_direction + speed / 1000 / radius_cur * time;
+        supposed_x = initx - radius_cur * cos(init_direction) + radius_cur * cos(theta);
+        supposed_y = inity - radius_cur * sin(init_direction) + radius_cur * sin(theta);
     }
     else if (LOC[counter - 1] == 2)
     {
-        theta = init_direction - speed / 1000 / radius * time;
-        supposed_x = initx + radius * cos(init_direction) - radius * cos(theta);
-        supposed_y = inity + radius * sin(init_direction) - radius * sin(theta);
+        theta = init_direction - speed / 1000 / radius_cur * time;
+        supposed_x = initx + radius_cur * cos(init_direction) - radius_cur * cos(theta);
+        supposed_y = inity + radius_cur * sin(init_direction) - radius_cur * sin(theta);
     }
     // printf("supposed_x = %f, supposed_y = %f \n", supposed_x, supposed_y);
 
