@@ -654,7 +654,7 @@ robot_state_t controller(robot_state_t state) {
           i1 += relative_y;
           i2 += relative_x;
           drive_formatted(velocity - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, velocity / radd / 1000 + Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
-          snprintf(buf, 16, "%.2f %.2f %.2f", relative_x, relative_y, rel_angle);
+          snprintf(buf, 16, "%.2f %.2f %.2f", relative_x, relative_y, should_angle);
           display_write(buf, DISPLAY_LINE_0);
           snprintf(buf, 16, "%.2f %.2f %.2f", current_x, current_y, current_ang);
           display_write(buf, DISPLAY_LINE_1);
