@@ -633,10 +633,10 @@ robot_state_t controller(robot_state_t state) {
         if (turning_in_place) {
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
           current_ang = meas.z_axis * M_PI / 180 + last_global_angle;
-          lsm9ds1_stop_gyro_integration();
           turning_in_place = false;
         }
         
+        lsm9ds1_stop_gyro_integration();
         timer = current_time + 1;
       }
       else
@@ -667,6 +667,7 @@ robot_state_t controller(robot_state_t state) {
                           fabs(last_global_angle - initial_angle);
           double comp_2 = set_distance_or_angle * M_PI / 180;
           double delta_ang = atan2(sin(comp_1 - comp_2), cos(comp_1 - comp_2));
+          printf("Delta ang: %f\n", delta_ang);
           if (delta_ang <= 0) {
             // double ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
             drive_formatted(0, IN_PLACE_SPEED);
@@ -703,9 +704,9 @@ robot_state_t controller(robot_state_t state) {
         if (turning_in_place) {
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
           current_ang = meas.z_axis * M_PI / 180 + last_global_angle;
-          lsm9ds1_stop_gyro_integration();
           turning_in_place = false;
         }
+        lsm9ds1_stop_gyro_integration();
         timer = current_time + 1;
       }
       else
