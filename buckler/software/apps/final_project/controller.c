@@ -159,6 +159,7 @@ void ble_evt_write(ble_evt_t const *p_ble_evt)
       robot_data[i].x_pos = incoming_data.robot_data[i].x_pos;
       robot_data[i].y_pos = incoming_data.robot_data[i].y_pos;
       robot_data[i].angle = incoming_data.robot_data[i].angle;
+      printf("Rob %d: %f %f %f\n", i, robot_data[i].x_pos, robot_data[i].y_pos,robot_data[i].angle);
     }
   }
   printf("Exit BLE Handle\n");
@@ -367,7 +368,7 @@ static double get_relative_xy(double *relative_x, double *relative_y, uint16_t c
         supposed_x = initx + radius * cos(init_direction) - radius * cos(theta);
         supposed_y = inity + radius * sin(init_direction) - radius * sin(theta);
     }
-    printf("supposed_x = %f, supposed_y = %f \n", supposed_x, supposed_y);
+    // printf("supposed_x = %f, supposed_y = %f \n", supposed_x, supposed_y);
 
     *relative_x = cos(theta) * (current_x - supposed_x) + sin(theta) * (current_y - supposed_y);
     *relative_y = -sin(theta) * (current_x - supposed_x) + cos(theta) * (current_y - supposed_y);
