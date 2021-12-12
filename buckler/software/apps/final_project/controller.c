@@ -674,7 +674,7 @@ robot_state_t controller(robot_state_t state) {
             
             snprintf(buf, 16, "%f", current_ang);
             display_write(buf, DISPLAY_LINE_1);
-            snprintf(buf, 16, "angle: %f", meas.z_axis);
+            snprintf(buf, 16, "angle: %f", meas.z_axis * M_PI / 180 + current_ang);
             display_write(buf, DISPLAY_LINE_0);
           } else {
             drive_formatted(0, 0);
@@ -741,7 +741,7 @@ robot_state_t controller(robot_state_t state) {
             
             snprintf(buf, 16, "%f", current_ang);
             display_write(buf, DISPLAY_LINE_1);
-            snprintf(buf, 16, "angle: %f", meas.z_axis);
+            snprintf(buf, 16, "angle: %f", meas.z_axis * M_PI / 180 + current_ang);
             display_write(buf, DISPLAY_LINE_0);
           } else {
             drive_formatted(0, 0);
