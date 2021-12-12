@@ -31,6 +31,7 @@ class trace_data_t:
         self.cmd_param_dist.append(radius)
         self.cmd_param_angle.append(angle)
         self.cmd_times.append(time)
+        # self.cmd_times.append(8) #DEBUG STUFF
 
     # Update trace data corresponding to turning left by <angle> degrees
     # must execute in some time
@@ -40,6 +41,7 @@ class trace_data_t:
         self.cmd_param_dist.append(radius)
         self.cmd_param_angle.append(angle)
         self.cmd_times.append(time)
+        # self.cmd_times.append(7) #DEBUG STUFF
 
     def route_with_orientation(self, locations, turn_radius,speed, angular_speed, setup_time, orientation_vec):
         turn_right_mat = np.array([[0, 1], [-1, 0]])
@@ -67,11 +69,11 @@ class trace_data_t:
         new_orientation = orientation_vec
         if bool_left:
             turn_dist = left_dist - turn_radius
-            self.turn_left(90, turn_radius, turn_radius / angular_speed)
+            self.turn_left(90, turn_radius, turn_radius / angular_speed + setup_time)
             new_orientation = turn_left_mat @ orientation_vec
         elif bool_right:
             turn_dist = right_dist - turn_radius
-            self.turn_right(90, turn_radius, turn_radius / angular_speed)
+            self.turn_right(90, turn_radius, turn_radius / angular_speed + setup_time)
             new_orientation = turn_right_mat @ orientation_vec
 
         if turn_dist > 0:
@@ -144,7 +146,7 @@ if __name__ == "__main__":
     locations = [[0,0], [3, -5]] #[[0,0], [0, 1], [2,1], [2, 2], [3,3]]
 
     turn_radius = 0.5  # meter
-    speed = 0.01         # meter/sec
+    speed = 0.1         # meter/sec
     angular_speed = 10  # deg /sec
     setup_time = 4
     trace_data = trace_data_t()

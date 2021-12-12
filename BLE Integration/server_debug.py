@@ -25,14 +25,14 @@ marker_to_robot = {
     3:3
 }
 
-update_delay_s = 0.01
+update_delay_s = 1
 
 
-route_locations = [[1,-4], [4,3]]  # For now, trace locations set by user
-turn_radius = 1.5  # meter
-speed = 0.01         # meter/sec
-angular_speed = 10  # deg /sec
-setup_time = 4
+route_locations = [[0,0], [3,3]]  # For now, trace locations set by user
+turn_radius = 0.5  # meter
+speed = 0.08       # meter/sec
+angular_speed = 0.2  # deg /sec
+setup_time = 8
 starting_orientation = np.array([0,1])
 
 open_ble = True
@@ -77,17 +77,13 @@ async def main():
             p_graph.start()
 
         # Wait for BLE connections to finish before sending trace and robot data
-        while not shared_data.connected == 1:
+        while not shared_data.connected == 1 and open_ble:
             if shared_data.disconnect:
                 break
-            print("Waiting for BLE connection before pushing trace data")
+            print("Waiting for BLE connection")
             await asyncio.sleep(5)
-        start_moving_time = delta_moving_time + time.time() - shared_data.start
-        print("BLE connected to all robots: pushing trace data and start time: ")
-        print(trace_data)
-        print(start_moving_time)
-        shared_data.update_trace_data(trace_data, start_moving_time)
-        shared_data.push_update()
+
+
 
         # Wait for camera to be shared_is_calibrated
         while not shared_is_calibrated.value:
@@ -109,13 +105,24 @@ async def main():
             # print("Rotation: ", rot)
             sines += np.sin(np.radians(rot))
             cosines += np.cos(np.radians(rot))
-            delta_x += shared_marker_dict[i][0] / num_robots
-            delta_y += shared_marker_dict[i][1] / num_robots
+            delta_x += shared_marker_dict[i][0]
+            delta_y += shared_marker_dict[i][1]
             # delta_rot += rot
 
-        delta_rot = (delta_rot % 360) / num_robots
+        # delta_rot = (delta_rot % 360) / num_robots
+        delta_x = delta_x  / num_robots
+        delta_y = delta_y  / num_robots
         delta_rot = np.degrees(np.arctan(sines/cosines))
-        print("Delta rot", delta_rot)
+        # print("Delta x", delta_x)
+        # print("Delta y", delta_y)
+        # print("Delta rot", delta_rot)
+
+        # Push trace data and moving time
+        start_moving_time = delta_moving_time + time.time() - shared_data.start
+        print("BLE connected to all robots, camera tracking calibrated -- update trace data and start time: ")
+        print(trace_data)
+        print(start_moving_time)
+        shared_data.update_trace_data(trace_data, start_moving_time)
 
         # Update shared date for BLE clients
         while not shared_data.disconnect:
@@ -125,7 +132,8 @@ async def main():
                     if i in shared_marker_dict.keys():
                         x = shared_marker_dict[i][0] - delta_x
                         y = shared_marker_dict[i][1] - delta_y
-                        rot = shared_marker_dict[i][2] - delta_rot
+                        rot = (shared_marker_dict[i][2] - delta_rot) % 360
+                        rot = np.radians(rot)
                         # print("updating ", i, ", x = ",x," y = ", y, " rot = ", rot)
                         shared_data.update_robot(marker_to_robot[i],
                                 x, y, rot)

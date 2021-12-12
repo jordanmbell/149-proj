@@ -6,8 +6,8 @@ import argparse
 import math
 import time
 
-cam1_id = 3
-cam2_id = 4
+cam1_id = 1
+cam2_id = 2
 cam_wait_ms = 1
 num_markers = 9
 originID = 4
@@ -99,7 +99,7 @@ class camera:
         # lists of ids and the corners beloning to each id
         corners, ids, rejected_img_points = aruco.detectMarkers(gray, aruco_dict,parameters=parameters,cameraMatrix=self.matrix_coefficients, distCoeff=self.distortion_coefficients)
 
-        if np.all(ids is not None):  # If there are markers found by detector
+        if np.all(ids is not None) and np.all(corners is not None):  # If there are markers found by detector
             zipped = zip(ids, corners)
             ids, corners = zip(*(sorted(zipped)))
             axis = np.float32([[-0.01, -0.01, 0], [-0.01, 0.01, 0], [0.01, -0.01, 0], [0.01, 0.01, 0]]).reshape(-1, 3)
@@ -180,8 +180,8 @@ def track(shared_dict, shared_is_calibrated):
      composedRvec, composedTvec = None, None
      composedRvec2, composedTvec2 = None, None
 
-     mtx, dist = loadCoefficients("../camera_calibration_tests/images_canon_floor/calibrationCoefficients2.yaml")
-     # mtx, dist = loadCoefficients("../camera_calibration_tests/images_canon/calibrationCoefficients.yaml")
+     # mtx, dist = loadCoefficients("../camera_calibration_tests/images_canon_floor/calibrationCoefficients2.yaml")
+     mtx, dist = loadCoefficients("../camera_calibration_tests/images_canon/calibrationCoefficients.yaml")
      # mtx, dist = loadCoefficients("images_webcam_black_checkerboard/calibrationCoefficients.yaml")
      # mtx, dist = loadCoefficients("../camera_calibration_tests/images_sony/calibrationCoefficients.yaml")
 

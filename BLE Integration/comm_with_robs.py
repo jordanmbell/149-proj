@@ -16,8 +16,8 @@ addr = "c0:98:e5:49:98:7"
 ROBOT_SERVICE_UUID = "32e61089-2b22-4db5-a914-43ce41986c70"
 POS_CHAR_UUID = "32e6108a-2b22-4db5-a914-43ce41986c70"
 
-MESSAGES_PER_SECOND = 10
-MAX_COMMANDS = 10
+MESSAGES_PER_SECOND = 5
+MAX_COMMANDS = 3
 
 
 class shared_data_t:
@@ -79,13 +79,10 @@ class shared_data_t:
         for _ in range(num_commands, MAX_COMMANDS):
             data_arr.append(0)
         data_arr.append(self.start_moving_time)
+        formt_string = "d" * (1 + len(self.rob_data)*3) + "i" * (MAX_COMMANDS + 1) + "d" * (MAX_COMMANDS * 2 + 1)
 
-        self.packed_bytes = bytearray(struct.pack(
-            "d" * (1 + len(self.rob_data)*3) + # Timestamp + rob_data
-            "i" * (MAX_COMMANDS + 1) + # len, cmds
-            "d" * (MAX_COMMANDS * 2 + 1), # dist, ang, times, start_time
-             *data_arr
-        ))
+        self.packed_bytes = bytearray(struct.pack(formt_string, *data_arr))
+        # print(self.packed_bytes)
 
 
 async def _connect_to_device(address: str, shared_data: shared_data_t):
@@ -101,7 +98,7 @@ async def _connect_to_device(address: str, shared_data: shared_data_t):
                     while not shared_data.disconnect:
                         if shared_data.timestamp > last:
                             last = shared_data.timestamp
-                            await client.write_gatt_char(POS_CHAR_UUID, shared_data.get_packed_bytes())
+                            await client.write_gatt_char(POS_CHAR_UUID, shared_data.packed_bytes)
                             print(last)
                             # Rate limit
                             await asyncio.sleep(1 / MESSAGES_PER_SECOND)
