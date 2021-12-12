@@ -715,7 +715,7 @@ robot_state_t controller(robot_state_t state) {
         {
           velocity = spd / rad * (sqrt(pow(initial_location_y, 2) + pow(rad - initial_location_x, 2)));
           radd = sqrt(pow(rad - initial_location_x, 2) + pow(initial_location_y, 2));
-          get_relative_xy(current_time - enter_state_time, velocity, radd);
+          float rel_angle = get_relative_xy(current_time - enter_state_time, velocity, radd);
           // printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
           d1 = relative_y - d1;
           d2 = relative_x - d2;
