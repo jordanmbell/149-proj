@@ -114,8 +114,6 @@ double radius[MAX_COMMANDS * 3];
 double speed_mat[MAX_COMMANDS * 3];
 double modified_r_mat[MAX_COMMANDS * 3];
 double LOC_TIME[MAX_COMMANDS * 3];
-double end_x;
-double end_y;
 double theta;
 uint16_t last_right;
 uint16_t last_left;
@@ -288,7 +286,7 @@ static uint16_t translate_command()
   return 0;
 }
 
-static double get_relative_xy(double time, double speed, double radius_cur, double current_x, double current_y, double initial_location_x, double initial_location_y, double *end_x, double *end_y)
+static double get_relative_xy(double time, double speed, double radius_cur)
 {
     if (radius_cur == 0)
     {
@@ -298,8 +296,8 @@ static double get_relative_xy(double time, double speed, double radius_cur, doub
     }
 
     double init_direction = 0;
-    double initx = initial_location_x;
-    double inity = initial_location_y;
+    double initx = init_state_x;
+    double inity = init_state_y;
     double supposed_x, supposed_y, theta;
     uint16_t i = 0;
     for (i = 0; i < counter - 1; i++)
@@ -330,24 +328,6 @@ static double get_relative_xy(double time, double speed, double radius_cur, doub
         else if (LOC[i] == 2)
         {
             init_direction -= command[i] / 180 * M_PI;
-        }
-    }
-
-    if (modified_r_mat[i] != 0){
-        if (LOC[i] == 0)
-        {
-            *end_x = initx - command[i] * sin(init_direction);
-            *end_y = inity + command[i] * cos(init_direction);
-        }
-        else if (LOC[i] == 1)
-        {
-            *end_x = initx - ramodified_r_matd[i] * cos(init_direction) + modified_r_mat[i] * cos(init_direction + command[i] / 180 * M_PI);
-            *end_y = inity - modified_r_mat[i] * sin(init_direction) + modified_r_mat[i] * sin(init_direction + command[i] / 180 * M_PI);
-        }
-        else if (LOC[i] == 2)
-        {
-            *end_x = initx + modified_r_mat[i] * cos(init_direction) - modified_r_mat[i] * cos(-init_direction + command[i] / 180 * M_PI);
-            *end_y = inity + modified_r_mat[i] * sin(init_direction) + modified_r_mat[i] * sin(-init_direction + command[i] / 180 * M_PI);
         }
     }
     // printf("initdire = %f \n",init_direction);
@@ -605,7 +585,7 @@ robot_state_t controller(robot_state_t state) {
       }
       else
       {
-        get_relative_xy(current_time - enter_state_time, spd, -1, current_x, current_y, init_state_x, init_state_y, &end_x, &end_y);
+        get_relative_xy(current_time - enter_state_time, spd, -1);
         display_write("LEADER_FORWARD", DISPLAY_LINE_0); 
         // printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
         // printf("t: %f \n",current_time);
@@ -653,7 +633,7 @@ robot_state_t controller(robot_state_t state) {
         {
           velocity = spd / rad * (sqrt(pow(initial_location_y, 2) + pow(rad + initial_location_x, 2)));
           radd = sqrt(pow(rad + initial_location_x, 2) + pow(initial_location_y, 2));
-          double should_angle = get_relative_xy(current_time - enter_state_time, velocity, radd, current_x, current_y, init_state_x, init_state_y, &end_x, &end_y);
+          double should_angle = get_relative_xy(current_time - enter_state_time, velocity, radd, init_state_x, init_state_y);
           // printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
           // printf("t: %f \n",current_time);
           d1 = relative_y - d1;
@@ -718,7 +698,7 @@ robot_state_t controller(robot_state_t state) {
         {
           velocity = spd / rad * (sqrt(pow(initial_location_y, 2) + pow(rad - initial_location_x, 2)));
           radd = sqrt(pow(rad - initial_location_x, 2) + pow(initial_location_y, 2));
-          get_relative_xy(current_time - enter_state_time, velocity, radd, current_x, current_y, init_state_x, init_state_y, &end_x, &end_y);
+          get_relative_xy(current_time - enter_state_time, velocity, radd);
           // printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
           d1 = relative_y - d1;
           d2 = relative_x - d2;
