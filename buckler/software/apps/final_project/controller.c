@@ -409,7 +409,7 @@ robot_state_t controller(robot_state_t state) {
       current_ang -= delta_ang * update_trust;
       printf("cur_x: %f, cur_y: %f, cur_amg: %f\n", current_x, current_y, current_ang);
     }
-  } else if (!connected && !turning_in_place) {
+  } else if (!connected && state != OFF && state != GETTING_NUM && state != PENDING && !turning_in_place) {
     double l_2 = get_distance(sensors.rightWheelEncoder, last_right);
     double l_1 = get_distance(sensors.leftWheelEncoder, last_left);
 
