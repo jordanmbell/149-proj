@@ -595,7 +595,7 @@ robot_state_t controller(robot_state_t state) {
       }
       else
       {
-        get_relative_xy(current_time - enter_state_time, spd, -1);
+        float rel_angle = get_relative_xy(current_time - enter_state_time, spd, -1);
         // printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
         // printf("t: %f \n",current_time);
         d1 = relative_y - d1;
@@ -604,10 +604,10 @@ robot_state_t controller(robot_state_t state) {
         i2 += relative_x;
         drive_formatted(spd - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
         measure_distance_or_angle = get_distance(sensors.rightWheelEncoder, initial_encoder);
-        snprintf(buf, 16, "%f", relative_x);
-        display_write(buf, DISPLAY_LINE_1);
-        snprintf(buf, 16, "%f", relative_y);
+        snprintf(buf, 16, "%.2f %.2f %.2f", relative_x, relative_y, rel_angle);
         display_write(buf, DISPLAY_LINE_0);
+        snprintf(buf, 16, "%.2f %.2f %.2f", current_x, current_y, current_ang);
+        display_write(buf, DISPLAY_LINE_1);
         // printf("encoder: %d, prev: %d, distance: %f\n", sensors.rightWheelEncoder, initial_encoder, measure_distance_or_angle);
       }
       break; // each case needs to end with break!
