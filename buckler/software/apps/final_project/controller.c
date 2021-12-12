@@ -668,7 +668,7 @@ robot_state_t controller(robot_state_t state) {
           double comp_2 = set_distance_or_angle * M_PI / 180 + initial_angle;
           double delta_ang = atan2(sin(comp_1 - comp_2), cos(comp_1 - comp_2));
           printf("Delta ang: %f\n", delta_ang);
-          if (delta_ang >= 0) {
+          if (delta_ang <= 0) {
             // double ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
             drive_formatted(0, IN_PLACE_SPEED);
             // printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
@@ -735,7 +735,7 @@ robot_state_t controller(robot_state_t state) {
           double comp_1 = current_ang;
           double comp_2 = -1 * set_distance_or_angle * M_PI / 180 + initial_angle;
           double delta_ang = atan2(sin(comp_1 - comp_2), cos(comp_1 - comp_2));
-          if (delta_ang <= 0) {
+          if (delta_ang >= 0) {
             // double ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
             drive_formatted(0, -1*IN_PLACE_SPEED);
             // printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
