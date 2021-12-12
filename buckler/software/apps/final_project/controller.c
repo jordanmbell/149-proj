@@ -599,7 +599,7 @@ robot_state_t controller(robot_state_t state) {
       {
         get_relative_xy(&relative_x, &relative_y, counter - 1, modified_r_mat, current_time - enter_state_time, spd, -1, current_x, current_y, init_state_x, init_state_y, &end_x, &end_y);
         display_write("LEADER_FORWARD", DISPLAY_LINE_0); 
-        printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
+        // printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
         // printf("t: %f \n",current_time);
         d1 = relative_y - d1;
         d2 = relative_x - d2;
@@ -611,7 +611,7 @@ robot_state_t controller(robot_state_t state) {
         display_write(buf, DISPLAY_LINE_1);
         snprintf(buf, 16, "%f", relative_y);
         display_write(buf, DISPLAY_LINE_0);
-        printf("encoder: %d, prev: %d, distance: %f\n", sensors.rightWheelEncoder, initial_encoder, measure_distance_or_angle);
+        // printf("encoder: %d, prev: %d, distance: %f\n", sensors.rightWheelEncoder, initial_encoder, measure_distance_or_angle);
       }
       break; // each case needs to end with break!
     }
@@ -646,7 +646,7 @@ robot_state_t controller(robot_state_t state) {
           velocity = spd / rad * (sqrt(pow(initial_location_y, 2) + pow(rad + initial_location_x, 2)));
           radd = sqrt(pow(rad + initial_location_x, 2) + pow(initial_location_y, 2));
           double should_angle = get_relative_xy(&relative_x, &relative_y, counter - 1, modified_r_mat, current_time - enter_state_time, velocity, radd, current_x, current_y, init_state_x, init_state_y, &end_x, &end_y);
-          printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
+          // printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
           // printf("t: %f \n",current_time);
           d1 = relative_y - d1;
           d2 = relative_x - d2;
@@ -707,7 +707,7 @@ robot_state_t controller(robot_state_t state) {
           velocity = spd / rad * (sqrt(pow(initial_location_y, 2) + pow(rad - initial_location_x, 2)));
           radd = sqrt(pow(rad - initial_location_x, 2) + pow(initial_location_y, 2));
           get_relative_xy(&relative_x, &relative_y, counter - 1, modified_r_mat, current_time - enter_state_time, velocity, radd, current_x, current_y, init_state_x, init_state_y, &end_x, &end_y);
-          printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
+          // printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y);
           d1 = relative_y - d1;
           d2 = relative_x - d2;
           i1 += relative_y;
