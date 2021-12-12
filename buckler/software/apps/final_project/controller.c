@@ -390,6 +390,10 @@ robot_state_t controller(robot_state_t state) {
       } else {
         time_incr -= 0.0001;
       }
+    } else {
+      current_x = robot_data[robot_num].x_pos;
+      current_y = robot_data[robot_num].y_pos;
+      current_ang = robot_data[robot_num].angle;
     }
     current_time = server_time;
     connected = true;
@@ -410,7 +414,7 @@ robot_state_t controller(robot_state_t state) {
       current_ang -= delta_ang * update_trust;
       printf("cur_x: %f, cur_y: %f, cur_amg: %f\n", current_x, current_y, current_ang);
     }
-  } else if (!connected && state != OFF && state != GETTING_NUM && state != PENDING && !turning_in_place) {
+  } else if (connected && state != OFF && state != GETTING_NUM && state != PENDING && !turning_in_place) {
     double l_2 = get_distance(sensors.rightWheelEncoder, last_right);
     double l_1 = get_distance(sensors.leftWheelEncoder, last_left);
 
@@ -491,7 +495,7 @@ robot_state_t controller(robot_state_t state) {
         // perform state-specific actions here
         drive_formatted(0, 0);
       }
-      if (!connected && current_time >= start_time) {
+      if (connected && current_time >= start_time) {
         initial_location_x = current_x;
         initial_location_y = current_y;
         init_state_x = initial_location_x;
