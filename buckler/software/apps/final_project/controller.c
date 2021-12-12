@@ -480,7 +480,7 @@ robot_state_t controller(robot_state_t state) {
         counter = 0;
         initial_encoder = sensors.rightWheelEncoder;
         measure_distance_or_angle = 0;
-        my_position = robot_positions + robot_num;
+        my_position = &(robot_positions[robot_num]);
       } else {
         snprintf(buf, 16, "%d, %f", robot_num, num_timer - current_time);
         display_write(buf, DISPLAY_LINE_1);
