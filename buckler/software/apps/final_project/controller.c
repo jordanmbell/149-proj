@@ -17,7 +17,7 @@
 #define wheel_distance 0.229
 #define NUM_ROBOTS 4
 #define MAX_COMMANDS 8
-#define IN_PLACE_SPEED 1.5
+#define IN_PLACE_SPEED 1.0
 
 /****** BLE SETUP ****/
 typedef struct
@@ -87,12 +87,12 @@ double relative_x = 0, relative_y = 0, velocity;
 int encoder_at_last_measure;
 int command_idx = 0;
 double cur_distance_from_end;
-double command_length[MAX_COMMANDS] = {1, 12, 10, 12, 10, 12, 10, 12}; // {2, 6, 2, 2, 6, 2, 10, 2, 6, 2, 10}
+double command_length[MAX_COMMANDS] = {1, 13, 10, 13, 10, 13, 10, 13}; // {2, 6, 2, 2, 6, 2, 10, 2, 6, 2, 10}
 double center_command[MAX_COMMANDS] = {0.001, 90, 0.75, 90, 0.75, 90, 0.75, 90};
 int LOC_ORI[MAX_COMMANDS] = {0, 1, 0, 1, 0, 1, 0, 1}; // 1 left,2 right
 double set_radius[MAX_COMMANDS] = {0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3};
 uint16_t max_count = 8;
-double time_constant = 2;
+double time_constant = 3;
 double set_distance_or_angle, measure_distance_or_angle;
 double enter_state_time;
 double init_state_x = 0.1, init_state_y = 0.1;
