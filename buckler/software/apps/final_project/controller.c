@@ -114,7 +114,6 @@ double radius[MAX_COMMANDS * 3];
 double speed_mat[MAX_COMMANDS * 3];
 double modified_r_mat[MAX_COMMANDS * 3];
 double LOC_TIME[MAX_COMMANDS * 3];
-double theta;
 uint16_t last_right;
 uint16_t last_left;
 int robot_num = 0;
@@ -288,10 +287,10 @@ static uint16_t translate_command()
 
 static double get_relative_xy(double time, double speed, double radius_cur)
 {
-    if (radius_cur == 0)
+    if (FP_ZERO == fpclassify(radius_cur))
     {
-        *relative_x = 0;
-        *relative_y = 0;
+        relative_x = 0;
+        relative_y = 0;
         return 1;
     }
 
@@ -302,7 +301,7 @@ static double get_relative_xy(double time, double speed, double radius_cur)
     uint16_t i = 0;
     for (i = 0; i < counter - 1; i++)
     {
-        if (modified_r_mat[i] != 0)
+        if (FP_ZERO != fpclassify(modified_r_mat[i]))
         {
             if (LOC[i] == 0)
             {
@@ -352,8 +351,8 @@ static double get_relative_xy(double time, double speed, double radius_cur)
     }
     // printf("supposed_x = %f, supposed_y = %f \n", supposed_x, supposed_y);
 
-    *relative_x = cos(theta) * (current_x - supposed_x) + sin(theta) * (current_y - supposed_y);
-    *relative_y = -sin(theta) * (current_x - supposed_x) + cos(theta) * (current_y - supposed_y);
+    relative_x = cos(theta) * (current_x - supposed_x) + sin(theta) * (current_y - supposed_y);
+    relative_y = -sin(theta) * (current_x - supposed_x) + cos(theta) * (current_y - supposed_y);
     return theta;
 }
 
@@ -393,7 +392,7 @@ robot_state_t controller(robot_state_t state) {
     current_time = server_time;
     connected = true;
     if (turning_in_place) {
-      lsm9ds1_stop_gyro_integration());
+      lsm9ds1_stop_gyro_integration();
       double delta_ang = atan2(sin(current_ang - robot_data[robot_num].angle),
                                cos(current_ang - robot_data[robot_num].angle));
       current_ang -= delta_ang * update_trust;
@@ -629,7 +628,7 @@ robot_state_t controller(robot_state_t state) {
       else
       {
 
-        if (rad != 0)
+        if (FP_ZERO != fpclassify(rad))
         {
           velocity = spd / rad * (sqrt(pow(initial_location_y, 2) + pow(rad + initial_location_x, 2)));
           radd = sqrt(pow(rad + initial_location_x, 2) + pow(initial_location_y, 2));
@@ -694,7 +693,7 @@ robot_state_t controller(robot_state_t state) {
       }
       else
       {
-        if (rad != 0)
+        if (FP_ZERO != fpclassify(rad))
         {
           velocity = spd / rad * (sqrt(pow(initial_location_y, 2) + pow(rad - initial_location_x, 2)));
           radd = sqrt(pow(rad - initial_location_x, 2) + pow(initial_location_y, 2));
