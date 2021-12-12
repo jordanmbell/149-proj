@@ -381,7 +381,7 @@ static void drive_formatted(double overall_speed, double angular_speed) {
 
   rightSpeed = overall_speed + wheel_distance/2*angular_speed*1000;
   leftSpeed = overall_speed - wheel_distance/2*angular_speed*1000;
-  kobukiDriveDirect(leftSpeed, rightSpeed);
+  kobukiDriveDirect(0, 0);
 }
 
 robot_state_t controller(robot_state_t state) {
@@ -418,6 +418,7 @@ robot_state_t controller(robot_state_t state) {
       current_x = my_position->x_pos;
       current_y = my_position->y_pos;
       current_ang = my_position->angle;
+      printf("cur_x: %f, cur_y: %f, cur_amg: %f\n" current_x, current_y, current_ang);
     }
   } else if (connected && !turning_in_place) {
     double l_2 = get_distance(sensors.rightWheelEncoder, last_right);
