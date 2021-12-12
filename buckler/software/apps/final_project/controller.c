@@ -17,7 +17,7 @@
 #define wheel_distance 0.229
 #define NUM_ROBOTS 4
 #define MAX_COMMANDS 5
-#define IN_PLACE_SPEED 1
+#define IN_PLACE_SPEED 1.5
 
 /****** BLE SETUP ****/
 typedef struct
@@ -531,6 +531,11 @@ robot_state_t controller(robot_state_t state) {
       }
       else
       {
+        // Wait to stop
+        if (timer > current_time) {
+          drive_formatted(0, 0);
+          break;
+        }
         if (LOC[counter] == 1)
         {
           state = LEADER_TURNLEFT;
@@ -548,6 +553,7 @@ robot_state_t controller(robot_state_t state) {
           printf("2 is at com:%f, RAD:%f, spd:%f \n", set_distance_or_angle, rad, spd);
           lsm9ds1_start_gyro_integration();
         }
+        
         next_state = START;
         measure_distance_or_angle = 0;
         set_distance_or_angle = command[counter];
@@ -557,8 +563,8 @@ robot_state_t controller(robot_state_t state) {
         initial_angle = current_ang;
         last_global_angle = initial_angle;
         enter_state_time = current_time;
-        // init_state_x = robot_data[robot_num].x_pos;
-        // init_state_y = robot_data[robot_num].y_pos;
+        init_state_x = current_x;
+        init_state_y = current_y;
         counter += 1;
         i1 = 0;
         d1 = 0;
@@ -585,6 +591,7 @@ robot_state_t controller(robot_state_t state) {
         measure_distance_or_angle = 0;
         initial_encoder = sensors.rightWheelEncoder;
         lsm9ds1_stop_gyro_integration();
+        timer = current_time + 1;
       }
       else
       {
@@ -627,6 +634,7 @@ robot_state_t controller(robot_state_t state) {
         current_ang = meas.z_axis * M_PI / 180 + last_global_angle;
         lsm9ds1_stop_gyro_integration();
         turning_in_place = false;
+        timer = current_time + 1;
       }
       else
       {
@@ -693,6 +701,7 @@ robot_state_t controller(robot_state_t state) {
         current_ang = meas.z_axis * M_PI / 180 + last_global_angle;
         lsm9ds1_stop_gyro_integration();
         turning_in_place = false;
+        timer = current_time + 1;
       }
       else
       {
