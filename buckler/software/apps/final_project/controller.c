@@ -159,7 +159,6 @@ void ble_evt_write(ble_evt_t const *p_ble_evt)
       robot_data[i].x_pos = incoming_data.robot_data[i].x_pos;
       robot_data[i].y_pos = incoming_data.robot_data[i].y_pos;
       robot_data[i].angle = incoming_data.robot_data[i].angle;
-      printf("Rob %d: %f %f %f\n", i, robot_data[i].x_pos, robot_data[i].y_pos,robot_data[i].angle);
     }
   }
   printf("Exit BLE Handle\n");
