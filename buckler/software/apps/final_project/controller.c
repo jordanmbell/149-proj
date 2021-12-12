@@ -302,7 +302,7 @@ static double get_relative_xy(double time, double speed, double radius_cur)
     uint16_t i = 0;
     for (i = 0; i < counter - 1; i++)
     {
-        if (FP_ZERO != fpclassify(modified_r_mat[i]))
+        if (FP_ZERO != fpclassify(modified_r_mat[i])) // check if radius 0
         {
             if (LOC[i] == 0)
             {
@@ -351,7 +351,7 @@ static double get_relative_xy(double time, double speed, double radius_cur)
         supposed_x = initx + radius_cur * cos(init_direction) - radius_cur * cos(theta);
         supposed_y = inity + radius_cur * sin(init_direction) - radius_cur * sin(theta);
     }
-    printf("supposed_x = %f, supposed_y = %f \n", supposed_x, supposed_y);
+    printf("supposed_x = %f, supposed_y = %f, theta = %f, LOC = %d \n", supposed_x, supposed_y, theta, LOC[counter - 1]);
 
     relative_x = cos(theta) * (current_x - supposed_x) + sin(theta) * (current_y - supposed_y);
     relative_y = -sin(theta) * (current_x - supposed_x) + cos(theta) * (current_y - supposed_y);
