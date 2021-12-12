@@ -16,7 +16,7 @@
 
 #define wheel_distance 0.229
 #define NUM_ROBOTS 4
-#define MAX_COMMANDS 5
+#define MAX_COMMANDS 8
 #define IN_PLACE_SPEED 1.5
 
 /****** BLE SETUP ****/
@@ -78,23 +78,24 @@ simple_ble_app_t *simple_ble_app;
 // Configure initial state
 KobukiSensors_t sensors = {0};
 rob_data_t robot_positions[NUM_ROBOTS];
-double initial_location_x = 0.5;
-double initial_location_y = 0.5;
-double current_x = 0.5;
-double current_y = 0.5;
+double initial_location_x = 0.1;
+double initial_location_y = 0.1;
+double current_x = 0.1;
+double current_y = 0.1;
 double current_ang = 0;
 double relative_x = 0, relative_y = 0, velocity;
 int encoder_at_last_measure;
 int command_idx = 0;
 double cur_distance_from_end;
-double command_length[MAX_COMMANDS] = {8, 15, 8, 15, 8}; // {2, 6, 2, 2, 6, 2, 10, 2, 6, 2, 10}
-double center_command[MAX_COMMANDS] = {0.5, 90, 0.5, 90, 1.5};
-int LOC_ORI[MAX_COMMANDS] = {0, 1, 0, 2, 0}; // 1 left,2 right
-double set_radius[MAX_COMMANDS] = {0.3, 0.3, 0.3, 0.3, 0.3};
+double command_length[MAX_COMMANDS] = {2, 15, 2, 15, 2, 15, 2, 15}; // {2, 6, 2, 2, 6, 2, 10, 2, 6, 2, 10}
+double center_command[MAX_COMMANDS] = {0.1, 90, 0.1, 90, 0.1, 90, 0.1, 90};
+int LOC_ORI[MAX_COMMANDS] = {0, 1, 0, 1, 0, 1, 0, 1}; // 1 left,2 right
+double set_radius[MAX_COMMANDS] = {0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
+uint16_t max_count = 8;
 double time_constant = 2;
 double set_distance_or_angle, measure_distance_or_angle;
 double enter_state_time;
-double init_state_x = 0.5, init_state_y = 0.5;
+double init_state_x = 0.1, init_state_y = 0.1;
 uint16_t initial_encoder;
 double initial_angle;
 uint16_t counter = 0;
@@ -108,7 +109,6 @@ double Ki2;
 double Kd1;
 double Kd2;
 double d1, d2, i1, i2;
-uint16_t max_count = 5;
 double command[MAX_COMMANDS * 3];
 uint16_t LOC[MAX_COMMANDS * 3];
 double radius[MAX_COMMANDS * 3];
