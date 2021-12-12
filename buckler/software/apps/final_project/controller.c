@@ -108,8 +108,6 @@ double Kd1;
 double Kd2;
 double d1, d2, i1, i2;
 uint16_t max_count = 5;
-uint16_t j = 0;
-uint16_t i = 0;
 double command[MAX_COMMANDS * 3];
 uint16_t LOC[MAX_COMMANDS * 3];
 double radius[MAX_COMMANDS * 3];
@@ -517,7 +515,7 @@ robot_state_t controller(robot_state_t state) {
         initial_location_y = current_y;
         m = new_command_length();
         translate_command(); // translate original command into a command list with preturn/afterturn
-        for (i = 0; i < m; i++)
+        for (int i = 0; i < m; i++)
             {
                 if (radius[i] == 0 || radius[i] == -1)
                 {
@@ -532,7 +530,7 @@ robot_state_t controller(robot_state_t state) {
                     modified_r_mat[i] = sqrt(pow(radius[i] - initial_location_x, 2) + pow(initial_location_y, 2));
                 }
             }
-        for (j = 0; j < m; j++)
+        for (int j = 0; j < m; j++)
           printf("Robot %d has com:%f, LOC:%i, RAD:%f, spd:%f, LOCT: %f \n", robot_num, command[j], LOC[j], radius[j], speed_mat[j], LOC_TIME[j]);
         state = START;
         command_idx = 0;
