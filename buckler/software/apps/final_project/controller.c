@@ -78,7 +78,6 @@ simple_ble_app_t *simple_ble_app;
 // Configure initial state
 KobukiSensors_t sensors = {0};
 rob_data_t robot_positions[NUM_ROBOTS];
-rob_data_t *my_position;
 double initial_location_x = 0;
 double initial_location_y = 0;
 double current_x = 0;
@@ -411,13 +410,13 @@ robot_state_t controller(robot_state_t state) {
     connected = true;
     if (turning_in_place) {
       lsm9ds1_stop_gyro_integration();
-      current_ang = my_position->angle;
+      current_ang = robot_data[robot_num].angle;
       last_global_angle = current_ang;
       lsm9ds1_start_gyro_integration();
     } else {
-      current_x = my_position->x_pos;
-      current_y = my_position->y_pos;
-      current_ang = my_position->angle;
+      current_x = robot_data[robot_num].x_pos;
+      current_y = robot_data[robot_num].y_pos;
+      current_ang = robot_data[robot_num].angle;
       printf("cur_x: %f, cur_y: %f, cur_amg: %f\n", current_x, current_y, current_ang);
     }
   } else if (connected && !turning_in_place) {
@@ -479,7 +478,6 @@ robot_state_t controller(robot_state_t state) {
         counter = 0;
         initial_encoder = sensors.rightWheelEncoder;
         measure_distance_or_angle = 0;
-        my_position = &(robot_positions[robot_num]);
       } else {
         snprintf(buf, 16, "%d, %f", robot_num, num_timer - current_time);
         display_write(buf, DISPLAY_LINE_1);
@@ -566,8 +564,8 @@ robot_state_t controller(robot_state_t state) {
         initial_angle = current_ang;
         last_global_angle = initial_angle;
         enter_state_time = current_time;
-        init_state_x = my_position->x_pos;
-        init_state_y = my_position->y_pos;
+        init_state_x = robot_data[robot_num].x_pos;
+        init_state_y = robot_data[robot_num].y_pos;
         counter += 1;
         i1 = 0;
         d1 = 0;
