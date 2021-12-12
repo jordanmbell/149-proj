@@ -597,9 +597,9 @@ robot_state_t controller(robot_state_t state) {
         drive_formatted(spd - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
         measure_distance_or_angle = get_distance(sensors.rightWheelEncoder, initial_encoder);
         snprintf(buf, 16, "%f", current_x);
-        display_write(buf, DISPLAY_LINE_1);
+        display_write(buf, relative_x);
         snprintf(buf, 16, "%f", current_y);
-        display_write(buf, DISPLAY_LINE_0);
+        display_write(buf, relative_y);
         // printf("encoder: %d, prev: %d, distance: %f\n", sensors.rightWheelEncoder, initial_encoder, measure_distance_or_angle);
       }
       break; // each case needs to end with break!
