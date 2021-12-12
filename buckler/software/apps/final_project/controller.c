@@ -94,7 +94,6 @@ double time_constant = 2;
 double set_distance_or_angle, measure_distance_or_angle;
 double enter_state_time;
 double init_state_x = 0, init_state_y = 0;
-uint16_t changed_counter = 0;
 uint16_t initial_encoder;
 double initial_angle;
 uint16_t counter = 0;
@@ -128,7 +127,6 @@ double last_global_angle = 0;
 double update_trust = 0.1;
 
 // You may need to add additional variables to keep track of state here
-uint16_t prev_encoder = 0;
 double timer = 0;
 
 double last_clock_time = 0;
@@ -142,22 +140,22 @@ void ble_evt_write(ble_evt_t const *p_ble_evt)
       // Parse trace data
       start_time = incoming_data.start_time;
       max_count = incoming_data.cmd_len;
-      for (int i = 0; i < incoming_data.cmd_len; i++) {
-        LOC_ORI[i] = incoming_data.trace_cmd[i];
-        command_length[i] = incoming_data.trace_time[i];
-        center_command[i] = incoming_data.trace_dist_angle[i];
-        set_radius[i] = 0.3;
+      for (int k = 0; k < incoming_data.cmd_len; k++) {
+        LOC_ORI[k] = incoming_data.trace_cmd[k];
+        command_length[k] = incoming_data.trace_time[k];
+        center_command[k] = incoming_data.trace_dist_angle[k];
+        set_radius[k] = 0.3;
       }
       
     }
     updated_data = true;
     printf("Got robot data!\n");
     server_time = incoming_data.timestamp;
-    for (int i = 0; i < NUM_ROBOTS; i++)
+    for (int k = 0; k < NUM_ROBOTS; k++)
     {
-      robot_data[i].x_pos = incoming_data.robot_data[i].x_pos;
-      robot_data[i].y_pos = incoming_data.robot_data[i].y_pos;
-      robot_data[i].angle = incoming_data.robot_data[i].angle;
+      robot_data[k].x_pos = incoming_data.robot_data[k].x_pos;
+      robot_data[k].y_pos = incoming_data.robot_data[k].y_pos;
+      robot_data[k].angle = incoming_data.robot_data[k].angle;
     }
   }
   printf("Exit BLE Handle\n");
@@ -194,20 +192,20 @@ static double get_distance(uint16_t current_encoder, uint16_t prev_encoder) {
   return result = result * CONVERSION;
 }
 
-static uint16_t new_command_length(int LOC_ORI[], uint16_t max_count)
+static uint16_t new_command_length()
 {
   // Your code here
   uint16_t changed_counter = 0;
-  uint16_t i;
-  for (i = 0; i < max_count; i++)
+  uint16_t k;
+  for (k = 0; k < max_count; k++)
   {
-    if (LOC_ORI[i] == 1 || LOC_ORI[i] == 2)
+    if (LOC_ORI[k] == 1 || LOC_ORI[k] == 2)
       changed_counter++;
   }
   return changed_counter * 2 + max_count;
 }
 
-static uint16_t translate_command(int LOC_ORI[], double center_command[], double command[], uint16_t LOC[], double radius[], double speed_mat[], uint16_t max_count, double initial_location_x, double initial_location_y, double set_radius[], double time_constant, uint16_t m)
+static uint16_t translate_command()
 {
   // translate original command into a command list with preturn/afterturn
   uint16_t i;
@@ -517,8 +515,8 @@ robot_state_t controller(robot_state_t state) {
       if (connected && current_time >= start_time) {
         initial_location_x = current_x;
         initial_location_y = current_y;
-        m = new_command_length(LOC_ORI, max_count);
-        translate_command(LOC_ORI, center_command, command, LOC, radius, speed_mat, max_count, initial_location_x, initial_location_y, set_radius, time_constant, m); // translate original command into a command list with preturn/afterturn
+        m = new_command_length();
+        translate_command(); // translate original command into a command list with preturn/afterturn
         for (i = 0; i < m; i++)
             {
                 if (radius[i] == 0 || radius[i] == -1)
