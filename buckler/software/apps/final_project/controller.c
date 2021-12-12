@@ -102,7 +102,7 @@ robot_state_t next_state;
 uint16_t m;
 double rad, radd, spd;
 double Kp1 = 2000;
-double Kp2 = 8;
+double Kp2 = 2;
 double Ki1;
 double Ki2;
 double Kd1;
