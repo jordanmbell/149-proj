@@ -630,10 +630,13 @@ robot_state_t controller(robot_state_t state) {
         drive_formatted(0, 0);
         measure_distance_or_angle = 0;
         initial_encoder = sensors.rightWheelEncoder;
-        lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
-        current_ang = meas.z_axis * M_PI / 180 + last_global_angle;
-        lsm9ds1_stop_gyro_integration();
-        turning_in_place = false;
+        if (turning_in_place) {
+          lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
+          current_ang = meas.z_axis * M_PI / 180 + last_global_angle;
+          lsm9ds1_stop_gyro_integration();
+          turning_in_place = false;
+        }
+        
         timer = current_time + 1;
       }
       else
@@ -697,10 +700,12 @@ robot_state_t controller(robot_state_t state) {
         drive_formatted(0, 0);
         measure_distance_or_angle = 0;
         initial_encoder = sensors.rightWheelEncoder;
-        lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
-        current_ang = meas.z_axis * M_PI / 180 + last_global_angle;
-        lsm9ds1_stop_gyro_integration();
-        turning_in_place = false;
+        if (turning_in_place) {
+          lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
+          current_ang = meas.z_axis * M_PI / 180 + last_global_angle;
+          lsm9ds1_stop_gyro_integration();
+          turning_in_place = false;
+        }
         timer = current_time + 1;
       }
       else
