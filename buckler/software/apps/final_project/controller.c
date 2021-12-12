@@ -16,7 +16,6 @@
 
 #define wheel_distance 0.229
 #define NUM_ROBOTS 4
-#define pi 3.141592653589793
 #define MAX_COMMANDS 3
 
 /****** BLE SETUP ****/
@@ -126,6 +125,7 @@ uint16_t last_left;
 int robot_num = 0;
 bool turning_in_place = false;
 double last_global_angle = 0;
+double update_trust = 0.1;
 
 // You may need to add additional variables to keep track of state here
 uint16_t prev_encoder = 0;
@@ -225,7 +225,9 @@ static uint16_t translate_command(int LOC_ORI[], double center_command[], double
     }
     else if (LOC_ORI[i] == 2)
     {
-      command[j] = atan(initial_location_y / (set_radius[i] - initial_location_x)) / pi * 180;
+      command[j] =
+          atan(initial_location_y / (set_radius[i] - initial_location_x)) /
+          M_PI * 180;
       LOC[j] = LOC_ORI[i];
       radius[j] = 0;
       speed_mat[j] = atan(initial_location_y / (set_radius[i] - initial_location_x)) / time_constant;
@@ -239,7 +241,9 @@ static uint16_t translate_command(int LOC_ORI[], double center_command[], double
       LOC_TIME[j] = command_length[i]-2*time_constant;
       j++;
 
-      command[j] = atan(initial_location_y / (set_radius[i] - initial_location_x)) / pi * 180;
+      command[j] =
+          atan(initial_location_y / (set_radius[i] - initial_location_x)) /
+          M_PI * 180;
       LOC[j] = 3 - LOC_ORI[i];
       radius[j] = 0;
       speed_mat[j] = atan(initial_location_y / (set_radius[i] - initial_location_x)) / time_constant;
@@ -248,7 +252,9 @@ static uint16_t translate_command(int LOC_ORI[], double center_command[], double
     }
     else if (LOC_ORI[i] == 1)
     {
-      command[j] = atan(initial_location_y / (set_radius[i] + initial_location_x)) / pi * 180;
+      command[j] =
+          atan(initial_location_y / (set_radius[i] + initial_location_x)) /
+          M_PI * 180;
       LOC[j] = LOC_ORI[i];
       radius[j] = 0;
       speed_mat[j] = atan(initial_location_y / (set_radius[i] + initial_location_x)) / time_constant;
@@ -262,7 +268,9 @@ static uint16_t translate_command(int LOC_ORI[], double center_command[], double
       LOC_TIME[j] = command_length[i]-2*time_constant;
       j++;
 
-      command[j] = atan(initial_location_y / (set_radius[i] + initial_location_x)) / pi * 180;
+      command[j] =
+          atan(initial_location_y / (set_radius[i] + initial_location_x)) /
+          M_PI * 180;
       LOC[j] = 3 - LOC_ORI[i];
       radius[j] = 0;
       speed_mat[j] = atan(initial_location_y / (set_radius[i] + initial_location_x)) / time_constant;
@@ -409,14 +417,20 @@ robot_state_t controller(robot_state_t state) {
     current_time = server_time;
     connected = true;
     if (turning_in_place) {
-      lsm9ds1_stop_gyro_integration();
-      current_ang = robot_data[robot_num].angle;
+      lsm9ds1_stop_gyro_integration());
+      double delta_ang = atan2(sin(current_ang - robot_data[robot_num].angle),
+                               cos(current_ang - robot_data[robot_num].angle));
+      current_ang -= delta_ang * update_trust;
       last_global_angle = current_ang;
       lsm9ds1_start_gyro_integration();
     } else {
-      current_x = robot_data[robot_num].x_pos;
-      current_y = robot_data[robot_num].y_pos;
-      current_ang = robot_data[robot_num].angle;
+      double delta_x = current_x - robot_data[robot_num].x_pos;
+      current_x -= delta_x * update_trust;
+      double delta_y = current_y - robot_data[robot_num].y_pos;
+      current_y -= delta_y * update_trust;
+      double delta_ang = atan2(sin(current_ang - robot_data[robot_num].angle),
+                               cos(current_ang - robot_data[robot_num].angle));
+      current_ang -= delta_ang * update_trust;
       printf("cur_x: %f, cur_y: %f, cur_amg: %f\n", current_x, current_y, current_ang);
     }
   } else if (connected && !turning_in_place) {
@@ -632,7 +646,7 @@ robot_state_t controller(robot_state_t state) {
         measure_distance_or_angle = 0;
         initial_encoder = sensors.rightWheelEncoder;
         lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
-        current_ang = meas.z_axis * pi / 180 + last_global_angle;
+        current_ang = meas.z_axis * M_PI / 180 + last_global_angle;
         lsm9ds1_stop_gyro_integration();
         turning_in_place = false;
       }
@@ -660,7 +674,11 @@ robot_state_t controller(robot_state_t state) {
         {
           turning_in_place = true;
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
-          if (fabs(meas.z_axis * pi / 180) + fabs(last_global_angle - initial_angle) <= set_distance_or_angle * pi / 180) {
+          double comp_1 = fabs(meas.z_axis * M_PI / 180) +
+                          fabs(last_global_angle - initial_angle);
+          double comp_2 = set_distance_or_angle * M_PI / 180;
+          double delta_ang = atan2(sin(comp_1 - comp_2), cos(comp_1 - comp_2));
+          if (delta_ang <= 0) {
             // double ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
             drive_formatted(0, 0.5);
             // printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
@@ -694,7 +712,7 @@ robot_state_t controller(robot_state_t state) {
         measure_distance_or_angle = 0;
         initial_encoder = sensors.rightWheelEncoder;
         lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
-        current_ang = meas.z_axis * pi / 180 + last_global_angle;
+        current_ang = meas.z_axis * M_PI / 180 + last_global_angle;
         lsm9ds1_stop_gyro_integration();
         turning_in_place = false;
       }
@@ -711,7 +729,7 @@ robot_state_t controller(robot_state_t state) {
           i1 += relative_y;
           i2 += relative_x;
           drive_formatted(velocity - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, -velocity / radd / 1000 + Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
-          snprintf(buf, 16, "%f", current_ang / pi * 180);
+          snprintf(buf, 16, "%f", current_ang / M_PI * 180);
           display_write(buf, DISPLAY_LINE_1);
           snprintf(buf, 16, "%f", current_time);
           display_write(buf, DISPLAY_LINE_0);
@@ -720,7 +738,11 @@ robot_state_t controller(robot_state_t state) {
         {
           turning_in_place = true;
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
-          if (fabs(meas.z_axis * pi / 180) + fabs(last_global_angle - initial_angle) <= set_distance_or_angle * pi / 180) {
+          double comp_1 = fabs(meas.z_axis * M_PI / 180) +
+                          fabs(last_global_angle - initial_angle);
+          double comp_2 = set_distance_or_angle * M_PI / 180;
+          double delta_ang = atan2(sin(comp_1 - comp_2), cos(comp_1 - comp_2));
+          if (delta_ang <= 0) {
             // double ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
             drive_formatted(0, -0.5);
             // printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
@@ -732,7 +754,6 @@ robot_state_t controller(robot_state_t state) {
           } else {
             drive_formatted(0, 0);
           }
-          
         }
       }
       break; // each case needs to end with break!
