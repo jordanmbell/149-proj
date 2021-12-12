@@ -17,6 +17,7 @@
 #define wheel_distance 0.229
 #define NUM_ROBOTS 4
 #define MAX_COMMANDS 5
+#define IN_PLACE_SPEED 1
 
 /****** BLE SETUP ****/
 typedef struct
@@ -657,7 +658,7 @@ robot_state_t controller(robot_state_t state) {
           double delta_ang = atan2(sin(comp_1 - comp_2), cos(comp_1 - comp_2));
           if (delta_ang <= 0) {
             // double ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
-            drive_formatted(0, 0.5);
+            drive_formatted(0, IN_PLACE_SPEED);
             // printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
             
             snprintf(buf, 16, "%f", 0.5);
@@ -721,7 +722,7 @@ robot_state_t controller(robot_state_t state) {
           double delta_ang = atan2(sin(comp_1 - comp_2), cos(comp_1 - comp_2));
           if (delta_ang <= 0) {
             // double ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
-            drive_formatted(0, -0.5);
+            drive_formatted(0, -1*IN_PLACE_SPEED);
             // printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
             
             snprintf(buf, 16, "%f", -0.5);
