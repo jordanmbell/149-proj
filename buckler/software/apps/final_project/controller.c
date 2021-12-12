@@ -651,7 +651,7 @@ robot_state_t controller(robot_state_t state) {
           i1 += relative_y;
           i2 += relative_x;
           drive_formatted(velocity - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, velocity / radd / 1000 + Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
-          snprintf(buf, 16, "%f", relative_x);
+          snprintf(buf, 16, "%f", current_ang);
           display_write(buf, DISPLAY_LINE_1);
           snprintf(buf, 16, "%f", relative_y);
           display_write(buf, DISPLAY_LINE_0);
@@ -669,7 +669,7 @@ robot_state_t controller(robot_state_t state) {
             drive_formatted(0, IN_PLACE_SPEED);
             // printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
             
-            snprintf(buf, 16, "%f", 0.5);
+            snprintf(buf, 16, "%f", current_ang);
             display_write(buf, DISPLAY_LINE_1);
             snprintf(buf, 16, "angle: %f", meas.z_axis);
             display_write(buf, DISPLAY_LINE_0);
@@ -716,7 +716,7 @@ robot_state_t controller(robot_state_t state) {
           i1 += relative_y;
           i2 += relative_x;
           drive_formatted(velocity - relative_y * Kp1 + d1 * Kd1 + i1 * Ki1, -velocity / radd / 1000 + Kp2 * relative_x + d2 * Kd2 + i2 * Ki2);
-          snprintf(buf, 16, "%f", current_ang / M_PI * 180);
+          snprintf(buf, 16, "%f", current_ang);
           display_write(buf, DISPLAY_LINE_1);
           snprintf(buf, 16, "%f", current_time);
           display_write(buf, DISPLAY_LINE_0);
@@ -734,7 +734,7 @@ robot_state_t controller(robot_state_t state) {
             drive_formatted(0, -1*IN_PLACE_SPEED);
             // printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
             
-            snprintf(buf, 16, "%f", -0.5);
+            snprintf(buf, 16, "%f", current_ang);
             display_write(buf, DISPLAY_LINE_1);
             snprintf(buf, 16, "angle: %f", meas.z_axis);
             display_write(buf, DISPLAY_LINE_0);
