@@ -93,7 +93,7 @@ double set_radius[MAX_COMMANDS] = {0.3, 0.3, 0.3, 0.3, 0.3};
 double time_constant = 2;
 double set_distance_or_angle, measure_distance_or_angle;
 double enter_state_time;
-double init_state_x = 0, init_state_y = 0;
+double init_state_x = 0.5, init_state_y = 0.5;
 uint16_t initial_encoder;
 double initial_angle;
 uint16_t counter = 0;
@@ -493,6 +493,8 @@ robot_state_t controller(robot_state_t state) {
       if (!connected && current_time >= start_time) {
         initial_location_x = current_x;
         initial_location_y = current_y;
+        init_state_x = initial_location_x;
+        init_state_y = initial_location_y;
         m = new_command_length();
         translate_command(); // translate original command into a command list with preturn/afterturn
         for (int i = 0; i < m; i++)
