@@ -380,7 +380,7 @@ static void drive_formatted(double overall_speed, double angular_speed) {
 
   rightSpeed = overall_speed + wheel_distance/2*angular_speed*1000;
   leftSpeed = overall_speed - wheel_distance/2*angular_speed*1000;
-  kobukiDriveDirect(0, 0);
+  kobukiDriveDirect(leftSpeed, rightSpeed);
 }
 
 robot_state_t controller(robot_state_t state) {
