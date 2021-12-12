@@ -350,7 +350,7 @@ static double get_relative_xy(double time, double speed, double radius_cur)
         supposed_x = initx + radius_cur * cos(init_direction) - radius_cur * cos(theta);
         supposed_y = inity + radius_cur * sin(init_direction) - radius_cur * sin(theta);
     }
-    // printf("supposed_x = %f, supposed_y = %f \n", supposed_x, supposed_y);
+    printf("supposed_x = %f, supposed_y = %f \n", supposed_x, supposed_y);
 
     relative_x = cos(theta) * (current_x - supposed_x) + sin(theta) * (current_y - supposed_y);
     relative_y = -sin(theta) * (current_x - supposed_x) + cos(theta) * (current_y - supposed_y);
