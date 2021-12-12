@@ -398,7 +398,6 @@ robot_state_t controller(robot_state_t state) {
 
   current_time += time_incr;
 
-  __disable_irq();
   if (updated_data) {
     updated_data = false;
     if (connected) {
@@ -444,7 +443,6 @@ robot_state_t controller(robot_state_t state) {
       current_y += l_1 * cos(current_ang);
     }
   }
-  __enable_irq();
   last_right = sensors.rightWheelEncoder;
   last_left = sensors.leftWheelEncoder;
 
