@@ -120,7 +120,7 @@ uint16_t last_left;
 int robot_num = 0;
 bool turning_in_place = false;
 double last_global_angle = 0;
-double update_trust = 0.1;
+double update_trust = 1;
 
 // You may need to add additional variables to keep track of state here
 double timer = 0;
@@ -496,6 +496,7 @@ robot_state_t controller(robot_state_t state) {
         drive_formatted(0, 0);
       }
       if (connected && current_time >= start_time) {
+        update_trust = 0.01;
         initial_location_x = current_x;
         initial_location_y = current_y;
         init_state_x = initial_location_x;
