@@ -2,8 +2,8 @@ import numpy as np
 
 # Configuration Variables
 cmd_straight = 0
-cmd_clockwise = 1
-cmd_anticlockwise = 2
+cmd_clockwise = 2
+cmd_anticlockwise = 1
 
 # Parameters to send to robots
 class trace_data_t:

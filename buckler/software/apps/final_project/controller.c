@@ -140,7 +140,7 @@ void ble_evt_write(ble_evt_t const *p_ble_evt)
         LOC_ORI[k] = incoming_data.trace_cmd[k];
         command_length[k] = incoming_data.trace_time[k];
         center_command[k] = incoming_data.trace_dist_angle[k];
-        set_radius[k] = 0.3;
+        set_radius[k] = 0.5;
       }
       
     }
@@ -488,7 +488,7 @@ robot_state_t controller(robot_state_t state) {
       if (is_button_pressed(&sensors)) {
         state = OFF;
       } else if (connected && current_time >= start_time) {
-        update_trust = 0.1;
+        update_trust = 0.05;
         initial_location_x = current_x;
         initial_location_y = current_y;
         init_state_x = initial_location_x;

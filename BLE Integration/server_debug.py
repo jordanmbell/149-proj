@@ -28,10 +28,10 @@ marker_to_robot = {
 update_delay_s = 1
 
 
-route_locations = [[0,0], [3,3]]  # For now, trace locations set by user
+route_locations = [[0,0], [1.5,1.5]]  # For now, trace locations set by user
 turn_radius = 0.5  # meter
 speed = 0.08       # meter/sec
-angular_speed = 0.2  # deg /sec
+angular_speed = 0.1  # deg /sec
 setup_time = 8
 starting_orientation = np.array([0,1])
 
@@ -77,7 +77,7 @@ async def main():
             p_graph.start()
 
         # Wait for BLE connections to finish before sending trace and robot data
-        while not shared_data.connected == 1 and open_ble:
+        while not shared_data.connected == num_robots and open_ble:
             if shared_data.disconnect:
                 break
             print("Waiting for BLE connection")
