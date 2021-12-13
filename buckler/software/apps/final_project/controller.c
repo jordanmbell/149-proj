@@ -384,17 +384,17 @@ robot_state_t controller(robot_state_t state) {
 
   if (updated_data) {
     updated_data = false;
-    if (connected) {
-      if (server_time > current_time) {
-       time_incr += 0.0001;
-      } else {
-        time_incr -= 0.0001;
-      }
-    } else {
-      current_x = robot_data[robot_num].x_pos;
-      current_y = robot_data[robot_num].y_pos;
-      current_ang = robot_data[robot_num].angle;
-    }
+    // if (connected) {
+    //   if (server_time > current_time) {
+    //    time_incr += 0.0001;
+    //   } else {
+    //     time_incr -= 0.0001;
+    //   }
+    // } else {
+    //   current_x = robot_data[robot_num].x_pos;
+    //   current_y = robot_data[robot_num].y_pos;
+    //   current_ang = robot_data[robot_num].angle;
+    // }
     current_time = server_time;
     connected = true;
     if (turning_in_place) {
