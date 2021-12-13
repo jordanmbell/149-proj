@@ -297,7 +297,7 @@ static float get_relative_xy(float time, float speed, float radius_cur)
 
     float init_direction = 0;
     float initx = initial_location_x;
-    float inity = initial_location_x;
+    float inity = initial_location_y;
     float supposed_x, supposed_y, theta;
     uint16_t i = 0;
     for (i = 0; i < counter - 1; i++)
