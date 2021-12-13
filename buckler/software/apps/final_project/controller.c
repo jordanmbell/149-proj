@@ -132,7 +132,7 @@ void ble_evt_write(ble_evt_t const *p_ble_evt)
   printf("Enter BLE Handle\n");
   if (simple_ble_is_char_event(p_ble_evt, &pos_state_char))
   {
-    if (!connected) {
+    if (true) {
       // Parse trace data
       start_time = incoming_data.start_time;
       max_count = incoming_data.cmd_len;
@@ -385,11 +385,11 @@ robot_state_t controller(robot_state_t state) {
   if (updated_data) {
     updated_data = false;
     if (connected) {
-      if (server_time > current_time) {
-       time_incr += 0.0001;
-      } else {
-        time_incr -= 0.0001;
-      }
+      // if (server_time > current_time) {
+      //  time_incr += 0.0001;
+      // } else {
+      //   time_incr -= 0.0001;
+      // }
     } else {
       current_x = robot_data[robot_num].x_pos;
       current_y = robot_data[robot_num].y_pos;
@@ -488,7 +488,7 @@ robot_state_t controller(robot_state_t state) {
       if (is_button_pressed(&sensors)) {
         state = OFF;
       } else if (connected && current_time >= start_time) {
-        update_trust = 0.05;
+        update_trust = 0;
         initial_location_x = current_x;
         initial_location_y = current_y;
         init_state_x = initial_location_x;
