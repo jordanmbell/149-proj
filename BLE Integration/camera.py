@@ -7,7 +7,7 @@ import math
 import time
 
 cam1_id = 1
-cam2_id = None
+cam2_id = 2
 cam_wait_ms = 1
 num_markers = 9
 originID = 4
@@ -205,7 +205,9 @@ def track(shared_dict, shared_is_calibrated):
          #     for id in vec1_cam1.keys():
          #         shared_dict[id] = vec1_cam1[id]
 
-
+        #  rolling_average_dict
+        # for id for x,y,ang, arr[10]
+        # remove from array, place, average
          for id in range(num_markers):
              in_cam1 = vec1_cam1 is not None and id in vec1_cam1.keys()
              in_cam2 = cam2_id is not None and vec1_cam2 is not None and id in vec1_cam2.keys()

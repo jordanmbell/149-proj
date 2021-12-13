@@ -486,7 +486,7 @@ robot_state_t controller(robot_state_t state) {
       // transition logic
       if (is_button_pressed(&sensors)) {
         state = OFF;
-      } else if (false && connected && current_time >= start_time) {
+      } else if (connected && current_time >= start_time) {
         update_trust = 0.01;
         initial_location_x = current_x;
         initial_location_y = current_y;
