@@ -7,7 +7,8 @@ import time
 from typing import List
 
 from bleak import BleakClient, BleakError
-from numpy import MAXDIMS
+from cv2 import add
+from numpy import MAXDIMS, number
 
 from trace_data import trace_data_t
 
@@ -85,7 +86,7 @@ class shared_data_t:
         # print(self.packed_bytes)
 
 
-async def _connect_to_device(address: str, shared_data: shared_data_t):
+async def _connect_to_device(address: str, shared_data: shared_data_t, rob_number: number):
     while not shared_data.disconnect:
         print(f"searching for device {address} ({timeout}s timeout)")
         try:
@@ -95,8 +96,12 @@ async def _connect_to_device(address: str, shared_data: shared_data_t):
                 shared_data.connected += 1
                 try:
                     last = 0
+                    last_x = 0
+                    last_y = 0
                     while not shared_data.disconnect:
-                        if shared_data.timestamp > last:
+                        if shared_data.timestamp > last and last_x != shared_data.rob_data[rob_number].x_pos and last_y != shared_data.rob_data[rob_number].y_pos:
+                            last_x = shared_data.rob_data[rob_number].x_pos
+                            last_y = shared_data.rob_data[rob_number].y_pos
                             last = shared_data.timestamp
                             await client.write_gatt_char(POS_CHAR_UUID, shared_data.packed_bytes)
                             print(last)
@@ -123,6 +128,6 @@ def handle_sigint(comm_tasks, shared: shared_data_t):
 async def begin_communication(num_robots):
     addresses = [addr + str(num) for num in range(num_robots)]
     shared = shared_data_t(4)
-    pos_routines = [_connect_to_device(address, shared)
-                    for address in addresses]
+    pos_routines = [_connect_to_device(address, shared, i)
+                    for i, address in enumerate(addresses)]
     return shared, asyncio.gather(*pos_routines)
