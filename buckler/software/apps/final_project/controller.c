@@ -22,36 +22,36 @@
 /****** BLE SETUP ****/
 typedef struct
 {
-  double x_pos;
-  double y_pos;
-  double angle;
+  float x_pos;
+  float y_pos;
+  float angle;
 } rob_data_t;
 
 typedef struct
 {
-  double timestamp;
+  float timestamp;
   rob_data_t robot_data[NUM_ROBOTS];
   int cmd_len;
   int trace_cmd[MAX_COMMANDS];
-  double trace_dist_angle[MAX_COMMANDS];
-  double trace_time[MAX_COMMANDS];
-  double start_time;
+  float trace_dist_angle[MAX_COMMANDS];
+  float trace_time[MAX_COMMANDS];
+  float start_time;
 } incoming_data_t;
 
 // BLE vars
 incoming_data_t incoming_data;
 rob_data_t robot_data[NUM_ROBOTS] = {0};
-double start_time = 5;
+float start_time = 5;
 bool connected = false;
 bool updated_data = false;
-double server_time;
+float server_time;
 // configure initial state
-double distance = 0;
+float distance = 0;
 // Timer for getting the number of the robot
-double num_timer;
+float num_timer;
 // Current robot time
-double current_time;
-double time_incr = 0.02;
+float current_time;
+float time_incr = 0.02;
 // Buffer for string writes.
 char buf[16];
 // Intervals for advertising and connections
@@ -78,54 +78,54 @@ simple_ble_app_t *simple_ble_app;
 // Configure initial state
 KobukiSensors_t sensors = {0};
 rob_data_t robot_positions[NUM_ROBOTS];
-double initial_location_x = 0.1;
-double initial_location_y = 0.1;
-double current_x = 0.1;
-double current_y = 0.1;
-double current_ang = 0;
-double relative_x = 0, relative_y = 0, velocity;
+float initial_location_x = 0.1;
+float initial_location_y = 0.1;
+float current_x = 0.1;
+float current_y = 0.1;
+float current_ang = 0;
+float relative_x = 0, relative_y = 0, velocity;
 int encoder_at_last_measure;
 int command_idx = 0;
-double cur_distance_from_end;
-double command_length[MAX_COMMANDS] = {10 * 5, 13, 10, 13, 10, 13, 10, 13}; // {2, 6, 2, 2, 6, 2, 10, 2, 6, 2, 10}
-double center_command[MAX_COMMANDS] = {0.75 * 5, 90, 0.75, 90, 0.75, 90, 0.75, 90};
+float cur_distance_from_end;
+float command_length[MAX_COMMANDS] = {10 * 5, 13, 10, 13, 10, 13, 10, 13}; // {2, 6, 2, 2, 6, 2, 10, 2, 6, 2, 10}
+float center_command[MAX_COMMANDS] = {0.75 * 5, 90, 0.75, 90, 0.75, 90, 0.75, 90};
 int LOC_ORI[MAX_COMMANDS] = {0, 1, 0, 1, 0, 1, 0, 1}; // 1 left,2 right
-double set_radius[MAX_COMMANDS] = {0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3};
+float set_radius[MAX_COMMANDS] = {0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3};
 uint16_t max_count = 8;
-double time_constant = 3;
-double set_distance_or_angle, measure_distance_or_angle;
-double enter_state_time;
-double init_state_x = 0.1, init_state_y = 0.1;
+float time_constant = 3;
+float set_distance_or_angle, measure_distance_or_angle;
+float enter_state_time;
+float init_state_x = 0.1, init_state_y = 0.1;
 uint16_t initial_encoder;
-double initial_angle;
+float initial_angle;
 uint16_t counter = 0;
 robot_state_t next_state;
 uint16_t m;
-double rad, radd, spd;
-double Kp1 = 2000;
-double Kp2 = 8;
-double Ki1;
-double Ki2;
-double Kd1;
-double Kd2;
-double d1, d2, i1, i2;
-double command[MAX_COMMANDS * 3];
+float rad, radd, spd;
+float Kp1 = 2000;
+float Kp2 = 8;
+float Ki1;
+float Ki2;
+float Kd1;
+float Kd2;
+float d1, d2, i1, i2;
+float command[MAX_COMMANDS * 3];
 uint16_t LOC[MAX_COMMANDS * 3];
-double radius[MAX_COMMANDS * 3];
-double speed_mat[MAX_COMMANDS * 3];
-double modified_r_mat[MAX_COMMANDS * 3];
-double LOC_TIME[MAX_COMMANDS * 3];
+float radius[MAX_COMMANDS * 3];
+float speed_mat[MAX_COMMANDS * 3];
+float modified_r_mat[MAX_COMMANDS * 3];
+float LOC_TIME[MAX_COMMANDS * 3];
 uint16_t last_right;
 uint16_t last_left;
 int robot_num = 0;
 bool turning_in_place = false;
-double last_global_angle = 0;
-double update_trust = 1;
+float last_global_angle = 0;
+float update_trust = 1;
 
 // You may need to add additional variables to keep track of state here
-double timer = 0;
+float timer = 0;
 
-double last_clock_time = 0;
+float last_clock_time = 0;
 
 void ble_evt_write(ble_evt_t const *p_ble_evt)
 {
@@ -173,14 +173,14 @@ static void setup_ble()
   simple_ble_adv_only_name();
 }
 
-static double get_distance(uint16_t current_encoder, uint16_t prev_encoder) {
-  const double CONVERSION = 0.0000853;
+static float get_distance(uint16_t current_encoder, uint16_t prev_encoder) {
+  const float CONVERSION = 0.0000853;
 
-  double result = 0.0;
+  float result = 0.0;
   if (current_encoder >= prev_encoder) {
-    result = (double)current_encoder - (double)prev_encoder;
+    result = (float)current_encoder - (float)prev_encoder;
   } else if (current_encoder < 0xFFFF/2 && prev_encoder > 0xFFFF/2) {
-    result = (double)current_encoder + (0xFFFF - (double)prev_encoder);
+    result = (float)current_encoder + (0xFFFF - (float)prev_encoder);
   } else {
     // BACKWARDS
     result = 0;
@@ -286,7 +286,7 @@ static uint16_t translate_command()
   return 0;
 }
 
-static double get_relative_xy(double time, double speed, double radius_cur)
+static float get_relative_xy(float time, float speed, float radius_cur)
 {
     if (FP_ZERO == fpclassify(radius_cur))
     {
@@ -295,10 +295,10 @@ static double get_relative_xy(double time, double speed, double radius_cur)
         return 1;
     }
 
-    double init_direction = 0;
-    double initx = initial_location_x;
-    double inity = initial_location_x;
-    double supposed_x, supposed_y, theta;
+    float init_direction = 0;
+    float initx = initial_location_x;
+    float inity = initial_location_x;
+    float supposed_x, supposed_y, theta;
     uint16_t i = 0;
     for (i = 0; i < counter - 1; i++)
     {
@@ -358,10 +358,10 @@ static double get_relative_xy(double time, double speed, double radius_cur)
     return theta;
 }
 
-double old_left = 0;
-double old_right = 0;
-static void drive_formatted(double overall_speed, double angular_speed) {
-  double leftSpeed, rightSpeed;
+float old_left = 0;
+float old_right = 0;
+static void drive_formatted(float overall_speed, float angular_speed) {
+  float leftSpeed, rightSpeed;
 
   rightSpeed = overall_speed + wheel_distance/2*angular_speed*1000;
   leftSpeed = overall_speed - wheel_distance/2*angular_speed*1000;
@@ -399,36 +399,36 @@ robot_state_t controller(robot_state_t state) {
     connected = true;
     if (turning_in_place) {
       lsm9ds1_stop_gyro_integration();
-      double delta_ang = atan2(sin(current_ang - robot_data[robot_num].angle),
+      float delta_ang = atan2(sin(current_ang - robot_data[robot_num].angle),
                                cos(current_ang - robot_data[robot_num].angle));
       current_ang -= delta_ang * update_trust;
       last_global_angle = current_ang;
       lsm9ds1_start_gyro_integration();
     } else {
-      double delta_x = current_x - robot_data[robot_num].x_pos;
+      float delta_x = current_x - robot_data[robot_num].x_pos;
       current_x -= delta_x * update_trust;
-      double delta_y = current_y - robot_data[robot_num].y_pos;
+      float delta_y = current_y - robot_data[robot_num].y_pos;
       current_y -= delta_y * update_trust;
-      double delta_ang = atan2(sin(current_ang - robot_data[robot_num].angle),
+      float delta_ang = atan2(sin(current_ang - robot_data[robot_num].angle),
                                cos(current_ang - robot_data[robot_num].angle));
       current_ang -= delta_ang * update_trust;
       printf("cur_x: %f, cur_y: %f, cur_ang: %f\n", current_x, current_y, current_ang);
     }
   } else if (connected && state != OFF && state != GETTING_NUM && state != PENDING && !turning_in_place) {
-    double l_2 = get_distance(sensors.rightWheelEncoder, last_right);
-    double l_1 = get_distance(sensors.leftWheelEncoder, last_left);
+    float l_2 = get_distance(sensors.rightWheelEncoder, last_right);
+    float l_1 = get_distance(sensors.leftWheelEncoder, last_left);
 
     if (l_2 > l_1) {
       // TURNING LEFT
-      double theta_cur = (l_2 - l_1) / wheel_distance;
-      double radius_cur = (l_2 + l_1) / (2 * theta_cur);
+      float theta_cur = (l_2 - l_1) / wheel_distance;
+      float radius_cur = (l_2 + l_1) / (2 * theta_cur);
       current_x = current_x - radius_cur * cos(current_ang) + radius_cur * cos(current_ang + theta_cur);
       current_y = current_y - radius_cur * sin(current_ang) + radius_cur * sin(current_ang + theta_cur);
       current_ang = current_ang + theta_cur;
     } else if (l_1 > l_2) {
       // TURNING RIGHT
-      double theta_cur = (l_2 - l_1) / wheel_distance;
-      double radius_cur = (l_2 + l_1) / (2 * fabs(theta_cur));
+      float theta_cur = (l_2 - l_1) / wheel_distance;
+      float radius_cur = (l_2 + l_1) / (2 * fabs(theta_cur));
       current_x = current_x + radius_cur * cos(current_ang) - radius_cur * cos(current_ang + theta_cur);
       current_y = current_y + radius_cur * sin(current_ang) - radius_cur * sin(current_ang + theta_cur);
       current_ang = current_ang + theta_cur;
@@ -651,7 +651,7 @@ robot_state_t controller(robot_state_t state) {
         {
           velocity = spd / rad * (sqrt(pow(initial_location_y, 2) + pow(rad + initial_location_x, 2)));
           radd = sqrt(pow(rad + initial_location_x, 2) + pow(initial_location_y, 2));
-          double should_angle = get_relative_xy(current_time - enter_state_time, velocity, radd);
+          float should_angle = get_relative_xy(current_time - enter_state_time, velocity, radd);
           printf("x %f, y %f, inx %f, iny %f,rx %f, ry %f, cur_time %f, enter_time %f \n", current_x, current_y, init_state_x, init_state_y, relative_x, relative_y, current_time, enter_state_time);
           // printf("t: %f \n",current_time);
           d1 = relative_y - d1;
@@ -669,12 +669,12 @@ robot_state_t controller(robot_state_t state) {
           turning_in_place = true;
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
           current_ang = meas.z_axis * M_PI / 180 + last_global_angle;
-          double comp_1 = current_ang;
-          double comp_2 = set_distance_or_angle * M_PI / 180 + initial_angle;
-          double delta_ang = atan2(sin(comp_1 - comp_2), cos(comp_1 - comp_2));
+          float comp_1 = current_ang;
+          float comp_2 = set_distance_or_angle * M_PI / 180 + initial_angle;
+          float delta_ang = atan2(sin(comp_1 - comp_2), cos(comp_1 - comp_2));
           printf("Delta ang: %f\n", delta_ang);
           if (delta_ang <= 0) {
-            // double ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
+            // float ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
             drive_formatted(0, IN_PLACE_SPEED);
             // printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
             
@@ -737,11 +737,11 @@ robot_state_t controller(robot_state_t state) {
           turning_in_place = true;
           lsm9ds1_measurement_t meas = lsm9ds1_read_gyro_integration();
           current_ang = meas.z_axis * M_PI / 180 + last_global_angle;
-          double comp_1 = current_ang;
-          double comp_2 = -1 * set_distance_or_angle * M_PI / 180 + initial_angle;
-          double delta_ang = atan2(sin(comp_1 - comp_2), cos(comp_1 - comp_2));
+          float comp_1 = current_ang;
+          float comp_2 = -1 * set_distance_or_angle * M_PI / 180 + initial_angle;
+          float delta_ang = atan2(sin(comp_1 - comp_2), cos(comp_1 - comp_2));
           if (delta_ang >= 0) {
-            // double ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
+            // float ideal_speed = set_distance_or_angle / 180 * M_PI / time_constant;
             drive_formatted(0, -1*IN_PLACE_SPEED);
             // printf("ideal_speed: %f, set_angle: %f, initial_angle: %f, current_angle: %f, task_time: %f, enter_time: %f, current_time: %f\n", ideal_speed, set_distance_or_angle, initial_angle, current_ang, LOC_TIME[counter - 1], enter_state_time, current_time);
             
