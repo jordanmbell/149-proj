@@ -140,7 +140,7 @@ void ble_evt_write(ble_evt_t const *p_ble_evt)
         LOC_ORI[k] = incoming_data.trace_cmd[k];
         command_length[k] = incoming_data.trace_time[k];
         center_command[k] = incoming_data.trace_dist_angle[k];
-        set_radius[k] = 0.5;
+        set_radius[k] = 1;
       }
       
     }
