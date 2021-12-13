@@ -7,7 +7,7 @@ import math
 import time
 
 cam1_id = 1
-cam2_id = 2
+cam2_id = None
 cam_wait_ms = 1
 num_markers = 9
 originID = 4

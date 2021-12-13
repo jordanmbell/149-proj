@@ -412,7 +412,7 @@ robot_state_t controller(robot_state_t state) {
       float delta_ang = atan2(sin(current_ang - robot_data[robot_num].angle),
                                cos(current_ang - robot_data[robot_num].angle));
       current_ang -= delta_ang * update_trust;
-      printf("cur_x: %f, cur_y: %f, cur_ang: %f\n", current_x, current_y, current_ang);
+      printf("global_update cur_x: %f, cur_y: %f, cur_ang: %f\n", current_x, current_y, current_ang);
     }
   } else if (connected && state != OFF && state != GETTING_NUM && state != PENDING && !turning_in_place) {
     float l_2 = get_distance(sensors.rightWheelEncoder, last_right);
@@ -437,6 +437,7 @@ robot_state_t controller(robot_state_t state) {
       current_x -= l_1 * sin(current_ang);
       current_y += l_1 * cos(current_ang);
     }
+    printf("Local update: cur_x: %f, cur_y: %f, cur_ang: %f\n", current_x, current_y, current_ang);
   }
   last_right = sensors.rightWheelEncoder;
   last_left = sensors.leftWheelEncoder;
@@ -487,7 +488,7 @@ robot_state_t controller(robot_state_t state) {
       if (is_button_pressed(&sensors)) {
         state = OFF;
       } else if (connected && current_time >= start_time) {
-        update_trust = 0.01;
+        update_trust = 1;
         initial_location_x = current_x;
         initial_location_y = current_y;
         init_state_x = initial_location_x;
