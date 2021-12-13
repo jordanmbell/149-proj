@@ -17,7 +17,7 @@ ROBOT_SERVICE_UUID = "32e61089-2b22-4db5-a914-43ce41986c70"
 POS_CHAR_UUID = "32e6108a-2b22-4db5-a914-43ce41986c70"
 
 MESSAGES_PER_SECOND = 5
-MAX_COMMANDS = 3
+MAX_COMMANDS = 8
 
 
 class shared_data_t:
@@ -79,7 +79,7 @@ class shared_data_t:
         for _ in range(num_commands, MAX_COMMANDS):
             data_arr.append(0)
         data_arr.append(self.start_moving_time)
-        formt_string = "d" * (1 + len(self.rob_data)*3) + "i" * (MAX_COMMANDS + 1) + "d" * (MAX_COMMANDS * 2 + 1)
+        formt_string = "f" * (1 + len(self.rob_data)*3) + "i" * (MAX_COMMANDS + 1) + "f" * (MAX_COMMANDS * 2 + 1)
 
         self.packed_bytes = bytearray(struct.pack(formt_string, *data_arr))
         # print(self.packed_bytes)

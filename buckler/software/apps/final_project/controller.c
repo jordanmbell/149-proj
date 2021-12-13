@@ -132,7 +132,7 @@ void ble_evt_write(ble_evt_t const *p_ble_evt)
   printf("Enter BLE Handle\n");
   if (simple_ble_is_char_event(p_ble_evt, &pos_state_char))
   {
-    if (false) {
+    if (!connected) {
       // Parse trace data
       start_time = incoming_data.start_time;
       max_count = incoming_data.cmd_len;
@@ -381,26 +381,20 @@ robot_state_t controller(robot_state_t state) {
   nrf_delay_ms(1);
 
   current_time += time_incr;
-  if (state == PENDING) {
-      snprintf(buf, 16, "server_t: %f", current_time);
-      display_write(buf, DISPLAY_LINE_1);
-      return PENDING;
-  }
-
 
   if (updated_data) {
     updated_data = false;
-    // if (connected) {
-    //   if (server_time > current_time) {
-    //    time_incr += 0.0001;
-    //   } else {
-    //     time_incr -= 0.0001;
-    //   }
-    // } else {
-    //   current_x = robot_data[robot_num].x_pos;
-    //   current_y = robot_data[robot_num].y_pos;
-    //   current_ang = robot_data[robot_num].angle;
-    // }
+    if (connected) {
+      if (server_time > current_time) {
+       time_incr += 0.0001;
+      } else {
+        time_incr -= 0.0001;
+      }
+    } else {
+      current_x = robot_data[robot_num].x_pos;
+      current_y = robot_data[robot_num].y_pos;
+      current_ang = robot_data[robot_num].angle;
+    }
     current_time = server_time;
     connected = true;
     if (turning_in_place) {
@@ -418,7 +412,7 @@ robot_state_t controller(robot_state_t state) {
       double delta_ang = atan2(sin(current_ang - robot_data[robot_num].angle),
                                cos(current_ang - robot_data[robot_num].angle));
       current_ang -= delta_ang * update_trust;
-      printf("cur_x: %f, cur_y: %f, cur_amg: %f\n", current_x, current_y, current_ang);
+      printf("cur_x: %f, cur_y: %f, cur_ang: %f\n", current_x, current_y, current_ang);
     }
   } else if (connected && state != OFF && state != GETTING_NUM && state != PENDING && !turning_in_place) {
     double l_2 = get_distance(sensors.rightWheelEncoder, last_right);
@@ -473,7 +467,6 @@ robot_state_t controller(robot_state_t state) {
       if (is_button_pressed(&sensors)) {
         robot_num = (robot_num + 1) % NUM_ROBOTS;
       } else if (num_timer <= current_time) {
-        lsm9ds1_start_gyro_integration();
         setup_ble();
         state = PENDING;
         counter = 0;
@@ -603,7 +596,6 @@ robot_state_t controller(robot_state_t state) {
         drive_formatted(0, 0);
         measure_distance_or_angle = 0;
         initial_encoder = sensors.rightWheelEncoder;
-        lsm9ds1_stop_gyro_integration();
         timer = current_time + 1;
       }
       else
