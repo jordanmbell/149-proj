@@ -381,6 +381,12 @@ robot_state_t controller(robot_state_t state) {
   nrf_delay_ms(1);
 
   current_time += time_incr;
+  if (state == PENDING) {
+      snprintf(buf, 16, "server_t: %f", current_time);
+      display_write(buf, DISPLAY_LINE_1);
+      return PENDING;
+  }
+
 
   if (updated_data) {
     updated_data = false;
@@ -487,15 +493,7 @@ robot_state_t controller(robot_state_t state) {
       // transition logic
       if (is_button_pressed(&sensors)) {
         state = OFF;
-      } else {
-        snprintf(buf, 16, "server_t: %f", current_time);
-        display_write(buf, DISPLAY_LINE_1);
-        display_write("PENDING", DISPLAY_LINE_0);
-        state = PENDING;
-        // perform state-specific actions here
-        drive_formatted(0, 0);
-      }
-      if (connected && current_time >= start_time) {
+      } else if (false && connected && current_time >= start_time) {
         update_trust = 0.01;
         initial_location_x = current_x;
         initial_location_y = current_y;
@@ -522,7 +520,17 @@ robot_state_t controller(robot_state_t state) {
           printf("Robot %d has com:%f, LOC:%i, RAD:%f, spd:%f, LOCT: %f \n", robot_num, command[j], LOC[j], radius[j], speed_mat[j], LOC_TIME[j]);
         state = START;
         command_idx = 0;
+      } 
+      else 
+      {
+        snprintf(buf, 16, "server_t: %f", current_time);
+        display_write(buf, DISPLAY_LINE_1);
+        display_write("PENDING", DISPLAY_LINE_0);
+        state = PENDING;
+        // perform state-specific actions here
+        drive_formatted(0, 0);
       }
+      
       break; // each case needs to end with break!
     }
 
