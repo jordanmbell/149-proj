@@ -25,7 +25,7 @@ marker_to_robot = {
     3:3
 }
 
-update_delay_s = 1
+update_delay_s = 1000
 
 
 route_locations = [[0,0], [1.5,1.5]]  # For now, trace locations set by user

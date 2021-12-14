@@ -11,7 +11,7 @@ cam2_id = None
 cam_wait_ms = 1
 num_markers = 9
 originID = 4
-referenceIDs = [5, 6]
+referenceIDs = [5, 6, 7]
 markerIDs = range(num_markers)
 
 
@@ -22,7 +22,7 @@ class camera:
         self.originID = originID
         self.markerIDs = markerIDs
         self.referenceIDs = refIDs
-        self.calib_sq_matrix = np.array([[1, 0], [0, 1]])
+        self.calib_sq_matrix = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         self.firstRvec = None
         self.firstTvec = None
         self.origin_yaw = None
@@ -44,8 +44,8 @@ class camera:
         return invRvec, invTvec
 
     def relativePosition(self, rvec1, tvec1, rvec2, tvec2):
-        tvec1[2][0] = 0
-        tvec2[2][0] = 0
+        # tvec1[2][0] = 0
+        # tvec2[2][0] = 0
         return 0, tvec2 - tvec1
         rvec1, tvec1 = rvec1.reshape((3, 1)), tvec1.reshape(
             (3, 1))
@@ -77,15 +77,21 @@ class camera:
                   " trying to find ref ids: ", self.referenceIDs)
             time.sleep(2)
             square_dict = self.find_points(self.referenceIDs, True)
+        # print("id0", square_dict[self.referenceIDs[0]])
+        # print(square_dict[self.referenceIDs[1]])
+        # print(square_dict[self.referenceIDs[2]])
         self.calib_sq_matrix = np.array([
-            [square_dict[self.referenceIDs[0]][0],
-                square_dict[self.referenceIDs[1]][0]],
-            [square_dict[self.referenceIDs[0]][1],
-                square_dict[self.referenceIDs[1]][1]],
-        ])
+            [square_dict[self.referenceIDs[0]][0], square_dict[self.referenceIDs[1]][0], square_dict[self.referenceIDs[2]][0]],
+            [square_dict[self.referenceIDs[0]][1], square_dict[self.referenceIDs[1]][1], square_dict[self.referenceIDs[2]][1]],
+            [square_dict[self.referenceIDs[0]][2], square_dict[self.referenceIDs[1]][2], square_dict[self.referenceIDs[2]][2]]
+            ]).T
+        print("square matrix", self.calib_sq_matrix)
+        target_matrix = np.array([[0.22, 0, 0.22], [0, 0.22, 0.22], [0.22, 0.22, 0.22]])
+        print("shape of target matrix", target_matrix.shape)
         self.calib_sq_matrix = np.linalg.solve(
-            self.calib_sq_matrix, np.array([[0.22, 0], [0, 0.22]]))
+            self.calib_sq_matrix, target_matrix)
         # print(self.calib_sq_matrix @ square_dict[self.referenceIDs[1]][:2])
+        print("square matrix after calculations", self.calib_sq_matrix)
         # return self.calib_sq_matrix
 
     def find_points(self, point_markers, isCalibrating):
@@ -150,17 +156,19 @@ class camera:
                                 self.firstRvec, self.firstTvec, secondRvec, secondTvec)
                             # calculating yaw
                             # sin_x = math.sqrt(rvec[2,0] * rvec[2,0] +  rvec[2,1] * rvec[2,1])
+                            pos = self.calib_sq_matrix @ composedTvec
+                            # print("square matrix when making composedTvec", self.calib_sq_matrix)
+                            tvec_dict[mark] = [pos[0][0], pos[1][0], pos[2][0]]
 
                             if not isCalibrating:
                                 # print(self.origin_yaw)
                                 z1 = math.atan2(rvec[0][0][0], rvec[0][0][1])
                                 z1 = z1 - self.origin_yaw
                                 z1 = (z1*(360)/math.pi) % 360
-                            pos = self.calib_sq_matrix @ composedTvec[:2]
-
-                            tvec_dict[mark] = [pos[0][0], pos[1][0], z1]
+                                pos = self.calib_sq_matrix.T @ composedTvec
+                                tvec_dict[mark] = [pos[0][0], pos[1][0], z1]
                             # print(tvec_dict[mark])
-                            # tvec_dict[mark] = composedTvec[:2]
+
 
                 (rvec - tvec).any()  # get rid of that nasty numpy value array error
 
@@ -262,7 +270,7 @@ def track(shared_dict, shared_is_calibrated):
             if x == 0 and y == 0 and rot == 0:
                 rolling_average_dict[id]['idx'] = 0
                 continue
- 
+
             idx = rolling_average_dict[id]['idx']
             prev_x = rolling_average_dict[id]['x'][idx]
             rolling_average_dict[id]['x'][idx] = x
@@ -287,11 +295,11 @@ def track(shared_dict, shared_is_calibrated):
 
             if rolling_average_dict[id]['idx'] == 9:
                 avg_ang = np.arctan2(rolling_average_dict[id]['angsinsum'], rolling_average_dict[id]['angcossum'])
-                
-                shared_dict[id] = [rolling_average_dict[id]['avgx'], 
-                                    rolling_average_dict[id]['avgy'], 
+
+                shared_dict[id] = [rolling_average_dict[id]['avgx'],
+                                    rolling_average_dict[id]['avgy'],
                                     np.degrees(avg_ang)]
-        
+
             rolling_average_dict[id]['idx'] = (idx + 1) % 10
 
          # Wait 3 miliseconds for an interaction. Check the key and do the corresponding job.
