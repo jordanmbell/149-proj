@@ -17,7 +17,7 @@ addr = "c0:98:e5:49:98:7"
 ROBOT_SERVICE_UUID = "32e61089-2b22-4db5-a914-43ce41986c70"
 POS_CHAR_UUID = "32e6108a-2b22-4db5-a914-43ce41986c70"
 
-MESSAGES_PER_SECOND = 0.01
+MESSAGES_PER_SECOND = 10000
 MAX_COMMANDS = 8
 
 
@@ -43,15 +43,27 @@ class shared_data_t:
 
     def update_robot(self, robot_num, x_pos, y_pos, angle):
         print(f'before: {robot_num}, {x_pos}, {y_pos}')
-        if robot_num == 0  or robot_num == 2:
-            x_pos = x_pos + 0.032 * math.sin(angle) - 0.05 * math.cos(angle)
-            y_pos = y_pos - 0.032 * math.cos(angle) - 0.05 * math.sin(angle)
+        angle = 0
+        # if robot_num == 0  or robot_num == 2:
+        #     x_pos = x_pos + 0.032 * math.sin(angle) - 0.05 * math.cos(angle)
+        #     y_pos = y_pos - 0.032 * math.cos(angle) - 0.05 * math.sin(angle)
+        # else:
+        #     x_pos = x_pos + 0.032 * math.sin(angle) + 0.05 * math.cos(angle)
+        #     y_pos = y_pos - 0.032 * math.cos(angle) + 0.05 * math.sin(angle)
+
+        kobuki_radius = 35.4 / 2
+        if (robot_num == 0 or robot_num == 3):
+            y_pos = -1 * (14 / 2 +  kobuki_radius)
         else:
-            x_pos = x_pos + 0.032 * math.sin(angle) + 0.05 * math.cos(angle)
-            y_pos = y_pos - 0.032 * math.cos(angle) + 0.05 * math.sin(angle)
+            y_pos = 14 / 2 +  kobuki_radius
+        
+        if (robot_num == 0 or robot_num == 2):
+            x_pos = (8.5 / 2 +  kobuki_radius)
+        else:
+            x_pos = -1 * (8.5 / 2 +  kobuki_radius)
         print(f'after: {robot_num}, {x_pos}, {y_pos}')
-        self.rob_data[robot_num].x_pos = x_pos
-        self.rob_data[robot_num].y_pos = y_pos
+        self.rob_data[robot_num].x_pos = x_pos / 100
+        self.rob_data[robot_num].y_pos = y_pos / 100
         self.rob_data[robot_num].angle = angle
 
     def update_trace_data(self, trace_data, start_moving_time):
