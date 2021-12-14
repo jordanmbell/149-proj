@@ -25,18 +25,18 @@ marker_to_robot = {
     3:3
 }
 
-update_delay_s = 15
+update_delay_s = 1
 
 
 route_locations = [[0,0], [1.5,1.5]]  # For now, trace locations set by user
 turn_radius = 0.5  # meter
 speed = 0.08       # meter/sec
-angular_speed = 0.1  # deg /sec
+angular_speed = 0.03  # deg /sec
 setup_time = 8
 starting_orientation = np.array([0,1])
 
 open_ble = True
-plot_graph = False
+plot_graph = True
 
 delta_moving_time = 10    # Set when the robots should start moving after connection
 # End of variables to configure -------------
@@ -111,7 +111,7 @@ async def main():
 
         # delta_rot = (delta_rot % 360) / num_robots
         delta_x = delta_x  / num_robots
-        delta_y = delta_y  / num_robots
+        delta_y = delta_y  / num_robots + 0.064
         delta_rot = np.degrees(np.arctan(sines/cosines))
         # print("Delta x", delta_x)
         # print("Delta y", delta_y)

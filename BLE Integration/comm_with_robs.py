@@ -1,13 +1,13 @@
 # winpty /c/Users/jorda/AppData/Local/Programs/Python/Python37-32/python.exe comm_with_robs.py
 
 import asyncio
+import math
 import signal
 import struct
 import time
 from typing import List
 
 from bleak import BleakClient, BleakError
-from cv2 import add
 from numpy import MAXDIMS, number
 
 from trace_data import trace_data_t
@@ -42,6 +42,14 @@ class shared_data_t:
             self.rob_data.append(self.robot_data())
 
     def update_robot(self, robot_num, x_pos, y_pos, angle):
+        print(f'before: {robot_num}, {x_pos}, {y_pos}')
+        if robot_num == 0  or robot_num == 2:
+            x_pos = x_pos + 0.032 * math.sin(angle) - 0.05 * math.cos(angle)
+            y_pos = y_pos - 0.032 * math.cos(angle) - 0.05 * math.sin(angle)
+        else:
+            x_pos = x_pos + 0.032 * math.sin(angle) + 0.05 * math.cos(angle)
+            y_pos = y_pos - 0.032 * math.cos(angle) + 0.05 * math.sin(angle)
+        print(f'after: {robot_num}, {x_pos}, {y_pos}')
         self.rob_data[robot_num].x_pos = x_pos
         self.rob_data[robot_num].y_pos = y_pos
         self.rob_data[robot_num].angle = angle
