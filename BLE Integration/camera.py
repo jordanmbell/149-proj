@@ -205,9 +205,9 @@ def track(shared_dict, shared_is_calibrated):
     composedRvec, composedTvec = None, None
     composedRvec2, composedTvec2 = None, None
 
-    # mtx, dist = loadCoefficients("../camera_calibration_tests/images_canon_floor/calibrationCoefficients2.yaml")
-    mtx, dist = loadCoefficients(
-        "../camera_calibration_tests/images_canon/calibrationCoefficients.yaml")
+    mtx, dist = loadCoefficients("../camera_calibration_tests/images_canon_floor/calibrationCoefficients2.yaml")
+    #mtx, dist = loadCoefficients(
+    #    "../camera_calibration_tests/images_canon/calibrationCoefficients.yaml")
     # mtx, dist = loadCoefficients("images_webcam_black_checkerboard/calibrationCoefficients.yaml")
     # mtx, dist = loadCoefficients("../camera_calibration_tests/images_sony/calibrationCoefficients.yaml")
 

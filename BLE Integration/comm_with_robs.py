@@ -17,7 +17,7 @@ addr = "c0:98:e5:49:98:7"
 ROBOT_SERVICE_UUID = "32e61089-2b22-4db5-a914-43ce41986c70"
 POS_CHAR_UUID = "32e6108a-2b22-4db5-a914-43ce41986c70"
 
-MESSAGES_PER_SECOND = 0.01
+MESSAGES_PER_SECOND = 5
 MAX_COMMANDS = 8
 
 
@@ -41,15 +41,42 @@ class shared_data_t:
         for _ in range(num_robots):
             self.rob_data.append(self.robot_data())
 
+    # def update_robot(self, robot_num, x_pos, y_pos, angle):
+    #     print(f'before: {robot_num}, {x_pos}, {y_pos}')
+    #     if robot_num == 0  or robot_num == 2:
+    #         x_pos = x_pos + 0.032 * math.sin(angle) - 0.05 * math.cos(angle)
+    #         y_pos = y_pos - 0.032 * math.cos(angle) - 0.05 * math.sin(angle)
+    #     else:
+    #         x_pos = x_pos + 0.032 * math.sin(angle) + 0.05 * math.cos(angle)
+    #         y_pos = y_pos - 0.032 * math.cos(angle) + 0.05 * math.sin(angle)
+    #     print(f'after: {robot_num}, {x_pos}, {y_pos}')
+    #     self.rob_data[robot_num].x_pos = x_pos
+    #     self.rob_data[robot_num].y_pos = y_pos
+    #     self.rob_data[robot_num].angle = angle
     def update_robot(self, robot_num, x_pos, y_pos, angle):
-        print(f'before: {robot_num}, {x_pos}, {y_pos}')
-        if robot_num == 0  or robot_num == 2:
-            x_pos = x_pos + 0.032 * math.sin(angle) - 0.05 * math.cos(angle)
-            y_pos = y_pos - 0.032 * math.cos(angle) - 0.05 * math.sin(angle)
-        else:
-            x_pos = x_pos + 0.032 * math.sin(angle) + 0.05 * math.cos(angle)
-            y_pos = y_pos - 0.032 * math.cos(angle) + 0.05 * math.sin(angle)
-        print(f'after: {robot_num}, {x_pos}, {y_pos}')
+        #print(f'before: {robot_num}, {x_pos}, {y_pos}')
+        angle = 0
+        # if robot_num == 0  or robot_num == 2:
+        #     x_pos = x_pos + 0.032 * math.sin(angle) - 0.05 * math.cos(angle)
+        #     y_pos = y_pos - 0.032 * math.cos(angle) - 0.05 * math.sin(angle)
+        # else:
+        #     x_pos = x_pos + 0.032 * math.sin(angle) + 0.05 * math.cos(angle)
+        #     y_pos = y_pos - 0.032 * math.cos(angle) + 0.05 * math.sin(angle)
+
+        # kobuki_radius = 35.4 / 2
+        # if (robot_num == 0 or robot_num == 3):
+        #     # y_pos = -1 * (14 / 2 +  kobuki_radius)
+        #     y_pos = -0.762 / 2
+        # else:
+        #     # y_pos = 14 / 2 +  kobuki_radius
+        #     y_pos = 0.762 / 2
+        # if (robot_num == 0 or robot_num == 2):
+        #     # x_pos = (8.5 / 2 +  kobuki_radius)
+        #     x_pos = 0.508 / 2
+        # else:
+        #     # x_pos = -1 * (8.5 / 2 +  kobuki_radius)
+        #     x_pos = -0.508 / 2
+        # print(f'after: {robot_num}, {x_pos}, {y_pos}')
         self.rob_data[robot_num].x_pos = x_pos
         self.rob_data[robot_num].y_pos = y_pos
         self.rob_data[robot_num].angle = angle
